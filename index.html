@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>AG Search</title>
+<meta name="description" content="Fast offline formulary lookup — search a drug, brand, or class in one tap.">
+<meta name="theme-color" content="#D97757" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191817" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22AG%20Search%22%2C%22short_name%22%3A%22AG%20Search%22%2C%22description%22%3A%22Fast%20offline%20formulary%20lookup%22%2C%22start_url%22%3A%22./%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FAF9F5%22%2C%22theme_color%22%3A%22%23D97757%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%253D%2522http%253A//www.w3.org/2000/svg%2522%2520viewBox%253D%25220%25200%2520192%2520192%2522%253E%253Crect%2520width%253D%2522192%2522%2520height%253D%2522192%2522%2520rx%253D%252242%2522%2520fill%253D%2522%2523D97757%2522/%253E%253Ctext%2520x%253D%252296%2522%2520y%253D%2522122%2522%2520font-family%253D%2522Georgia%252C%2527Iowan%2520Old%2520Style%2527%252Cserif%2522%2520font-size%253D%252284%2522%2520font-weight%253D%2522600%2522%2520fill%253D%2522%2523FAF9F5%2522%2520text-anchor%253D%2522middle%2522%253EAG%253C/text%253E%253C/svg%253E%250A%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22any%22%7D%2C%7B%22src%22%3A%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%253D%2522http%253A//www.w3.org/2000/svg%2522%2520viewBox%253D%25220%25200%2520192%2520192%2522%253E%253Crect%2520width%253D%2522192%2522%2520height%253D%2522192%2522%2520rx%253D%252242%2522%2520fill%253D%2522%2523D97757%2522/%253E%253Ctext%2520x%253D%252296%2522%2520y%253D%2522122%2522%2520font-family%253D%2522Georgia%252C%2527Iowan%2520Old%2520Style%2527%252Cserif%2522%2520font-size%253D%252284%2522%2520font-weight%253D%2522600%2522%2520fill%253D%2522%2523FAF9F5%2522%2520text-anchor%253D%2522middle%2522%253EAG%253C/text%253E%253C/svg%253E%250A%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image/svg%2Bxml%22%2C%22purpose%22%3A%22maskable%22%7D%5D%7D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20192%20192%22%3E%3Crect%20width%3D%22192%22%20height%3D%22192%22%20rx%3D%2242%22%20fill%3D%22%23D97757%22/%3E%3Ctext%20x%3D%2296%22%20y%3D%22122%22%20font-family%3D%22Georgia%2C%27Iowan%20Old%20Style%27%2Cserif%22%20font-size%3D%2284%22%20font-weight%3D%22600%22%20fill%3D%22%23FAF9F5%22%20text-anchor%3D%22middle%22%3EAG%3C/text%3E%3C/svg%3E%0A">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20192%20192%22%3E%3Crect%20width%3D%22192%22%20height%3D%22192%22%20rx%3D%2242%22%20fill%3D%22%23D97757%22/%3E%3Ctext%20x%3D%2296%22%20y%3D%22122%22%20font-family%3D%22Georgia%2C%27Iowan%20Old%20Style%27%2Cserif%22%20font-size%3D%2284%22%20font-weight%3D%22600%22%20fill%3D%22%23FAF9F5%22%20text-anchor%3D%22middle%22%3EAG%3C/text%3E%3C/svg%3E%0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AG Search">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<style>
+:root{
+  --milk: #FAF9F5;
+  --pampas: #F4F3EE;
+  --card: #FFFDFA;
+  --ink: #1F1E1D;
+  --ink-2: #4A4741;
+  --ink-3: #8C877D;
+  --cloudy: #B1ADA1;
+  --clay: #D97757;
+  --crail: #C15F3C;
+  --cloth: #D4A27F;
+  --clay-wash: rgba(217,119,87,.10);
+  --clay-ring: rgba(217,119,87,.30);
+  --gp: #6E8B74;
+  --sp: #B0763F;
+  --cons: #7A6A9B;
+  --cmte: #5E7CA8;
+  --nu-lo: rgba(120,98,80,.10);
+  --nu-lo2: rgba(120,98,80,.06);
+  --nu-hi: rgba(255,255,255,.90);
+  --sh-card: 0 1px 2px var(--nu-lo2), 0 6px 16px -6px var(--nu-lo);
+  --sh-raise: 0 2px 4px var(--nu-lo2), 0 14px 32px -10px var(--nu-lo);
+  --sh-well: inset 0 2px 4px var(--nu-lo), inset 0 -1px 0 var(--nu-hi);
+  --r-xs: 8px; --r-sm: 12px; --r-md: 16px; --r-lg: 22px; --r-xl: 28px; --r-pill: 999px;
+  --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --ar: "SF Arabic","Noto Naskh Arabic","Segoe UI",Tahoma,sans-serif;
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --header-h: 56px;
+  --bottom-h: 58px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --milk:#191817; --pampas:#211F1D; --card:#262422;
+    --ink:#F2EFE9; --ink-2:#C9C3B8; --ink-3:#918B80; --cloudy:#4A4640;
+    --clay:#E08A6B; --crail:#D97757; --cloth:#C99A78;
+    --nu-lo:rgba(0,0,0,.44); --nu-lo2:rgba(0,0,0,.28); --nu-hi:rgba(255,255,255,.05);
+  }
+}
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; }
+body{
+  margin:0; background:var(--milk); color:var(--ink); font-family:var(--sans);
+  font-variant-numeric:tabular-nums; overscroll-behavior-y:none;
+  -webkit-font-smoothing:antialiased;
+}
+button{ font-family:inherit; }
+#app{ max-width:720px; margin:0 auto; min-height:100%; position:relative; padding-bottom:calc(var(--bottom-h) + env(safe-area-inset-bottom)); }
+
+.header{
+  position:sticky; top:0; z-index:30; height:var(--header-h);
+  display:flex; align-items:center; gap:10px; padding:0 14px;
+  padding-top:env(safe-area-inset-top);
+  background:color-mix(in srgb, var(--milk) 68%, transparent);
+  -webkit-backdrop-filter:blur(20px) saturate(1.35); backdrop-filter:blur(20px) saturate(1.35);
+  border-bottom:1px solid color-mix(in srgb, var(--cloudy) 30%, transparent);
+}
+.header h1{
+  font-family:var(--serif); font-size:17px; font-weight:600; letter-spacing:-.01em; margin:0;
+  flex:0 0 auto;
+}
+.header .settings-btn{
+  margin-inline-start:auto; width:34px; height:34px; border-radius:var(--r-pill); border:none;
+  background:transparent; color:var(--ink-2); display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.header .settings-btn:active{ background:var(--clay-wash); }
+
+.searchwrap{ padding:10px 14px 4px; position:relative; }
+.searchbar{
+  position:relative; height:54px; border-radius:var(--r-pill); background:var(--pampas);
+  box-shadow:var(--sh-well); display:flex; align-items:center; padding:0 8px 0 48px;
+}
+.searchbar::before{
+  content:''; position:absolute; inset:-8px; border-radius:calc(var(--r-pill) + 8px);
+  background:radial-gradient(120px 60px at 50% 50%, var(--cloth), transparent 70%);
+  opacity:0; transition:opacity .18s var(--ease); pointer-events:none; z-index:-1;
+}
+.searchbar.focused::before{ opacity:.20; }
+.searchbar.focused{ box-shadow:var(--sh-well), 0 0 0 2px var(--clay-ring); }
+.searchbar svg.icon-search{ position:absolute; left:16px; width:19px; height:19px; color:var(--ink-3); }
+#q{
+  border:none; background:transparent; outline:none; width:100%; height:100%;
+  font-size:16px; color:var(--ink); font-family:var(--sans);
+}
+#q::placeholder{ color:var(--ink-3); }
+.clearbtn{
+  width:30px; height:30px; border-radius:var(--r-pill); border:none; background:var(--card);
+  color:var(--ink-3); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  opacity:0; transform:scale(.8); transition:opacity .12s var(--ease), transform .12s var(--ease);
+  flex:0 0 auto;
+}
+.clearbtn.show{ opacity:1; transform:scale(1); }
+
+.chiprow{
+  display:flex; gap:8px; overflow-x:auto; padding:10px 14px; scroll-snap-type:x proximity;
+  -ms-overflow-style:none; scrollbar-width:none;
+}
+.chiprow::-webkit-scrollbar{ display:none; }
+.chip{
+  flex:0 0 auto; scroll-snap-align:start; height:34px; padding:0 14px; border-radius:var(--r-pill);
+  background:var(--pampas); border:1px solid color-mix(in srgb, var(--cloudy) 40%, transparent);
+  color:var(--ink-2); font-size:13.5px; display:flex; align-items:center; gap:6px; cursor:pointer;
+  transition:transform .1s var(--ease), background .15s var(--ease), color .15s var(--ease);
+}
+.chip:active{ transform:scale(.96); }
+.chip.active{ background:var(--clay); color:#fff; border-color:transparent; box-shadow:var(--sh-card); }
+.chip .count{
+  background:rgba(255,255,255,.35); border-radius:var(--r-pill); font-size:11px; padding:1px 6px;
+}
+.chip.active .count{ background:rgba(255,255,255,.28); }
+
+#results{ padding:4px 14px 8px; display:flex; flex-direction:column; gap:8px; }
+.card{
+  background:var(--card); border-radius:var(--r-lg); box-shadow:var(--sh-card); padding:14px;
+  display:grid; grid-template-columns:1fr auto; column-gap:10px; cursor:pointer;
+  transition:transform .12s var(--ease), box-shadow .12s var(--ease);
+  content-visibility:auto; contain-intrinsic-size:auto 88px; contain:content;
+}
+.card:active{ transform:scale(.985); box-shadow:var(--sh-raise); }
+.card-main{ min-width:0; }
+.card-name{
+  font-size:16px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.card-name b{
+  color:var(--crail); background:var(--clay-wash); border-radius:4px; padding:0 2px; font-weight:700;
+  font-style:normal;
+}
+.pillrow{ display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.pill{
+  font-size:11.5px; padding:2px 8px; border-radius:var(--r-pill); background:var(--pampas);
+  color:var(--ink-2); white-space:nowrap;
+}
+.pill-conc{ background:color-mix(in srgb, var(--cloth) 35%, var(--pampas)); color:var(--ink); font-variant-numeric:tabular-nums; }
+.pill-auth-gp{ background:color-mix(in srgb, var(--gp) 22%, var(--pampas)); color:color-mix(in srgb, var(--gp) 75%, black); }
+.pill-auth-sp{ background:color-mix(in srgb, var(--sp) 22%, var(--pampas)); color:color-mix(in srgb, var(--sp) 75%, black); }
+.pill-auth-cons{ background:color-mix(in srgb, var(--cons) 22%, var(--pampas)); color:color-mix(in srgb, var(--cons) 75%, black); }
+.pill-auth-committee{ background:color-mix(in srgb, var(--cmte) 22%, var(--pampas)); color:color-mix(in srgb, var(--cmte) 75%, black); }
+.pill-duration{ font-family:var(--ar); }
+.pill.inherited{ opacity:.7; }
+.card-class{
+  margin-top:6px; font-size:12px; color:var(--ink-3); overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.card-rail{ display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:8px; }
+.scorering{ width:28px; height:28px; }
+.copybtn{
+  width:30px; height:30px; border-radius:var(--r-pill); border:none; background:var(--pampas);
+  color:var(--ink-3); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.copybtn:active{ background:var(--clay-wash); color:var(--crail); }
+.matchbadge{ font-size:9.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em; }
+
+#sentinel{ height:1px; }
+
+.emptystate{
+  padding:14vh 24px 24px; text-align:center;
+}
+.emptystate .greet{
+  font-family:var(--serif); font-size:22px; color:var(--ink); margin-bottom:18px;
+}
+.emptystate .bloom{
+  width:120px; height:60px; margin:0 auto 14px; border-radius:50%;
+  background:radial-gradient(closest-side, var(--clay-wash), transparent 75%);
+}
+.recentchips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px; }
+
+.bottombar{
+  position:fixed; left:0; right:0; bottom:0; z-index:30; max-width:720px; margin:0 auto;
+  height:var(--bottom-h); padding:0 14px calc(env(safe-area-inset-bottom)) 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:color-mix(in srgb, var(--milk) 68%, transparent);
+  -webkit-backdrop-filter:blur(20px) saturate(1.35); backdrop-filter:blur(20px) saturate(1.35);
+  border-top:1px solid color-mix(in srgb, var(--cloudy) 30%, transparent);
+  transition:transform .2s var(--ease);
+}
+.bottombar.hide{ transform:translateY(100%); }
+.resultcount{ font-size:13px; color:var(--ink-3); }
+.bottomicons{ display:flex; gap:6px; }
+.iconbtn{
+  width:36px; height:36px; border-radius:var(--r-pill); border:none; background:transparent;
+  color:var(--ink-2); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.iconbtn:active{ background:var(--clay-wash); }
+
+.sheetbackdrop{
+  position:fixed; inset:0; background:rgba(31,30,29,.32); z-index:40; opacity:0;
+  transition:opacity .2s var(--ease); pointer-events:none;
+}
+.sheetbackdrop.show{ opacity:1; pointer-events:auto; }
+.sheet{
+  position:fixed; left:0; right:0; bottom:0; z-index:41; max-width:720px; margin:0 auto;
+  background:var(--card); border-radius:var(--r-xl) var(--r-xl) 0 0;
+  box-shadow:0 -8px 40px rgba(0,0,0,.18); max-height:82vh; display:flex; flex-direction:column;
+  transform:translateY(100%); transition:transform .22s var(--ease);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.sheet.show{ transform:translateY(0); }
+.sheet-handle{ width:36px; height:4px; border-radius:2px; background:var(--cloudy); margin:10px auto 4px; flex:0 0 auto; }
+.sheet-head{ display:flex; align-items:center; justify-content:space-between; padding:6px 18px 10px; flex:0 0 auto; }
+.sheet-head h2{ font-family:var(--serif); font-size:18px; margin:0; }
+.sheet-body{ overflow-y:auto; padding:0 18px 18px; }
+.sheet-close{ border:none; background:var(--pampas); width:30px; height:30px; border-radius:var(--r-pill); color:var(--ink-2); cursor:pointer; }
+
+.facet-group{ margin-bottom:18px; }
+.facet-title{ font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3); margin-bottom:8px; }
+.facet-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+
+.rowline{
+  display:flex; align-items:center; justify-content:space-between; padding:13px 2px;
+  border-bottom:1px solid color-mix(in srgb, var(--cloudy) 25%, transparent); cursor:pointer;
+}
+.rowline:last-child{ border-bottom:none; }
+.rowline .rl-label{ font-size:15px; color:var(--ink); }
+.rowline .rl-check{ color:var(--clay); opacity:0; }
+.rowline.selected .rl-check{ opacity:1; }
+
+.slider-row{ padding:10px 2px 18px; }
+input[type=range]{ width:100%; accent-color:var(--clay); }
+.slider-labels{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-3); margin-top:2px; }
+
+.togglerow{ display:flex; align-items:center; justify-content:space-between; padding:12px 2px; }
+.switch{ width:44px; height:26px; border-radius:var(--r-pill); background:var(--pampas); position:relative; cursor:pointer; box-shadow:var(--sh-well); flex:0 0 auto; }
+.switch::after{ content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:var(--sh-card); transition:transform .16s var(--ease); }
+.switch.on{ background:var(--clay); }
+.switch.on::after{ transform:translateX(18px); }
+
+.detail-title{ font-family:var(--serif); font-size:20px; margin:0 0 4px; }
+.detail-sub{ color:var(--ink-3); font-size:13px; margin-bottom:14px; }
+.detail-grid{ display:flex; flex-direction:column; gap:2px; }
+.detail-row{ display:flex; justify-content:space-between; gap:14px; padding:10px 0; border-bottom:1px solid color-mix(in srgb, var(--cloudy) 20%, transparent); }
+.detail-row:last-child{ border-bottom:none; }
+.detail-k{ font-size:13px; color:var(--ink-3); flex:0 0 110px; }
+.detail-v{ font-size:14.5px; color:var(--ink); text-align:end; }
+.detail-v[dir=auto]{ font-family:var(--ar); }
+.detail-actions{ display:flex; gap:10px; margin-top:18px; }
+.btn{
+  flex:1; height:46px; border-radius:var(--r-md); border:none; background:var(--pampas);
+  color:var(--ink); font-size:14.5px; font-weight:600; display:flex; align-items:center;
+  justify-content:center; gap:8px; cursor:pointer;
+}
+.btn.primary{ background:var(--clay); color:#fff; }
+.btn:active{ transform:scale(.98); }
+.inh-note{ font-size:11px; color:var(--ink-3); margin-top:2px; }
+
+.about-dedication{ font-family:var(--serif); font-style:italic; font-size:12.5px; color:var(--ink-3); text-align:center; margin-top:22px; }
+.about-line{ font-size:13.5px; color:var(--ink-2); line-height:1.6; margin-bottom:10px; }
+.datav{ font-size:11.5px; color:var(--ink-3); text-align:center; margin-top:14px; }
+
+.toast{
+  position:fixed; left:50%; bottom:calc(var(--bottom-h) + 14px + env(safe-area-inset-bottom));
+  transform:translate(-50%, 8px); background:var(--ink); color:var(--milk); font-size:13.5px;
+  padding:9px 16px; border-radius:var(--r-pill); z-index:50; opacity:0; pointer-events:none;
+  transition:opacity .18s var(--ease), transform .18s var(--ease); box-shadow:var(--sh-raise);
+}
+.toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+.ios-hint{
+  position:fixed; left:14px; right:14px; bottom:calc(var(--bottom-h) + 10px + env(safe-area-inset-bottom));
+  background:var(--card); border-radius:var(--r-md); box-shadow:var(--sh-raise); padding:12px 14px;
+  font-size:13px; color:var(--ink-2); z-index:35; display:flex; align-items:center; gap:10px;
+  max-width:720px; margin:0 auto;
+}
+.ios-hint button{ margin-inline-start:auto; border:none; background:transparent; color:var(--ink-3); font-size:18px; cursor:pointer; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition-duration:1ms !important; animation-duration:1ms !important; }
+  .searchbar.focused::before{ display:none; }
+}
+::selection{ background:var(--clay-wash); color:var(--crail); }
+
+</style>
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <h1>AG&nbsp;Search</h1>
+      <button class="settings-btn" id="settingsBtn" aria-label="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path></svg>
+      </button>
+    </header>
+
+    <div class="searchwrap">
+      <div class="searchbar" id="searchbar">
+        <svg class="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+        <input id="q" type="text" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search a drug, brand, or class…" aria-label="Search formulary">
+        <button class="clearbtn" id="clearbtn" aria-label="Clear search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="chiprow" id="chiprow"></div>
+
+    <div id="results" aria-live="polite"></div>
+    <div id="sentinel"></div>
+  </div>
+
+  <div class="bottombar" id="bottombar">
+    <span class="resultcount" id="resultcount"></span>
+    <div class="bottomicons">
+      <button class="iconbtn" id="copyAllBtn" aria-label="Copy all as TSV" title="Copy all (TSV)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
+      </button>
+      <button class="iconbtn" id="exportBtn" aria-label="Export CSV" title="Export CSV">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="sheetbackdrop" id="sheetbackdrop"></div>
+
+  <div class="sheet" id="sheet-filters">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Filters</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-body" id="sheet-filters-body"></div>
+  </div>
+
+  <div class="sheet" id="sheet-sort">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Sort</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-body" id="sheet-sort-body"></div>
+  </div>
+
+  <div class="sheet" id="sheet-settings">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>Settings</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-body" id="sheet-settings-body"></div>
+  </div>
+
+  <div class="sheet" id="sheet-detail">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>&nbsp;</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-body" id="sheet-detail-body"></div>
+  </div>
+
+  <div class="sheet" id="sheet-about">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h2>About</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-body" id="sheet-about-body"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="text/plain" id="sw-source">
+const CACHE = 'rx-v4';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.add('./')));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+  );
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin){ return; }
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return res;
+      }).catch(() => cached);
+    })
+  );
+});
+  </script>
+
+<script>
+/*! https://github.com/leeoniya/uFuzzy (v1.0.19) */
+var uFuzzy=function(){"use strict";const e=(e,t)=>e>t?1:t>e?-1:0,t=1/0,l=e=>e.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),n="eexxaacctt",r=/\p{P}/gu,i=["en",{numeric:!0,sensitivity:"base"}],s=(e,t,l)=>e.replace("A-Z",t).replace("a-z",l),a={unicode:!1,alpha:null,interSplit:"[^A-Za-z\\d']+",intraSplit:"[a-z][A-Z]",interBound:"[^A-Za-z\\d]",intraBound:"[A-Za-z]\\d|\\d[A-Za-z]|[a-z][A-Z]",interLft:0,interRgt:0,interChars:".",interIns:t,intraChars:"[a-z\\d']",intraIns:null,intraContr:"'[a-z]{1,2}\\b",intraMode:0,intraSlice:[1,t],intraSub:null,intraTrn:null,intraDel:null,intraFilt:()=>!0,toUpper:e=>e.toLocaleUpperCase(),toLower:e=>e.toLocaleLowerCase(),compare:null,sort:(t,l,n,r=e)=>{let{idx:i,chars:s,terms:a,interLft2:u,interLft1:g,start:f,intraIns:c,interIns:h,cases:o}=t;return i.map(((e,t)=>t)).sort(((e,t)=>s[t]-s[e]||c[e]-c[t]||a[t]+u[t]+.5*g[t]-(a[e]+u[e]+.5*g[e])||h[e]-h[t]||f[e]-f[t]||o[t]-o[e]||r(l[i[e]],l[i[t]])))}},u=(e,l)=>0==l?"":1==l?e+"??":l==t?e+"*?":e+`{0,${l}}?`,g="(?:\\b|_)";function f(t){t=Object.assign({},a,t);let{unicode:f,interLft:c,interRgt:o,intraMode:p,intraSlice:d,intraIns:m,intraSub:x,intraTrn:b,intraDel:R,intraContr:A,intraSplit:y,interSplit:I,intraBound:S,interBound:z,intraChars:E,toUpper:L,toLower:k,compare:C}=t;m??=p,x??=p,b??=p,R??=p,C??="undefined"==typeof Intl?e:new Intl.Collator(...i).compare;let j=t.letters??t.alpha;if(null!=j){let e=L(j),t=k(j);I=s(I,e,t),y=s(y,e,t),z=s(z,e,t),S=s(S,e,t),E=s(E,e,t),A=s(A,e,t)}let Z=f?"u":"";const $='".+?"',w=RegExp($,"gi"+Z),D=RegExp(`(?:\\s+|^)-(?:${E}+|${$})`,"gi"+Z);let{intraRules:T}=t;null==T&&(T=e=>{let t=a.intraSlice,l=0,n=0,r=0,i=0;if(/[^\d]/.test(e)){let s=e.length;s>4?(t=d,l=m,n=x,r=b,i=R):3>s||(r=Math.min(b,1),4==s&&(l=Math.min(m,1)))}return{intraSlice:t,intraIns:l,intraSub:n,intraTrn:r,intraDel:i}});let B=!!y,M=RegExp(y,"g"+Z),U=RegExp(I,"g"+Z),F=RegExp("^"+I+"|"+I+"$","g"+Z),O=RegExp(A,"gi"+Z);const v=(e,t=!1)=>{let l=[];e=(e=e.replace(w,(e=>(l.push(e),n)))).replace(F,""),t||(e=k(e)),B&&(e=e.replace(M,(e=>e[0]+" "+e[1])));let r=0;return e.split(U).filter((e=>""!=e)).map((e=>e===n?l[r++]:e))},G=/[^\d]+|\d+/g,N=(e,n=0,r=!1)=>{let i=v(e);if(0==i.length)return[];let s,a=Array(i.length).fill("");if(i=i.map(((e,t)=>e.replace(O,(e=>(a[t]=e,""))))),1==p)s=i.map(((e,t)=>{if('"'===e[0])return l(e.slice(1,-1));let n="";for(let l of e.matchAll(G)){let e=l[0],{intraSlice:r,intraIns:i,intraSub:s,intraTrn:g,intraDel:f}=T(e);if(i+s+g+f==0)n+=e+a[t];else{let[l,c]=r,h=e.slice(0,l),o=e.slice(c),p=e.slice(l,c);1==i&&1==h.length&&h!=p[0]&&(h+="(?!"+h+")");let d=p.length,m=[e];if(s)for(let e=0;d>e;e++)m.push(h+p.slice(0,e)+E+p.slice(e+1)+o);if(g)for(let e=0;d-1>e;e++)p[e]!=p[e+1]&&m.push(h+p.slice(0,e)+p[e+1]+p[e]+p.slice(e+2)+o);if(f)for(let e=0;d>e;e++)m.push(h+p.slice(0,e+1)+"?"+p.slice(e+1)+o);if(i){let e=u(E,1);for(let t=0;d>t;t++)m.push(h+p.slice(0,t)+e+p.slice(t)+o)}n+="(?:"+m.join("|")+")"+a[t]}}return n}));else{let e=u(E,m);2==n&&m>0&&(e=")("+e+")("),s=i.map(((t,n)=>'"'===t[0]?l(t.slice(1,-1)):t.split("").map(((e,t,l)=>(1==m&&0==t&&l.length>1&&e!=l[t+1]&&(e+="(?!"+e+")"),e))).join(e)+a[n]))}let f=2==c?g:"",h=2==o?g:"",d=h+u(t.interChars,t.interIns)+f;return n>0?r?s=f+"("+s.join(")"+h+"|"+f+"(")+")"+h:(s="("+s.join(")("+d+")(")+")",s="(.??"+f+")"+s+"("+h+".*)"):(s=s.join(d),s=f+s+h),[RegExp(s,"i"+Z),i,a]},P=(e,t,l)=>{let[n]=N(t);if(null==n)return null;let r=[];if(null!=l)for(let t=0;l.length>t;t++){let i=l[t];n.test(e[i])&&r.push(i)}else for(let t=0;e.length>t;t++)n.test(e[t])&&r.push(t);return r};let Y=!!S,_=RegExp(z,Z),q=RegExp(S,Z);const H=(e,l,n)=>{let[r,i,s]=N(n,1),a=v(n,!0),[u]=N(n,2),g=i.length,f=Array(g),h=Array(g);for(let e=0;g>e;e++){let t=i[e],l=a[e],n='"'==t[0]?t.slice(1,-1):t+s[e],r='"'==l[0]?l.slice(1,-1):l+s[e];f[e]=n,h[e]=r}let p=e.length,d=Array(p).fill(0),m={idx:Array(p),start:d.slice(),chars:d.slice(),cases:d.slice(),terms:d.slice(),interIns:d.slice(),intraIns:d.slice(),interLft2:d.slice(),interRgt2:d.slice(),interLft1:d.slice(),interRgt1:d.slice(),ranges:Array(p)},x=1==c||1==o,b=0;for(let n=0;e.length>n;n++){let i=l[e[n]],s=i.match(r),a=s.index+s[1].length,p=a,d=!1,R=0,A=0,y=0,I=0,S=0,z=0,E=0,L=0,C=0,j=[];for(let e=0,l=2;g>e;e++,l+=2){let n=k(s[l]),r=f[e],u=r.length,m=n.length,b=n==r;if(s[l]==h[e]&&E++,!b&&s[l+1].length>=u){let t=k(s[l+1]).indexOf(r);t>-1&&(j.push(p,m,t,u),p+=J(s,l,t,u),n=r,m=u,b=!0,0==e&&(a=p))}if(x||b){let t=p-1,g=p+m,f=!1,h=!1;if(-1==t||_.test(i[t]))b&&R++,f=!0;else{if(2==c){d=!0;break}if(Y&&q.test(i[t]+i[t+1]))b&&A++,f=!0;else if(1==c){let t=s[l+1],g=p+m;if(t.length>=u){let c,h=0,o=!1,d=RegExp(r,"ig"+Z);for(;c=d.exec(t);){h=c.index;let e=g+h,t=e-1;if(-1==t||_.test(i[t])){R++,o=!0;break}if(q.test(i[t]+i[e])){A++,o=!0;break}}o&&(f=!0,j.push(p,m,h,u),p+=J(s,l,h,u),n=r,m=u,b=!0,0==e&&(a=p))}if(!f){d=!0;break}}}if(g==i.length||_.test(i[g]))b&&y++,h=!0;else{if(2==o){d=!0;break}if(Y&&q.test(i[g-1]+i[g]))b&&I++,h=!0;else if(1==o){d=!0;break}}b&&(S+=u,f&&h&&z++)}if(m>u&&(C+=m-u),e>0&&(L+=s[l-1].length),!t.intraFilt(r,n,p)){d=!0;break}g-1>e&&(p+=m+s[l+1].length)}if(!d){m.idx[b]=e[n],m.interLft2[b]=R,m.interLft1[b]=A,m.interRgt2[b]=y,m.interRgt1[b]=I,m.chars[b]=S,m.terms[b]=z,m.cases[b]=E,m.interIns[b]=L,m.intraIns[b]=C,m.start[b]=a;let t=i.match(u),l=t.index+t[1].length,r=j.length,s=r>0?0:1/0,g=r-4;for(let e=2;t.length>e;)if(s>g||j[s]!=l)l+=t[e].length,e++;else{let n=j[s+1],r=j[s+2],i=j[s+3],a=e,u="";for(let e=0;n>e;a++)u+=t[a],e+=t[a].length;t.splice(e,a-e,u),l+=J(t,e,r,i),s+=4}l=t.index+t[1].length;let f=m.ranges[b]=[],c=l,h=l;for(let e=2;t.length>e;e++){let n=t[e].length;l+=n,e%2==0?h=l:n>0&&(f.push(c,h),c=h=l)}h>c&&f.push(c,h),b++}}if(e.length>b)for(let e in m)m[e]=m[e].slice(0,b);return m},J=(e,t,l,n)=>{let r=e[t]+e[t+1].slice(0,l);return e[t-1]+=r,e[t]=e[t+1].slice(l,l+n),e[t+1]=e[t+1].slice(l+n),r.length};return{search:(...e)=>((e,n,i,s=1e3,a)=>{i=i?!0===i?5:i:0;let u=null,g=null,f=[];n=n.replace(D,(e=>{let t=e.trim().slice(1);return t='"'===t[0]?l(t.slice(1,-1)):t.replace(r,""),""!=t&&f.push(t),""}));let c,o=v(n);if(f.length>0){if(c=RegExp(f.join("|"),"i"+Z),0==o.length){let t=[];for(let l=0;e.length>l;l++)c.test(e[l])||t.push(l);return[t,null,null]}}else if(0==o.length)return[null,null,null];if(i>0){let t=v(n);if(t.length>1){let l=t.slice().sort(((e,t)=>t.length-e.length));for(let t=0;l.length>t;t++){if(0==a?.length)return[[],null,null];a=P(e,l[t],a)}if(t.length>i)return[a,null,null];u=h(t).map((e=>e.join(" "))),g=[];let n=new Set;for(let t=0;u.length>t;t++)if(a.length>n.size){let l=a.filter((e=>!n.has(e))),r=P(e,u[t],l);for(let e=0;r.length>e;e++)n.add(r[e]);g.push(r)}else g.push([])}}null==u&&(u=[n],g=[a?.length>0?a:P(e,n)]);let p=null,d=null;if(f.length>0&&(g=g.map((t=>t.filter((t=>!c.test(e[t])))))),s>=g.reduce(((e,t)=>e+t.length),0)){p={},d=[];for(let l=0;g.length>l;l++){let n=g[l];if(null==n||0==n.length)continue;let r=u[l],i=H(n,e,r),s=t.sort(i,e,r,C);if(l>0)for(let e=0;s.length>e;e++)s[e]+=d.length;for(let e in i)p[e]=(p[e]??[]).concat(i[e]);d=d.concat(s)}}return[[].concat(...g),p,d]})(...e),split:v,filter:P,info:H,sort:t.sort}}const c=(()=>{let e={A:"ÁÀÃÂÄĄĂÅ",a:"áàãâäąăå",E:"ÉÈÊËĖĚ",e:"éèêëęě",I:"ÍÌÎÏĮİ",i:"íìîïįı",O:"ÓÒÔÕÖ",o:"óòôõö",U:"ÚÙÛÜŪŲŮŰ",u:"úùûüūųůű",C:"ÇČĆ",c:"çčć",D:"Ď",d:"ď",G:"Ğ",g:"ğ",L:"Ł",l:"ł",N:"ÑŃŇ",n:"ñńň",S:"ŠŚȘŞ",s:"šśșş",T:"ŢȚŤ",t:"ţțť",Y:"Ý",y:"ý",Z:"ŻŹŽ",z:"żźž"},t={},l="";for(let n in e)e[n].split("").forEach((e=>{l+=e,t[e]=n}));let n=RegExp(`[${l}]`,"g"),r=e=>t[e];return e=>{if("string"==typeof e)return e.replace(n,r);let t=Array(e.length);for(let l=0;e.length>l;l++)t[l]=e[l].replace(n,r);return t}})();function h(e){let t,l,n=(e=e.slice()).length,r=[e.slice()],i=Array(n).fill(0),s=1;for(;n>s;)s>i[s]?(t=s%2&&i[s],l=e[s],e[s]=e[t],e[t]=l,++i[s],s=1,r.push(e.slice())):(i[s]=0,++s);return r}const o=(e,t)=>t?`<mark>${e}</mark>`:e,p=(e,t)=>e+t;return f.latinize=c,f.permute=e=>h([...Array(e.length).keys()]).sort(((e,t)=>{for(let l=0;e.length>l;l++)if(e[l]!=t[l])return e[l]-t[l];return 0})).map((t=>t.map((t=>e[t])))),f.highlight=function(e,t,l=o,n="",r=p){n=r(n,l(e.substring(0,t[0]),!1))??n;for(let i=0;t.length>i;i+=2)n=r(n,l(e.substring(t[i],t[i+1]),!0))??n,t.length-3>i&&(n=r(n,l(e.substring(t[i+1],t[i+2]),!1))??n);return r(n,l(e.substring(t[t.length-1]),!1))??n},f}();
+
+</script>
+<script>
+const SCHEMA={"version":4,"fields":[{"key":"id","label":"#","type":"num","hidden":true},{"key":"name","label":"Drug","type":"text","tier":"A","weight":1.0,"primary":true},{"key":"conc","label":"Conc.","type":"dose","tier":"A","weight":0.7,"badge":true},{"key":"form","label":"Form","type":"enum","tier":"A","weight":0.6,"facet":true},{"key":"auth","label":"Authority","type":"enum","tier":"B","weight":0.4,"facet":true},{"key":"duration","label":"Duration","type":"text","tier":"B","weight":0.4,"facet":true,"rtl":true},{"key":"price","label":"Price","type":"num","tier":"-","weight":0},{"key":"maxDose","label":"Max dose","type":"dose","tier":"B","weight":0.3},{"key":"dayDose","label":"Daily dose","type":"dose","tier":"B","weight":0.3},{"key":"group","label":"Class","type":"text","tier":"B","weight":0.55,"facet":true},{"key":"syn","label":"Also known","type":"list","tier":"A","weight":0.9},{"key":"notes","label":"Notes","type":"text","tier":"B","weight":0.2},{"key":"inh","label":"_inh","type":"num","hidden":true},{"key":"orig","label":"_orig","type":"num","hidden":true}],"detailOrder":["conc","form","auth","duration","maxDose","dayDose","group","syn"],"enums":{"form":{"tab":{"l":"Tablet","s":"Tab"},"cap":{"l":"Capsule","s":"Cap"},"captab":{"l":"Capsule/Tablet","s":"Cap/Tab"},"amp":{"l":"Ampoule","s":"Amp"},"vial":{"l":"Vial","s":"Vial"},"supp":{"l":"Suppository","s":"Supp"},"cream":{"l":"Cream","s":"Cr"},"oint":{"l":"Ointment","s":"Oint"},"lotion":{"l":"Lotion","s":"Lot"},"gel":{"l":"Gel","s":"Gel"},"syrup":{"l":"Syrup","s":"Syr"},"susp":{"l":"Suspension","s":"Susp"},"drops":{"l":"Drops","s":"Drp"},"spray":{"l":"Spray","s":"Spr"},"inh":{"l":"Inhaler","s":"Inh"},"sach":{"l":"Sachet","s":"Sach"},"patch":{"l":"Patch","s":"Pch"},"powder":{"l":"Powder","s":"Pwd"},"wash":{"l":"Mouth wash","s":"Wash"},"vag":{"l":"Vaginal","s":"Vag"},"eff":{"l":"Effervescent","s":"Eff"},"dressing":{"l":"Medicated dressing","s":"Drs"},"cart":{"l":"Cartridge","s":"Cart"},"other":{"l":"Other","s":"—"}},"auth":{"gp":{"l":"General Practitioner","s":"GP"},"sp":{"l":"Specialist","s":"SP"},"cons":{"l":"Consultant","s":"Cons"},"committee":{"l":"Committee","s":"Cmte"},"other":{"l":"Other","s":"—"}}}};
+const DATA=[[1,"Acetylsalicylic Acid","300 mg","tab","gp","مزمن",null,"4000mg","150mg","Antipyretic Analgesic , antirheumatic drugs",["aspirin","asa","aspocid","rivo"],"",0,1],[2,"Diclofenac sodium","25 mg","tab","sp","اسبوع",null,"100mg ONCE","50mg","Antipyretic Analgesic , antirheumatic drugs",["voltaren","cataflam","declophen","rheumafen"],"",0,2],[3,"Diclofenac sodium","50 mg","tab","sp","اسبوع",null,"100mg ONCE","50mg","Antipyretic Analgesic , antirheumatic drugs",["voltaren","cataflam","declophen","rheumafen"],"",12,3],[4,"Diclofenac sodium","75 mg","amp","sp","اسبوع",null,"100mg ONCE","50mg","Antipyretic Analgesic , antirheumatic drugs",["voltaren","cataflam","declophen","rheumafen"],"",12,4],[5,"Diclofenac sodium","100 mg","supp","sp","اسبوع",null,"100mg ONCE","50mg","Antipyretic Analgesic , antirheumatic drugs",["voltaren","cataflam","declophen","rheumafen"],"",12,5],[6,"Indomethacin","100 mg","supp","gp","اسبوع",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["indocid"],"",0,6],[7,"Indomethacin","50 mg","cap","sp","اسبوع",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["indocid"],"",12,7],[8,"Indomethacin","50 mg","amp","sp","اسبوع",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["indocid"],"",12,8],[9,"Piroxicam","10 mg","captab","sp","5 ايام",null,"20mg","10mg","Antipyretic Analgesic , antirheumatic drugs",["feldene"],"",0,9],[10,"Piroxicam","20 mg","captab","cons","5 ايام",null,"20mg","10mg","Antipyretic Analgesic , antirheumatic drugs",["feldene"],"",12,10],[11,"Ketoprofen","25 mg","tab","gp","5 ايام",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["profenid"],"",0,11],[12,"Ketoprofen","50 mg","tab","gp","5 ايام",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["profenid"],"",12,12],[13,"Ketoprofen","100 mg","supp","sp","5 ايام",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["profenid"],"",12,13],[14,"Ketoprofen","100 mg","amp","sp","5 ايام",null,"200mg","100mg","Antipyretic Analgesic , antirheumatic drugs",["profenid"],"",12,14],[15,"Ibuprofen","200 mg","tab","gp","5 ايام",null,"2400mg","200mg","Antipyretic Analgesic , antirheumatic drugs",["brufen","advil"],"",0,15],[16,"Ibuprofen","100 mg / 5ml","syrup","gp","زجاجة واحدة",null,"2400mg","200mg","Antipyretic Analgesic , antirheumatic drugs",["brufen","advil"],"",12,16],[17,"Paracetamol","500 mg","tab","gp","5 ايام",null,"4000mg","1000mg","Antipyretic Analgesic , antirheumatic drugs",["panadol","adol","abimol","cetal"],"",0,17],[18,"Paracetamol","1 gm","tab","sp","5 ايام",null,"4000mg","1000mg","Antipyretic Analgesic , antirheumatic drugs",["panadol","adol","abimol","cetal"],"",12,18],[19,"(Paracetamol 500 mg + Methionine) analgesic for liver patients ( impaired liver function)",null,"tab","sp","5 ايام",null,null,null,"Antipyretic Analgesic , antirheumatic drugs",["panadol","adol","abimol","cetal"],"",0,19],[20,"Anti-rheumatic",null,"oint","gp","اسبوع و لا يصرف تكرار",null,null,"انبوبه واحده","Antipyretic Analgesic , antirheumatic drugs",[],"",0,20],[21,"glucosamine 500 mg+ Chondroitin 400 mg",null,"tab","sp","مزمن",null,null,"قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",[],"",0,21],[22,"glucosamine + ascorbic acid",null,"tab","cons","مزمن",null,null,"قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",[],"",0,22],[23,"glucosamine","500mg","cap","cons","مزمن",null,null,"قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",[],"",0,23],[24,"Diacerein","50mg","tab","cons","مزمن",null,null,"قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",[],"",0,24],[25,"Flu Combination",null,"tab","gp","5 ايام",null,null,"قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",[],"",0,25],[26,"Chymotrypsin","5mg","amp","sp","5 ايام و لا يصرف تكرار",null,null,"قرص 3 مرات","Antipyretic Analgesic , antirheumatic drugs",[],"",0,26],[27,"Trypsin + Chymotrypsin",null,"tab","sp","5 ايام و لا يصرف تكرار",null,null,"قرص 3 مرات","Antipyretic Analgesic , antirheumatic drugs",[],"",0,27],[28,"Aescin","40 mg","tab","sp","5 ايام و لا يصرف تكرار",null,null,"قرص 3 مرات","Antipyretic Analgesic , antirheumatic drugs",[],"",0,28],[29,"Aescin + Diethyl amine Salicylate","1%+ 5 %","gel","sp","ا نبوبة واحدة و لا يصرف تكرار",null,null,null,"Antipyretic Analgesic , antirheumatic drugs",[],"",0,29],[30,"Ergotamine Tartarate+other Anti-migraine",null,"tab","sp",null,null,null,null,"Antipyretic Analgesic , antirheumatic drugs",[],"",0,30],[31,"Colchicine (for Gout)","0.5 mg","tab","sp","مزمن",null,"6mg","قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",[],"",0,31],[32,"Allopurinol","100 mg","tab","sp","مزمن",null,"600mg","قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",["zyloric"],"",0,32],[33,"Allopurinol","300 mg","tab","sp","مزمن",null,"600mg","قرص مره واحده","Antipyretic Analgesic , antirheumatic drugs",["zyloric"],"",8,33],[34,"Allopurinol 100 mg + Benzbromarone",null,"tab","sp","مزمن",null,null,"قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",["zyloric"],"",0,34],[35,"Hydroxychloroquine Sulphate","200 mg","tab","cons","مزمن",null,"800mg","قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",["plaquenil"],"",0,35],[36,"Celecoxib","200 mg","captab","cons","5 ايام و لا يصرف تكرار",null,"400mg","قر ص مره واحد","Antipyretic Analgesic , antirheumatic drugs",["celebrex"],"",0,36],[37,"Syrup Containing Alpha Amylase (student)",null,"syrup","sp","زجاجة واحدة",null,"15 مل 3 مرات","10مل 3 مرات","Antipyretic Analgesic , antirheumatic drugs",[],"",0,37],[38,"febuxostate","40mg","tab","sp","مزمن",null,"120mg","قرص مرتين","Antipyretic Analgesic , antirheumatic drugs",["feburic"],"",0,38],[39,"febuxostate","80mg","tab","sp","مزمن",null,"120mg","قرص مره واحده","Antipyretic Analgesic , antirheumatic drugs",["feburic"],"",8,39],[40,"Meloxicam","7.5 mg","tab","sp","5 ايام و لا يصرف تكرار",null,null,null,"Antipyretic Analgesic , antirheumatic drugs",["mobic"],"",0,40],[41,"Meloxicam","15 mg","tab","sp","5 ايام و لا يصرف تكرار",null,"30mg","قرص مره واحده","Antipyretic Analgesic , antirheumatic drugs",["mobic"],"",0,41],[42,"Meloxicam","15mg","amp","sp","5 ايام و لا يصرف تكرار",null,"30mg","قرص مره واحده","Antipyretic Analgesic , antirheumatic drugs",["mobic"],"",12,42],[43,"Etoricoxib","60 mg","tab",null,null,null,null,null,"Antipyretic Analgesic , antirheumatic drugs",["arcoxia"],"",0,43],[44,"Etoricoxib","90 mg","tab",null,null,null,null,null,"Antipyretic Analgesic , antirheumatic drugs",["arcoxia"],"",0,44],[45,"Etoricoxib","120 mg","tab",null,null,null,null,null,"Antipyretic Analgesic , antirheumatic drugs",["arcoxia"],"",0,45],[46,"Pyridostigmine or Distigmine","60 mg","tab","sp","مزمن",null,"750 mg","180mg-360mg","Central Muscle Relaxant Drugs",[],"",0,46],[47,"Neostigmine","15 mg","tab","sp","مزمن",null,"150mg","75mg-150mg","Central Muscle Relaxant Drugs",[],"",0,47],[48,"Neostigmine","0.5 mg","amp","sp","مستشفيات",null,"150mg","75mg-150mg","Central Muscle Relaxant Drugs",[],"",12,48],[49,"Central muscle relaxant + Analgesics",null,"tab","gp","10 ايام و لا يتم التكرار الا بتوصية لجنة فرعية",null,null,null,"Central Muscle Relaxant Drugs",[],"",0,49],[50,"tizanidine","2mg,4mg","tab","sp","مزمن",null,"36mg","2mg-4mg","Central Muscle Relaxant Drugs",[],"",0,50],[51,"Cyclobenzaprine","10mg","tab","sp","2-3weeks",null,"30mg","15mg-30mg","Central Muscle Relaxant Drugs",[],"",0,51],[52,"Baclofen","10mg","tab","sp","مزمن",null,"80mg","15mg-25mg","Central Muscle Relaxant Drugs",["lioresal"],"",0,52],[53,"Baclofen","25mg","tab","sp","مزمن",null,"80mg","15mg-25mg","Central Muscle Relaxant Drugs",["lioresal"],"",12,53],[54,"Phenoxy-methyl penicillin sodium","1000.000 I.U","tab","gp","مزمن",null,null,null,"Benzyl penicillin and phenoxymethylpenicillin",[],"",0,54],[55,"Phenoxy-methyl penicillin potassium","1200.000 I.U","tab","sp","مزمن",null,null,null,"Benzyl penicillin and phenoxymethylpenicillin",[],"",0,55],[56,"Penicillin sodium","1.000.000 I.U","vial","sp","مزمن",null,null,null,"Benzyl penicillin and phenoxymethylpenicillin",[],"",0,56],[57,"Penicillin procaine","300.000 I.U","vial","sp","مزمن",null,null,null,"Benzyl penicillin and phenoxymethylpenicillin",[],"",0,57],[58,"Phenoxy – methyl penicillin ( student )","400 mg","vial","sp","مزمن",null,null,null,"Benzyl penicillin and phenoxymethylpenicillin",[],"",0,58],[59,"Benzathin penicillin (protocol)","1.200.000 I.U","vial","sp","مزمن",null,null,null,"Benzyl penicillin and phenoxymethylpenicillin",[],"",0,59],[60,"Amoxicillin","250 mg","cap","gp","5 ايام",null,"4gm","1500mg","Ampicillin Derivatives",["amoxil","moxal"],"",0,60],[61,"Amoxicillin","500 mg","cap","gp","5 ايام",null,"4gm","1500mg","Ampicillin Derivatives",["amoxil","moxal"],"",12,61],[62,"Amoxicillin","250 mg /5ml","susp","gp","5 ايام",null,"4gm","1500mg","Ampicillin Derivatives",["amoxil","moxal"],"",12,62],[63,"Ampicillin","250 mg","cap","gp","5 ايام",null,"2000mg","1000mg- 2000mg","Ampicillin Derivatives",["ampicid"],"",0,63],[64,"Ampicillin","500 mg","cap","gp","5 ايام",null,"2000mg","1000mg- 2000mg","Ampicillin Derivatives",["ampicid"],"",12,64],[65,"Ampicillin","1 gm","vial","sp","مستشفيات",null,"2000mg","1000mg- 2000mg","Ampicillin Derivatives",["ampicid"],"",12,65],[66,"Ampicillin ( student )","250 mg /5ml","susp","gp","5 ايام",null,null,null,"Ampicillin Derivatives",["ampicid"],"",0,66],[67,"Amoxicillin 250 mg+Flucloxacillin 250 mg","500 mg","cap","sp","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,67],[68,"Amoxicillin 125 mg+Flucloxacillin 125mg(student)","250 mg","susp","sp","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,68],[69,"Amoxicillin 200mg+Clavulanic acid 28.5mg /5ml (student)","200 mg+ 28.5 mg /5ml","susp","sp","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,69],[70,"Amoxicillin 400 mg Clavulanic acid 57mg / 5ml (student)","400 mg+ 57 mg/ 5ml","susp","sp","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,70],[71,"Amoxicillin 600mg + clavulanic acid 42.9mg susp","600mg+42.9mg/5ml","susp","sp","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,71],[72,"Amoxicillin 875mg + clavulanic acid 125mg","875mg+125mg","cap","cons","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,72],[73,"Amoxicillin 500mg+ clavulanic acid 125mg","500mg+125mg","tab","sp","5 ايام",null,null,null,"Ampicillin Derivatives",["amoxil","moxal"],"",0,73],[74,"Cephalexin","250 mg","cap","sp","5 ايام",null,"4mg","1500mg","Cephalosporin first Generation",["keflex"],"",0,74],[75,"Cephalexin","500 mg","cap","sp","5 ايام",null,"4mg","1500mg","Cephalosporin first Generation",["keflex"],"",12,75],[76,"Cefadroxil","500 mg","captab","sp","5 ايام",null,null,null,"Cephalosporin first Generation",[],"",0,76],[77,"Cephalexin (student)","250 mg","susp","sp","5 ايام",null,null,null,"Cephalosporin first Generation",["keflex"],"",0,77],[78,"Doxycycline","100 mg","cap","sp","5ايام",null,"200mg","100mg_200mg","Tetracyclines",["vibramycin"],"",0,78],[79,"Erythromycin","250 mg","tab","sp","5 ايام",null,"4mg","1000mg","Macrolides",["erythrocin"],"",0,79],[80,"Erythromycin","500 mg","tab","sp","5 ايام",null,"4mg","1000mg","Macrolides",["erythrocin"],"",12,80],[81,"Erythromycin (student)","200 mg / 5ml","susp","sp","زجاجه واحده",null,null,null,"Macrolides",["erythrocin"],"",0,81],[82,"Azithromycin (student)","200 mg / 5ml","susp","sp","زجاجه واحده",null,null,null,"Macrolides",["zithromax","azomax"],"",0,82],[83,"Azithromycin 250 mg","250 mg","tab","sp","5 ايام",null,null,null,"Macrolides",["zithromax","azomax"],"",0,83],[84,"Spiramycin","3 M.I.U","tab","cons","5 ايام",null,"6MIU","3MIU","Macrolides",[],"",0,84],[85,"Spiramycin","1.5 M.I.U","tab","sp","5 ايام",null,"6MIU","3MIU","Macrolides",[],"",12,85],[86,"Clarithromycin","500 mg","tab","cons","5 ايام ماعدا في حالة جرثومة المعده 14 يوم فقط",null,"1gm","250mg-500mg","Macrolides",["klacid"],"",0,86],[87,"Clindamycin","150 mg","cap","sp","5 ايام",null,"1.8gm-2.7gm","150-450mg*3","Lincosamides",["dalacin"],"",0,87],[88,"Clindamycin","300 mg","cap","cons","5 ايام",null,"1.8gm-2.7gm","150-450mg*3","Lincosamides",["dalacin"],"",12,88],[89,"Thiomphenicol","250 mg","cap","sp","5 ايام",null,null,null,"Amphenicols",[],"",0,89],[90,"Gentamicin","80 mg","amp","cons","مستشفيات",null,null,null,"Aminoglycosides",["garamycin"],"",0,90],[91,"Ciprofloxacin","500 mg","tab","cons","5 ايام",null,"1500mg","250-500mg*2","Quinolones",["ciprocin","cipro"],"",0,91],[92,"ciprofolxacin 500 + Tinidazole 600","500 mg+ 600 mg","tab","cons","5 ايام",null,null,null,"Quinolones",[],"",0,92],[93,"levofloxacin 500","500mg","tab","sp","5 ايام",null,null,null,"Quinolones",["tavanic"],"",0,93],[94,"levofloxacin 750","750mg","tab","cons","5 ايام",null,null,null,"Quinolones",["tavanic"],"",0,94],[95,"Sulphamethoxazole 400 mg + trimethoprim 80 mg","400 mg+80 mg","tab","gp","5 ايام",null,null,"1*2","Sulfonamides",[],"",0,95],[96,"Sulphamethoxazole 200 mg + trimethoprim 40 mg (student)","200 mg+40 mg","susp","gp","زجاجه واحده",null,null,null,"Sulfonamides",[],"",0,96],[97,"Linezolid","600mg","tab","cons",null,null,null,null,"Oxazolidinones",["zyvox"],"",0,97],[98,"Rifampicin","150 mg","cap","sp","5 ايام",null,"900mg","600-900mg","B-Anti -Tuberculous Drugs",["rimactazid"],"",0,98],[99,"Rifampicin","300 mg","cap","sp","5 ايام",null,"900mg","600-900mg","B-Anti -Tuberculous Drugs",["rimactazid"],"",12,99],[100,"Rifampicin 2 %","100 mg / 5 ml","susp","sp","زجاجه واحده",null,null,null,"B-Anti -Tuberculous Drugs",["rimactazid"],"",0,100],[101,"Streptomycin","1 gm","vial","sp","مستشفيات",null,null,null,"B-Anti -Tuberculous Drugs",[],"",0,101],[102,"Isoniazid","100 mg","tab","sp","5 ايام",null,null,null,"B-Anti -Tuberculous Drugs",[],"",0,102],[103,"Isoniazid 150 mg + Rifampicin 300 mg","150 mg+300 mg","cap","sp","5 ايام",null,null,null,"B-Anti -Tuberculous Drugs",["rimactazid"],"",0,103],[104,"Isoniazid150mg+Rifampicin+Ethambutol+ Pyrazinamide","150mg+75mg+400mg+275mg","tab","sp",null,null,null,null,"B-Anti -Tuberculous Drugs",["rimactazid"],"",0,104],[105,"Pyrazinamide","500 mg","tab","sp",null,null,null,null,"B-Anti -Tuberculous Drugs",[],"",0,105],[106,"Ethambutol","500 mg","tab","sp",null,null,null,null,"B-Anti -Tuberculous Drugs",[],"",0,106],[107,"Dapsone","50 mg","tab","sp","لحد مايخف",null,null,null,"C- Anti-liperotic Drugs",[],"",0,107],[108,"Nitrofurantoin","100 mg","cap","gp","5 ايام",null,"200mg","100mg","D - Drugs for urinary infection",[],"",0,108],[109,"Nystatin","100.000 I.U/ml","susp","sp","زجاجه واحده",null,null,"قطاره 4 مرات","Antifungal Drugs",["mycostatin"],"",0,109],[110,"Fluconazole","150 mg","captab","sp","14 ايام",null,null,"400mg- 800mg","Antifungal Drugs",["diflucan"],"",0,110],[111,"Itraconazole","100 mg","tab","cons","14-30 ايام",null,null,"100mg-200mg","Antifungal Drugs",["sporanox"],"",0,111],[112,"Clotrimazol",null,"vag","sp","6 ايام",null,null,"لبوسه مساءا","Antifungal Drugs",["canesten"],"",0,112],[113,"Griseofulvine","125 mg","tab","gp",null,null,null,null,"Antifungal Drugs",[],"",0,113],[114,"Acyclovir 200 mg","200 mg","tab","sp","5-10 ايام",null,"3200mg","400-800mg","Antiviral Drugs",["zovirax"],"",0,114],[115,"Acyclovir 400 mg","400 mg","tab","cons",null,null,null,null,"Antiviral Drugs",["zovirax"],"",0,115],[116,"Acyclovir 800 mg","800 mg","tab","cons",null,null,null,null,"Antiviral Drugs",["zovirax"],"",0,116],[117,"Lamivudine",null,"tab","cons","مزمن",null,null,null,"Antiviral Drugs",[],"",0,117],[118,"Entecavir","0.5mg","tab","cons","توصية لجنه كبد",null,null,null,"Antiviral Drugs",[],"",0,118],[119,"Entecavir","1mg","tab","cons","توصية لجنة كبد",null,null,null,"Antiviral Drugs",[],"",0,119],[120,"Metronidazole","250 mg","tab","gp","5 ايام و لا يصرف تكرار",null,"4gm","1500mg","Anti-Amoebic, Anti-Giardial Drugs",["flagyl"],"",0,120],[121,"Metronidazole (student)","125 mg /5ml","susp","gp","5 ايام و لا يصرف تكرار",null,null,null,"Anti-Amoebic, Anti-Giardial Drugs",["flagyl"],"",0,121],[122,"Metronidazole","500 mg","supp","sp","5 ايام و لا يصرف تكرار",null,null,null,"Anti-Amoebic, Anti-Giardial Drugs",["flagyl"],"",0,122],[123,"Metronidazole","500 mg","vag","sp","5 ايام و لا يصرف تكرار",null,null,null,"Anti-Amoebic, Anti-Giardial Drugs",["flagyl"],"",0,123],[124,"Diiodohydroxyquinoline","250 mg","tab","gp","5 ايام و لا يصرف تكرار",null,null,null,"Anti-Amoebic, Anti-Giardial Drugs",[],"",0,124],[125,"Metronidazole+Diloxanide Furoate",null,"tab","gp","5 ايام و لا يصرف تكرار",null,null,null,"Anti-Amoebic, Anti-Giardial Drugs",["flagyl"],"",0,125],[126,"Diloxanide Furoate","500 mg","tab","gp","5 ايام و لا يصرف تكرار",null,null,null,"Anti-Amoebic, Anti-Giardial Drugs",[],"",0,126],[127,"Mebendazole","100 mg /5ml","susp","gp","3ايام ويكرر بعد 2 اسبوع",null,null,"100mg*2*3","Anthelmintic Drugs",[],"",0,127],[128,"Mebendazole","100 mg","tab","gp","5 ايام و لا يصرف تكرار",null,null,"100mg*2*3","Anthelmintic Drugs",[],"",4,128],[129,"Flubendazole","100 mg","tab","gp","5 ايام و لا يصرف تكرار",null,null,null,"Anthelmintic Drugs",[],"",0,129],[130,"Flubendazole (student)","20 mg / ml","susp","gp","5 ايام و لا يصرف تكرار",null,null,null,"Anthelmintic Drugs",[],"",0,130],[131,"Levamisole Hcl","40 mg","tab","gp","5 ايام و لا يصرف تكرار",null,null,"150-200mg","Anthelmintic Drugs",[],"",0,131],[132,"Niclosamide","500 mg","tab","gp","5 ايام و لا يصرف تكرار",null,null,"2-4gm once","Anthelmintic Drugs",[],"",0,132],[133,"Chloroquine phosphate","250 mg","tab","gp","10 ايام و لا يتم التكرار الا بتوصية لجنة فرعية",null,"600mg","300mg weekly","Anti - Malarial Drugs",[],"",0,133],[134,"Chloroquine phosphate","80 mg / 5ml","syrup","gp","10 ايام و لا يتم التكرار الا بتوصية لجنة فرعية",null,"600mg","300mg weekly","Anti - Malarial Drugs",[],"",12,134],[135,"Bromazepam","1.5 mg","tab","sp","مزمن",null,"1.5-3mg*3",null,"Psychotropic Drugs",["lexotanil"],"",0,135],[136,"Bromazepam","3 mg","tab","sp","مزمن",null,"1.5-3mg*3",null,"Psychotropic Drugs",["lexotanil"],"",8,136],[137,"Fluspirilen","2 mg / ml","amp","sp","مستشفيات",null,null,null,"Psychotropic Drugs",[],"",0,137],[138,"Trifluoperazine","5 mg","tab","sp","مزمن",null,"6mg","40mg","Psychotropic Drugs",[],"",0,138],[139,"Fluphenazine","25 mg / ml","vial","sp","مستشفيات",null,null,null,"Psychotropic Drugs",[],"",0,139],[140,"Pimozide","4 mg","tab","sp","مزمن",null,"20mg","10_16mg","Psychotropic Drugs",[],"",0,140],[141,"Haloperidol","5 mg /ml","amp","sp","مزمن",null,null,null,"Psychotropic Drugs",["haldol"],"",0,141],[142,"Aripiprazole","10 mg","captab","cons","مزمن",null,"30mg","10_15mg","Psychotropic Drugs",["abilify"],"",0,142],[143,"Aripiprazole","30 mg","captab","cons","مزمن",null,"30mg","10_15mg","Psychotropic Drugs",["abilify"],"",12,143],[144,"Chlorpromazine Hcl","25 mg","tab","gp","مزمن",null,"2000mg","75_150mg","Psychotropic Drugs",[],"",0,144],[145,"Chlorpromazine Hcl","100 mg","tab","gp","مزمن",null,"2000mg","75_150mg","Psychotropic Drugs",[],"",12,145],[146,"Haloperidol","1.5 mg","tab","sp","مزمن",null,"100mg","20_30mg","Psychotropic Drugs",["haldol"],"",0,146],[147,"Haloperidol","5 mg","tab","sp","مزمن",null,"100mg","20_30mg","Psychotropic Drugs",["haldol"],"",12,147],[148,"Haloperidol","50mg/ml","amp","cons","مزمن",null,"100mg","20_30mg","Psychotropic Drugs",["haldol"],"",12,148],[149,"Risperidone","1 mg","tab","cons","مزمن",null,"16mg","4mg_8mg","Psychotropic Drugs",["risperdal"],"",0,149],[150,"Risperidone","2 mg","tab","cons","مزمن",null,"16mg","4mg_8mg","Psychotropic Drugs",["risperdal"],"",12,150],[151,"Risperidone","3 mg","tab","cons","مزمن",null,"16mg","4mg_8mg","Psychotropic Drugs",["risperdal"],"",12,151],[152,"Risperidone","1 mg / ml","syrup","cons","مزمن",null,"16mg","4mg_8mg","Psychotropic Drugs",["risperdal"],"",12,152],[153,"Lithium Carbonate","400 mg","tab","sp","مزمن",null,"2400mg","600mg","Psychotropic Drugs",[],"",0,153],[154,"Clomipramine Hcl","25 mg","tab","sp","مزمن",null,"250mg","100_150mg","Psychotropic Drugs",[],"",0,154],[155,"Clomipramine Hcl","75 mg","tab","sp","مزمن",null,"250mg","100_150mg","Psychotropic Drugs",[],"",12,155],[156,"Amitriptyline Hcl","10 mg","tab","sp","مزمن",null,"300mg","150_200mg","Psychotropic Drugs",["tryptizol"],"",0,156],[157,"Amitriptyline Hcl","25 mg","tab","sp","مزمن",null,"300mg","150_200mg","Psychotropic Drugs",["tryptizol"],"",12,157],[158,"Duloxetine 30 mg Tab","30 mg","tab",null,"مزمن",null,"120mg","30_60mg","Psychotropic Drugs",["cymbalta"],"",0,158],[159,"Duloxetine 60 mg Tab","60 mg","tab",null,"مزمن",null,null,null,"Psychotropic Drugs",["cymbalta"],"",0,159],[160,"Atomextine","10,18,25,40,60 mg","tab",null,"مزمن",null,"100mg","40_80mg","Psychotropic Drugs",[],"",0,160],[161,"Atomextine Syp",null,"syrup",null,"مزمن",null,null,null,"Psychotropic Drugs",[],"",0,161],[162,"Imipramine Hcl","25 mg","tab","sp","مزمن",null,null,null,"Psychotropic Drugs",[],"",0,162],[163,"Nortripyline 10 mg + Fluphenazine 0.5 mg","10 mg+0.5 mg","tab","sp","مزمن",null,null,null,"Psychotropic Drugs",[],"",0,163],[164,"Trazodone Hcl","50 mg","tab","sp","مزمن",null,"600mg","150_300mg","Psychotropic Drugs",[],"",0,164],[165,"Trazodone Hcl","100 mg","tab","sp","مزمن",null,"600mg","150_300mg","Psychotropic Drugs",[],"",12,165],[166,"Dothiepin 25 mg","25 mg","cap","sp","مزمن",null,"225mg","75_150mg","Psychotropic Drugs",[],"",0,166],[167,"Dothiepin 75 mg","75 mg","tab","sp","مزمن",null,null,null,"Psychotropic Drugs",[],"",0,167],[168,"oxacrabazine","60 mg","vial","sp","مزمن",null,null,null,"Psychotropic Drugs",[],"",0,168],[169,"concerta","18,27,54mg","tab","cons","مزمن",null,null,null,"Psychotropic Drugs",[],"",0,169],[170,"Escitalopram",null,null,null,null,null,null,null,"Anti-depressant Drugs",["cipralex","celexa"],"",0,170],[171,"Citalopram","20 mg","tab","cons","مزمن",null,"40mg","20_40mg","Anti-depressant Drugs",["celexa"],"",0,171],[172,"Fluoxetine","10 mg","cap","cons","مزمن",null,"80mg","20_60mg","Anti-depressant Drugs",["prozac"],"",0,172],[173,"Fluoxetine","20 mg","cap","cons","مزمن",null,"80mg","20_60mg","Anti-depressant Drugs",["prozac"],"",12,173],[174,"Clozapine","25 mg","cap","cons","مزمن",null,"900mg","300_600mg","Anti-depressant Drugs",[],"",0,174],[175,"Clozapine","100 mg","cap","cons","مزمن",null,"900mg","300_600mg","Anti-depressant Drugs",[],"",12,175],[176,"apt",null,"tab","sp","مزمن",null,null,null,"Anti-depressant Drugs",[],"",0,176],[177,"Sertraline","50mg","tab","sp","مزمن",null,"200mg","50_100mg","Anti-depressant Drugs",["zoloft","lustral"],"",0,177],[178,"Invega","100,150mg","amp","cons","مزمن",null,null,null,"Anti-depressant Drugs",[],"",0,178],[179,"Olanzapine","10mg","tab","sp","مزمن",null,"20mg","10_20mg","Anti-depressant Drugs",["zyprexa"],"",0,179],[180,"Quetiapine","100mg","tab","sp","مزمن",null,"800mg","300_600mg","Anti-depressant Drugs",["seroquel"],"",0,180],[181,"spravato","20mg","spray","cons","مزمن",null,null,null,"Anti-depressant Drugs",[],"",0,181],[182,"Carbamazepine","200 mg","tab","sp","مزمن",null,"1600mg","800_1200mg","Anti-Epileptic Drugs",["tegretol"],"",0,182],[183,"Carbamazepine CR","200 mg","tab","cons","مزمن",null,"1200mg","600_1200mg","Anti-Epileptic Drugs",["tegretol"],"",0,183],[184,"Carbamazepine CR","400 mg","tab","cons","مزمن",null,"1200mg","600_1200mg","Anti-Epileptic Drugs",["tegretol"],"",12,184],[185,"Oxacarbamazepine","300mg","tab","cons","مزمن",null,null,null,"Anti-Epileptic Drugs",["tegretol"],"",0,185],[186,"oxcarbazine 60mg","60 mg","syrup","cons","مزمن",null,null,null,"Anti-Epileptic Drugs",[],"",0,186],[187,"Clonazepam","0.5 mg","tab","sp","مزمن",null,"20mg","1.5_4 mg","Anti-Epileptic Drugs",["rivotril"],"",0,187],[188,"Clonazepam","2 mg","tab","sp","مزمن",null,"20mg","1.5_4 mg","Anti-Epileptic Drugs",["rivotril"],"",12,188],[189,"Gabapentin","100 mg","captab","cons","مزمن",null,"3600mg","900_1800mg","Anti-Epileptic Drugs",["neurontin"],"",0,189],[190,"Gabapentin","400 mg","captab","cons","مزمن",null,"3600mg","900_1800mg","Anti-Epileptic Drugs",["neurontin"],"",12,190],[191,"Lamotrigine","25 mg","tab","cons","مزمن",null,"700mg","100_400mg","Anti-Epileptic Drugs",["lamictal"],"",0,191],[192,"Lamotrigine","50 mg","tab","cons","مزمن",null,"700mg","100_400mg","Anti-Epileptic Drugs",["lamictal"],"",12,192],[193,"Lamotrigine","100 mg","tab","cons","مزمن",null,"700mg","100_400mg","Anti-Epileptic Drugs",["lamictal"],"",12,193],[194,"Phenytoin Na","50 mg","cap","sp","مزمن",null,"800mg","600mg","Anti-Epileptic Drugs",["epanutin"],"",0,194],[195,"Phenytoin Na","100 mg","cap","sp","مزمن",null,"800mg","600mg","Anti-Epileptic Drugs",["epanutin"],"",12,195],[196,"Phenytoin Na (student)","50 mg / 5 ml","syrup","sp","مزمن",null,null,null,"Anti-Epileptic Drugs",["epanutin"],"",0,196],[197,"Topiramate","25 mg","captab","cons","مزمن",null,"400mg","100_200mg","Anti-Epileptic Drugs",["topamax"],"",0,197],[198,"Topiramate","100 mg","captab","cons","مزمن",null,"400mg","100_200mg","Anti-Epileptic Drugs",["topamax"],"",12,198],[199,"Sodium Valproate","200 mg","cap","sp","مزمن",null,"60mg/kg","20_60mg/kg","Anti-Epileptic Drugs",["depakine"],"",0,199],[200,"Sodium valproate + valproic acid","500 mg","tab","cons","مزمن",null,null,null,"Anti-Epileptic Drugs",["depakine"],"",0,200],[201,"Levetiracetam","500 mg","tab","cons","مزمن",null,"3000mg","1000_3000mg","Anti-Epileptic Drugs",["keppra"],"",0,201],[202,"Levetiracetam","1000mg","tab","cons","مزمن",null,"3000mg","1000_3000mg","Anti-Epileptic Drugs",["keppra"],"",12,202],[203,"Levetiracetam","100mg","syrup","cons","مزمن",null,"3000mg","1000_3000mg","Anti-Epileptic Drugs",["keppra"],"",12,203],[204,"Brivaracetam","25,50,75,100 mg","tab","cons","مزمن",null,"200mg","100_200mg","Anti-Epileptic Drugs",[],"",0,204],[205,"Brivaracetam","100 mg","syrup","cons","مزمن",null,"200mg","2-5 mg/kg","Anti-Epileptic Drugs",[],"",8,205],[206,"Pregabalin","75 mg","tab","cons","مزمن",null,"600mg","150_600mg","Anti-Epileptic Drugs",["lyrica"],"",0,206],[207,"Pregabalin","100 mg","tab","cons","مزمن",null,"600mg","150_600mg","Anti-Epileptic Drugs",["lyrica"],"",12,207],[208,"lacosamide 50 mg tab","50 mg","tab","cons","مزمن",null,"400mg","200_400mg","Anti-Epileptic Drugs",[],"",0,208],[209,"lacosamide 100 mg tab","100 mg","tab","cons","مزمن",null,null,null,"Anti-Epileptic Drugs",[],"",0,209],[210,"lacosamide syp",null,"syrup","cons","مزمن",null,"12mg/kg","1_3 mg/kg","Anti-Epileptic Drugs",[],"",0,210],[211,"Valproic acid","150 mg","cap","sp","مزمن",null,"60mg/kg","20_60mg/kg","Anti-Epileptic Drugs",["depakine"],"",0,211],[212,"Valproic acid","300 mg","cap","sp","مزمن",null,"2000mg","600mg","Anti-Epileptic Drugs",["depakine"],"",0,212],[213,"Valproic acid (student)","300 ml","syrup","sp","مزمن",null,null,null,"Anti-Epileptic Drugs",["depakine"],"",0,213],[214,"Benztropine Mesylate","2mg","tab","sp","مزمن",null,null,null,"Anti - parkinsonial Drugs",[],"",0,214],[215,"Biperiden HCL 2 mg","2mg","tab","sp","مزمن",null,null,null,"Anti - parkinsonial Drugs",[],"",0,215],[216,"Levodopa 250 mg + carbidopa 25 mg","250 mg+25 mg","tab","sp","مزمن",null,null,null,"Anti - parkinsonial Drugs",[],"",0,216],[217,"Carbidopa 37.5 mg+ Levodopa 150 mg+ Entacapone 200 mg","37.5mg+150mg +200mg","captab","cons","مزمن",null,null,null,"Anti - parkinsonial Drugs",[],"",0,217],[218,"pramipexole","0.18 (0.25) mg-0.7 (1) mg","tab","cons","مزمن",null,null,null,"Anti - parkinsonial Drugs",[],"",0,218],[219,"Rasagiline","1mg","tab","sp","مزمن",null,null,null,"Anti - parkinsonial Drugs",[],"",0,219],[220,"Digoxin","0.25 mg","tab","sp","مزمن",null,".25mg",".125-.25mg","Cardiovascular Drugs",["lanoxin"],"",0,220],[221,"Amiodarone","200 mg","tab","sp","مزمن",null,"2.2g","100-400mg","Cardiovascular Drugs",["cordarone"],"",0,221],[222,"Propafenone","150 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,222],[223,"Dipyridamole","75 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,223],[224,"Quinidine Sulphate","250 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,224],[225,"Propranolol HCL","10 mg","tab","sp","مزمن",null,"320mg","40_160 mg","Cardiovascular Drugs",["inderal"],"",0,225],[226,"Propranolol HCL","40 mg","tab","sp","مزمن",null,"320mg","40_160 mg","Cardiovascular Drugs",["inderal"],"",12,226],[227,"Atenolol","50 mg","tab","sp","مزمن",null,"200mg","50_100mg","Cardiovascular Drugs",["tenormin"],"",0,227],[228,"Atenolol","100 mg","tab","sp","مزمن",null,"200mg","50_100mg","Cardiovascular Drugs",["tenormin"],"",12,228],[229,"Bisoprolol","5 mg, 2.5 mg","tab","sp","مزمن",null,"25mg","5_10mg","Cardiovascular Drugs",["concor"],"",0,229],[230,"Bisoprolol + HCT","5 mg + 12.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["concor"],"",0,230],[231,"Carvedilol","6.25 mg","tab","cons","مزمن",null,"50mg","12.5_25mg","Cardiovascular Drugs",["dilatrend"],"",0,231],[232,"Carvedilol","12.5 mg","tab","cons","مزمن",null,"50mg","12.5_25mg","Cardiovascular Drugs",["dilatrend"],"",12,232],[233,"Carvedilol","25 mg","tab","cons","مزمن",null,"50mg","12.5_25mg","Cardiovascular Drugs",["dilatrend"],"",12,233],[234,"Nebivolol 2.5mg","2.5mg","tab","sp","مزمن",null,"40mg","5_10mg","Cardiovascular Drugs",["nebilet"],"",0,234],[235,"Nebivolol 5mg","5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["nebilet"],"",0,235],[236,"Nebivolol 5mg + HCT12.5","5mg+12.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["nebilet"],"",0,236],[237,"Nebivolol 5mg + HCT25","5mg+25mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["nebilet"],"",0,237],[238,"Nebivolol 5mg + Amlodipine 5 mg","5 mg+ 5 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["nebilet","norvasc"],"",0,238],[239,"Labetalol","100mg","tab","sp","مزمن",null,"2.4g","200_400mg","Cardiovascular Drugs",[],"",0,239],[240,"Labetalol","200mg","tab","sp","مزمن",null,"2.4g","200_400mg","Cardiovascular Drugs",[],"",12,240],[241,"Metoprolol","25mg","tab","sp","مزمن",null,"450mg","25_400mg","Cardiovascular Drugs",["betaloc","lopresor"],"",0,241],[242,"Metoprolol","50mg","tab","sp","مزمن",null,"450mg","25_400mg","Cardiovascular Drugs",["betaloc","lopresor"],"",12,242],[243,"Metoprolol","100mg","tab","sp","مزمن",null,"450mg","25_400mg","Cardiovascular Drugs",["betaloc","lopresor"],"",12,243],[244,"Reserpine + Clopamide",null,"tab","gp","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,244],[245,"Reserpine + Clopamide + Dihydroergocristine","0.1mg+5mg+ 0.5 mg","tab","gp","مزمن",null,".5mg","0.1_0.25mg","Cardiovascular Drugs",[],"",0,245],[246,"Captopril","25 mg","tab","sp","مزمن",null,"150mg","12.5_25mg","Cardiovascular Drugs",["capoten"],"",0,246],[247,"Alpha-methyl dopa","250 mg","tab","sp","مزمن",null,"3gm","750mg","Cardiovascular Drugs",[],"",0,247],[248,"Enalapril","10mg, 20mg","tab","sp","مزمن",null,"40mg","5_20mg","Cardiovascular Drugs",["renitec"],"",0,248],[249,"Captopril + Hydrochlorothiazide","50 mg+25 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["capoten","hct"],"",0,249],[250,"captopril 50mg + indapamide 2.5mg","50mg + 2.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["capoten"],"",0,250],[251,"Lisinopril","5 mg","tab","sp","مزمن",null,"40mg","20_40mg","Cardiovascular Drugs",["zestril"],"",0,251],[252,"Lisinopril","10 mg","tab","sp","مزمن",null,"40mg","20_40mg","Cardiovascular Drugs",["zestril"],"",12,252],[253,"Lisinopril 20mg + HCT12.5","20mg+12.5","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["zestril"],"",0,253],[254,"Ramipril 2.5 mg","2.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,254],[255,"Ramipril 5 mg","5 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,255],[256,"Ramipril 10 mg","10 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,256],[257,"Ramipril 5 mg+Felodipine 5 mg",null,"tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,257],[258,"Ramipril 2.5mg +HCT 12.5","2.5mg + 12.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,258],[259,"Ramipril 5mg +HCT25","5mg + 25mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,259],[260,"Ramipril 10mg +HCT 25","10mg + 25mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["tritace"],"",0,260],[261,"Losartan 50 mg + Hydrochlorothiazide 12.5 mg","50mg+12.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["cozaar","hct"],"",0,261],[262,"Losartan 100 mg + Hydrochlorothiazide 25 mg","100mg+25mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["cozaar","hct"],"",0,262],[263,"losartan","50mg","tab","sp","مزمن",null,"100mg","50_100mg","Cardiovascular Drugs",["cozaar"],"",0,263],[264,"losartan","100mg","tab","sp","مزمن",null,"100mg","50_100mg","Cardiovascular Drugs",["cozaar"],"",12,264],[265,"olmesartan","20mg","tab","sp","مزمن",null,"40mg","20_40mg","Cardiovascular Drugs",["olmetec"],"",0,265],[266,"olmesartan","40mg","tab","sp","مزمن",null,"40mg","20_40mg","Cardiovascular Drugs",["olmetec"],"",12,266],[267,"amlodipine 5mg+olmesaratan 20mg + hydrochlorothiazide12.5 mg",null,null,"sp","مزمن",null,null,null,"Cardiovascular Drugs",["norvasc","hct"],"",0,267],[268,"amlodipine 10 mg+olmesaratan40 + hydrochlorothiazide 25 mg",null,null,"sp","مزمن",null,null,null,"Cardiovascular Drugs",["norvasc","hct"],"",0,268],[269,"olmesartan 20mg+HCT 12.5","20mg+12.5","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["olmetec"],"",0,269],[270,"olmesartan 20mg+amlodipine 5mg","20mg+5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["olmetec","norvasc"],"",0,270],[271,"Candesartan Cilexetil","8 mg / 16 mg","tab","sp","مزمن",null,"32mg","8_16mg","Cardiovascular Drugs",["atacand"],"",0,271],[272,"Candesartan Cilexetil16mg+hydrochlorothiazide12.5 mg","16 mg+12.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["atacand","hct"],"",0,272],[273,"Glyceryl Trinitrate","2.5 mg","cap","sp","مزمن",null,null,"2.5_10mg","Cardiovascular Drugs",[],"",0,273],[274,"Glyceryl Trinitrate","5 mg","patch","sp","مزمن",null,null,"2.5_10mg","Cardiovascular Drugs",[],"",4,274],[275,"Isosorbid Dinitrates","5 mg subling","tab","sp","مزمن",null,"240mg","40_80mg","Cardiovascular Drugs",[],"",0,275],[276,"Isosorbid Dinitrates","10 mg","tab","sp","مزمن",null,"240mg","40_80mg","Cardiovascular Drugs",[],"",12,276],[277,"Isosorbid Dinitrates","20 mg","tab","sp","مزمن",null,"240mg","40_80mg","Cardiovascular Drugs",[],"",12,277],[278,"Isosorbid Mononitrate","20 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,278],[279,"Isosorbid Mononitrate","40 mg","cap","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,279],[280,"Isosorbid Mononitrate","25 mg","cap","sp","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,280],[281,"Isosorbid Mononitrate","50 mg","cap","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,281],[282,"Isosorbid Mononitrate","100 mg","cap","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,282],[283,"Nifedipine retard","20 mg","tab","sp","مزمن",null,"120mg","30_60mg","Cardiovascular Drugs",["adalat"],"",0,283],[284,"Verapamil HCL","40 mg","tab","sp","مزمن",null,"480mg","40_80mg","Cardiovascular Drugs",["isoptin"],"",0,284],[285,"Verapamil HCL","80 mg","tab","sp","مزمن",null,"480mg","40_80mg","Cardiovascular Drugs",["isoptin"],"",12,285],[286,"ivabradine","5","tab","cons","مزمن",null,"15mg","10_15mg","Cardiovascular Drugs",["procoralan"],"",0,286],[287,"ivabradine","7.5","tab","cons","مزمن",null,"15mg","10_15mg","Cardiovascular Drugs",["procoralan"],"",12,287],[288,"Verapamil HCL","240 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["isoptin"],"",0,288],[289,"Diltiazem HCL","60 mg","tab","sp","مزمن",null,"480mg","120_240mg","Cardiovascular Drugs",["cardizem"],"",0,289],[290,"Diltiazem HCL","90 mg","tab","sp","مزمن",null,"480mg","120_240mg","Cardiovascular Drugs",["cardizem"],"",12,290],[291,"Diltiazem HCL","120 mg","tab","cons","مزمن",null,"480mg","120_240mg","Cardiovascular Drugs",["cardizem"],"",12,291],[292,"Amlodipine","5 mg, 10 mg","tab","cons","مزمن",null,"10mg","5_10mg","Cardiovascular Drugs",["norvasc"],"",0,292],[293,"amlodipine10mg +perindopril 10mg","10mg/10 mg","tab","cons","مزمن",null,null,"1*1","Cardiovascular Drugs",["norvasc"],"",0,293],[294,"Amlodipine 5mg +perindopril 5 mg","5mg/5 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["norvasc"],"",0,294],[295,"Amlodipine 5mg +valsartan 160mg","5mg+160mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["diovan","norvasc"],"",0,295],[296,"Amlodipine 10mg +valsartan 160mg","10mg+160mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["diovan","norvasc"],"",0,296],[297,"Amlodipine 5 mg+valsartan160 mg +Hydrochlorothiazide12.5 mg","5mg+160mg+12.5mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["diovan","norvasc","hct"],"",0,297],[298,"valsartan 160mg + HCT 25mg","160mg+ 25mg","tab","sp","مزمن",null,"320/25mg","1*1","Cardiovascular Drugs",["diovan"],"",0,298],[299,"valsartan 160mg + HCT 12.5mg","160mg+12.5 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["diovan"],"",0,299],[300,"valsartan 80mg + HCT 12.5mg","80mg+12.5mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["diovan"],"",0,300],[301,"irbesartan 150 mg","150 mg","tab","cons","مزمن",null,"300mg","150mg-300mg","Cardiovascular Drugs",["aprovel"],"",0,301],[302,"irbesartan 300 mg","300 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["aprovel"],"",0,302],[303,"irbesartan 150 mg+ Hydrochlorthiazide 12.5 mg","150/12.5","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["aprovel"],"",0,303],[304,"irbesaratan 300 mg+ Hydrochlorthiazide 12.5 mg","300/12.5","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,304],[305,"valsartan 40mg","40 mg","tab","cons","مزمن",null,"320mg","80_160mg","Cardiovascular Drugs",["diovan"],"",0,305],[306,"valsartan 160mg","160mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["diovan"],"",0,306],[307,"Trimetazidine","20 mg","tab","cons","مزمن",null,"60mg",null,"Cardiovascular Drugs",["vastarel"],"",0,307],[308,"Trimetazidine","35 mg","tab","cons","مزمن",null,"60mg",null,"Cardiovascular Drugs",["vastarel"],"",8,308],[309,"Acetyl Salicylic Acid","75 mg","tab","gp","مزمن",null,"4gm","75_100mg","Cardiovascular Drugs",["aspirin","asa","aspocid","rivo"],"",0,309],[310,"Acetyl Salicylic Acid","100 mg","tab","gp","مزمن",null,"4gm","75_100mg","Cardiovascular Drugs",["aspirin","asa","aspocid","rivo"],"",12,310],[311,"Acetyl Salicylic Acid","81 mg","tab","gp","مزمن",null,"4gm","75_100mg","Cardiovascular Drugs",["aspirin","asa","aspocid","rivo"],"",12,311],[312,"Ticagrelor (protocol)","90 mg","tab","cons","مزمن",null,"180mg","180mg","Cardiovascular Drugs",["brilinta"],"",0,312],[313,"Clopidogrel (protocol)","75 mg","tab","cons","مزمن",null,"75mg","75mg","Cardiovascular Drugs",["plavix"],"",0,313],[314,"Clopidogrel 75 mg + Aspirin","75 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["plavix"],"",0,314],[315,"Indapamide","2.5 mg","tab","sp","مزمن",null,"2.5mg","2.5mg","Cardiovascular Drugs",[],"",0,315],[316,"Fenofibrate","200 mg","tab","sp","مزمن",null,"300mg",null,"Cardiovascular Drugs",["lipanthyl"],"",0,316],[317,"Fenofibrate","300 mg","tab","sp","مزمن",null,"300mg",null,"Cardiovascular Drugs",["lipanthyl"],"",8,317],[318,"atrovastatin","10 mg","tab","sp","مزمن",null,"80mg","10_20mg","Cardiovascular Drugs",["lipitor"],"",0,318],[319,"atrovastatin","20 mg","tab","cons","مزمن",null,"80mg","10_20mg","Cardiovascular Drugs",["lipitor"],"",12,319],[320,"atrovastatin","40 mg","tab","cons","مزمن",null,"80mg","10_20mg","Cardiovascular Drugs",["lipitor"],"",12,320],[321,"Rosuvastatin","5mg","tab","cons","مزمن",null,"40mg","10_20mg","Cardiovascular Drugs",["crestor"],"",0,321],[322,"Rosuvastatin","10mg","tab","cons","مزمن",null,"40mg","10_20mg","Cardiovascular Drugs",["crestor"],"",12,322],[323,"Rosuvastatin","20mg","tab","cons","مزمن",null,"40mg","10_20mg","Cardiovascular Drugs",["crestor"],"",12,323],[324,"Ezetimibe 10 mg + Rosuvastatin 10 mg","10mg+10mg","tab","cons","مزمن",null,null,"1*1","Cardiovascular Drugs",["crestor"],"",0,324],[325,"Ezetimibe 10 mg + Rosuvastatin 20 mg","10mg+20mg","tab","cons","مزمن",null,null,"1*1","Cardiovascular Drugs",["crestor"],"",0,325],[326,"Simvastatin 10 mg","10 mg","tab","cons","مزمن",null,"80mg","10_40mg","Cardiovascular Drugs",["zocor"],"",0,326],[327,"Simvastatin 20 mg","20 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["zocor"],"",0,327],[328,"Simvastatin 40 mg","40 mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["zocor"],"",0,328],[329,"simvastatin10 mg+ ezitimibe 10mg","10mg+10mg","tab","cons","مزمن",null,null,"1*1","Cardiovascular Drugs",["zocor"],"",0,329],[330,"simvastatin20 mg+ ezitimibe 10mg","10mg+20mg","tab","cons","مزمن",null,null,"1*1","Cardiovascular Drugs",["zocor"],"",0,330],[331,"simvastatin40 mg+ ezitimibe 10mg","10mg+40mg","tab","cons","مزمن",null,null,"1*1","Cardiovascular Drugs",["zocor"],"",0,331],[332,"Ezetimibe 10 mg + atrovastatin 10 mg","10mg+10mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["lipitor"],"",0,332],[333,"Ezetimibe 10 mg + atrovastatin 20 mg","10mg+20mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["lipitor"],"",0,333],[334,"Ezetimibe 10 mg + atrovastatin 40 mg","10mg+40mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",["lipitor"],"",0,334],[335,"Pentoxifylline","400 mg","tab","cons","مزمن",null,"1.2gm","1.2gm","Cardiovascular Drugs",[],"",0,335],[336,"Meclofenoxate hydrochloride 500 mg","500 mg","tab","sp","مزمن",null,"1gm","1*1","Cardiovascular Drugs",[],"",0,336],[337,"Cinnarizine","25 mg","tab","sp","مزمن",null,"75mg","25_75mg","Cardiovascular Drugs",["stugeron"],"",0,337],[338,"Betahistine","8mg-16mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["betaserc"],"",0,338],[339,"Cinnarizine+diminhydramin 40 mg","40 mg","tab","sp","مزمن",null,null,null,"Cardiovascular Drugs",["stugeron"],"",0,339],[340,"Diosmin 450mg + Hespiridin 50mg","450mg + 50mg","tab","cons","مزمن",null,"1gm/100mg","1*1","Cardiovascular Drugs",[],"",0,340],[341,"Piracetam",null,"syrup","sp","مزمن",null,null,null,"Cardiovascular Drugs",["nootropil"],"",0,341],[342,"Piracetam","400 mg","cap","cons","مزمن",null,"4800mg","800/1600mg","Cardiovascular Drugs",["nootropil"],"",0,342],[343,"Piracetam","800 mg","cap","cons","مزمن",null,"4800mg","800/1600mg","Cardiovascular Drugs",["nootropil"],"",12,343],[344,"Vincamine","30mg","cap","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,344],[345,"Naftidrofuryl acid oxalate","200mg","tab","cons","مزمن",null,null,null,"Cardiovascular Drugs",[],"",0,345],[346,"Nicorandil","10mg","tab","cons","مزمن",null,"40mg","5-20mg","Cardiovascular Drugs",["ikorel"],"",0,346],[347,"Nicorandil","20mg","tab","cons","مزمن",null,"40mg","5-20mg","Cardiovascular Drugs",["ikorel"],"",12,347],[348,"valsartan + sacubitril (entresto 100mg)","51/49mg","tab","committee","طبقاالقرار",null,null,null,"Cardiovascular Drugs",["diovan","entresto"],"",0,348],[349,"valsartan + sacubitril (entresto 200mg)","97/103mg","tab","committee","طبقا للقرار",null,null,null,"Cardiovascular Drugs",["diovan","entresto"],"",0,349],[350,"valsartan + sacubitril (entresto 50mg)","26/24mg","tab","committee","طبقا للقرار",null,null,null,"Cardiovascular Drugs",["diovan","entresto"],"",0,350],[351,"Hydrochlorothiazide","25 mg","tab","gp","مزمن",null,"100mg","25_50mg","Diuretics",["hct"],"",0,351],[352,"Furosemide","40 mg","tab","gp","مزمن",null,null,"20_40mg","Diuretics",["lasix"],"",0,352],[353,"Bumetanide","1mg","tab","sp","مزمن",null,"10mg","0.5-2mg","Diuretics",[],"",0,353],[354,"Spironolactone","25 mg","tab","sp","مزمن",null,"400mg","25-100mg","Diuretics",["aldactone"],"",0,354],[355,"Spironolactone","100 mg","tab","sp","مزمن",null,"400mg","25-100mg","Diuretics",["aldactone"],"",12,355],[356,"Furosemide 20 + spironolactone 50 mg","20 mg+50 mg","tab","cons","مزمن",null,null,null,"Diuretics",["lasix","aldactone"],"",0,356],[357,"Amiloride + hydrochlorothiazide","5 mg+50 mg","tab","gp","مزمن",null,null,null,"Diuretics",["hct"],"",0,357],[358,"Xipamide+triamterene",null,"tab","gp","مزمن",null,null,null,"Diuretics",[],"",0,358],[359,"Torsemide","20mg","tab","sp","مزمن",null,null,"10-20mg","Diuretics",[],"",0,359],[360,"Warfarin","1 mg","tab","sp","مزمن",null,null,null,"Anti-Coagulant Drugs",["marevan","coumadin"],"",0,360],[361,"Warfarin","2 mg","tab","sp","مزمن",null,null,null,"Anti-Coagulant Drugs",["marevan","coumadin"],"",0,361],[362,"Warfarin","3 mg","tab","sp","مزمن",null,null,null,"Anti-Coagulant Drugs",["marevan","coumadin"],"",0,362],[363,"Warfarin","5 mg","tab","sp","مزمن",null,null,null,"Anti-Coagulant Drugs",["marevan","coumadin"],"",0,363],[364,"Low molecular weight heparin (protocol)","20mg,40mg,60mg,80mg","amp","cons","طبقا للقرار",null,null,null,"Anti-Coagulant Drugs",[],"",0,364],[365,"Rivaroxaban 2.5 mg","2.5mg","tab","cons","مزمن",null,"20mg","10mg","Anti-Coagulant Drugs",["xarelto"],"",0,365],[366,"Rivaroxaban 10 mg","10 mg","tab","cons","مزمن",null,null,null,"Anti-Coagulant Drugs",["xarelto"],"",0,366],[367,"Rivaroxaban 20 mg","20 mg","tab","cons","مزمن",null,null,null,"Anti-Coagulant Drugs",["xarelto"],"",0,367],[368,"Rivaroxaban 15 mg","15 mg","tab","cons","مزمن",null,null,null,"Anti-Coagulant Drugs",["xarelto"],"",0,368],[369,"Apixaban","2.5mg","tab","cons","مزمن",null,null,"2.5-10mg","Anti-Coagulant Drugs",["eliquis"],"",0,369],[370,"Apixaban","5mg","tab","cons","مزمن",null,null,"2.5-10mg","Anti-Coagulant Drugs",["eliquis"],"",4,370],[371,"Cilostazole","50mg","tab","cons","مزمن",null,"100mg","50-100mg","Anti-Coagulant Drugs",[],"",0,371],[372,"Cilostazole","100mg","tab","cons","مزمن",null,"100mg","50-100mg","Anti-Coagulant Drugs",[],"",12,372],[373,"Ethamsylate","250 mg","tab","sp","5 ايام",null,"1-1.5gm","500-1500mg","Haemostatic Drugs",[],"",0,373],[374,"Ethamsylate","250 mg/2 ml","amp","sp","مستشفيات",null,"1-1.5gm","500-1500mg","Haemostatic Drugs",[],"",12,374],[375,"Phytomenadione",null,"tab","sp","مزمن",null,null,"5-10mg","Haemostatic Drugs",[],"",0,375],[376,"Phytomenadione (vit k 1)","2 mg","amp","sp","مستشفيات",null,null,null,"Haemostatic Drugs",[],"",0,376],[377,"Phytominadione (vit k 1)","10 mg","amp","sp","مستشفيات",null,null,null,"Haemostatic Drugs",[],"",0,377],[378,"Methyl-Ergometrine maleate","0.125 mg","tab","gp","مستشفيات",null,null,null,"Haemostatic Drugs",[],"",0,378],[379,"Methyl-Ergometrine maleate","0. 5 mg","amp","sp","مستشفيات",null,null,null,"Haemostatic Drugs",[],"",0,379],[380,"Tranexamic acid","500mg","tab","sp","5ايام",null,null,"500-1000*3","Haemostatic Drugs",["kapron","cyklokapron"],"",0,380],[381,"Glibenclamide","5 mg","tab","sp","مزمن",null,null,"15-20mg","Anti-Diabetics Drugs",["daonil"],"",0,381],[382,"Glibenclamide 5 mg + metformin 500 mg","5 mg+500 mg","tab","sp","مزمن",null,null,"1*2","Anti-Diabetics Drugs",["daonil","glucophage","cidophage"],"",0,382],[383,"Glibenclamide 5 mg + metformin 1000 mg","5mg+1000mg","tab","sp","مزمن",null,null,"1*2","Anti-Diabetics Drugs",["daonil","glucophage","cidophage"],"",0,383],[384,"Gliclazide","80 mg","tab","sp","مزمن",null,"320mg","40-80mg","Anti-Diabetics Drugs",["diamicron"],"",0,384],[385,"Gliclazide MR","30 mg","tab","sp","مزمن",null,null,"30-120mg","Anti-Diabetics Drugs",["diamicron"],"",0,385],[386,"Gliclazide","60 mg","tab","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",["diamicron"],"",0,386],[387,"Glimepiride","1 mg","tab","sp","مزمن",null,"8mg",null,"Anti-Diabetics Drugs",["amaryl"],"",0,387],[388,"Glimepiride","2 mg","tab","sp","مزمن",null,"8mg",null,"Anti-Diabetics Drugs",["amaryl"],"",8,388],[389,"Glimepiride","3 mg","tab","sp","مزمن",null,"8mg",null,"Anti-Diabetics Drugs",["amaryl"],"",8,389],[390,"Glimepiride","4 mg","tab","sp","مزمن",null,"8mg",null,"Anti-Diabetics Drugs",["amaryl"],"",8,390],[391,"Glimepiride 2mg +metformin 500 mg Tablet","2mg/500 mg","tab","sp","مزمن",null,null,"1*2","Anti-Diabetics Drugs",["amaryl","glucophage","cidophage"],"",0,391],[392,"Glipizide","5 mg","tab","sp","مزمن",null,"20mg","5-20mg","Anti-Diabetics Drugs",[],"",0,392],[393,"dapagliflozin","10 mg","tab","cons","مزمن",null,"10mg","1*2","Anti-Diabetics Drugs",["forxiga"],"",0,393],[394,"dapagliflozin","5mg","tab","cons","مزمن",null,"10mg","1*1","Anti-Diabetics Drugs",["forxiga"],"",8,394],[395,"dapagliflozin 5mg + metformin 1000mg","5mg + 1000mg","tab","cons","مزمن",null,null,"1*2","Anti-Diabetics Drugs",["forxiga","glucophage","cidophage"],"",0,395],[396,"dapagliflozin 10mg + metformin 1000mg XR","5mg + 1000mg","tab","cons","مزمن",null,null,"1*1","Anti-Diabetics Drugs",["forxiga","glucophage","cidophage"],"",0,396],[397,"empagliflozin","5 mg","tab","cons","مزمن",null,"25mg","10mg","Anti-Diabetics Drugs",["jardiance"],"",0,397],[398,"empagliflozin","10 mg","tab","cons","مزمن",null,"25mg","10mg","Anti-Diabetics Drugs",["jardiance"],"",12,398],[399,"empagliflozin","25 mg","tab","cons","مزمن",null,"25mg","10mg","Anti-Diabetics Drugs",["jardiance"],"",12,399],[400,"empagliflozin 5 mg + metformin 1000mg","5mg + 1000mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance","glucophage","cidophage"],"",0,400],[401,"empagliflozin 12.5 mg + metformin 1000mg","12.5mg + 1000mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance","glucophage","cidophage"],"",0,401],[402,"empagliflozin 25 mg + metformin 1000XRmg","25mg + 1000mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance","glucophage","cidophage"],"",0,402],[403,"Empagliflozin10 mg/Linagliptin 5 mg","10 mg/5 mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance"],"",0,403],[404,"Empagliflozin 25 mg/Linagliptin 5 mg","25 mg/5 mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance"],"",0,404],[405,"Empagliflozin10 mg/Linagliptin 5 mg /metformin XR 1000 mg","10 mg/5 mg/XR 1000 mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance","glucophage","cidophage"],"",0,405],[406,"Empagliflozin 25 mg/Linagliptin 5 mg /metformin XR 1000 mg","25 mg/5 mg/XR 1000 mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["jardiance","glucophage","cidophage"],"",0,406],[407,"Gliptins",null,"tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,407],[408,"sitagliptin","100 mg","tab","cons","مزمن",null,"100mg","100mg","Anti-Diabetics Drugs",["januvia"],"",0,408],[409,"sitagliptin 50 mg+ metformin 500 mg","50mg+500mg","tab","cons","مزمن",null,null,"1*2","Anti-Diabetics Drugs",["januvia","glucophage","cidophage"],"",0,409],[410,"sitagliptin 50 mg+ metformin 1000 mg","50mg+1000mg","tab","cons","مزمن",null,null,"1*2","Anti-Diabetics Drugs",["januvia","glucophage","cidophage"],"",0,410],[411,"vildagliptin 50 mg","50 mg","tab","cons","مزمن",null,null,"100mg","Anti-Diabetics Drugs",["galvus"],"",0,411],[412,"vildagliptin 50 mg+ metformin 850 mg","50mg/850mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["galvus","glucophage","cidophage"],"",0,412],[413,"vildagliptin 50 mg+ metformin 1000 mg","50mg/1000mg","tab","cons","مزمن",null,null,null,"Anti-Diabetics Drugs",["galvus","glucophage","cidophage"],"",0,413],[414,"Metformin","500 mg","tab","sp","مزمن",null,"2550mg","500-1000mg","Anti-Diabetics Drugs",["glucophage","cidophage"],"",0,415],[415,"Metformin","850 mg","tab","sp","مزمن",null,"2550mg","500-1000mg","Anti-Diabetics Drugs",["glucophage","cidophage"],"",12,416],[416,"Metformin","1000mg","tab","sp","مزمن",null,"2550mg","500-1000mg","Anti-Diabetics Drugs",["glucophage","cidophage"],"",12,417],[417,"Metformin XR 500mg tab","XR 500mg","tab","sp","مزمن",null,"2000mg","500-1000mg","Anti-Diabetics Drugs",["glucophage","cidophage"],"",0,418],[418,"Metformin XR 1000mg tab","XR 1000mg","tab","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",["glucophage","cidophage"],"",0,419],[419,"Insulin (human) Neutral","100 I.U.","vial","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,420],[420,"Insulin (human) Mixtard","100 I.U.","vial","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,421],[421,"Insulin (human) Retard","100 I.U.","vial","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,422],[422,"Insulin (human) Neutral (school student)","100 I.U.","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,423],[423,"Insulin (human) Mixtard (school student)","100 I.U","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,424],[424,"Insulin (human) Retard (school student)","100 I.U","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,425],[425,"Insulin lispro (humalog) student","100 I.U","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,426],[426,"Humulin 70/30 student","100 I.U","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,427],[427,"Humulin N student","100 I.U","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,428],[428,"Humulin R student","100 I.U","cart","sp","مزمن",null,null,null,"Anti-Diabetics Drugs",[],"",0,429],[429,"Chorionic Gonadotropin","5000 I.U","amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,430],[430,"Chorionic Gonadotropin","1500 I.U","amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,431],[431,"Testosteron Enanthate","250 mg","amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,432],[432,"Testosteron Enanthate +Testosterone Propionate","110 mg+ 250 mg","amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,433],[433,"Tetracosactrin acetate","1 mg /ml","amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,434],[434,"Norethisterone acetate","5 mg /ml","tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,435],[435,"Bromocriptine mesylate","2.5 mg","tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,436],[436,"Clomiphene Tab","50 mg","tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,437],[437,"Hydroxyprogesterone + Estradiol",null,"amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,438],[438,"Oestriol",null,"tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,439],[439,"Danazol","200 mg","tab","cons",null,null,null,null,"Hormones Drugs",[],"",0,440],[440,"Progesterone","100 mg","cap","cons",null,null,null,null,"Hormones Drugs",[],"",0,441],[441,"Progesterone","250 mg","amp","sp",null,null,null,null,"Hormones Drugs",[],"",0,442],[442,"Desmopressin Spray (protocol)","10mcg/dose","spray","cons",null,null,null,null,"Hormones Drugs",[],"",0,443],[443,"Desmopressin (protocol)","60 -120 mcg","tab","cons",null,null,null,null,"Hormones Drugs",[],"",0,444],[444,"Norgestrel +Oestradiol",null,"tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,445],[445,"9- Fluorohydrocortisone",null,"tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,446],[446,"Conjugated Estrogen",null,"tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,447],[447,"Luteinising Hormone Releasing Analogue (LHRH)",null,"syrup","cons",null,null,null,null,"Hormones Drugs",[],"",0,448],[448,"Hydrocortisone",null,"tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,449],[449,"Levo -Thyroxin Na","25 mcg","captab","sp",null,null,null,null,"Hormones Drugs",["eltroxin"],"",0,450],[450,"Levo -Thyroxin Na","50 mcg","tab","sp",null,null,null,null,"Hormones Drugs",["eltroxin"],"",0,451],[451,"Levo-Thyroxin Na","100 mcg","tab","sp",null,null,null,null,"Hormones Drugs",["eltroxin"],"",0,452],[452,"Carbimazole","5 mg","tab","sp",null,null,null,null,"Hormones Drugs",["neomercazole"],"",0,453],[453,"Propyl thiouracil","10 mg","tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,454],[454,"Dydrogesterone","10 mg","tab","sp",null,null,null,null,"Hormones Drugs",[],"",0,455],[455,"Chlorpheniramine Maleate","4 mg","tab","gp","اسبوع و يكرر من الاستشاري",null,"24mg","16mg","Anti - Allergic Drugs",["piriton"],"",0,456],[456,"Chlorpheniramine Maleate","0.02","cream","gp","اسبوع و يكرر من الاستشاري",null,"24mg","16mg","Anti - Allergic Drugs",["piriton"],"",12,457],[457,"Chlorpheniramine Maleate","0.02","oint","gp","اسبوع و يكرر من الاستشاري",null,"24mg","16mg","Anti - Allergic Drugs",["piriton"],"",12,458],[458,"Chlorpheniramine Maleate","5 mg /ml","amp","gp","مستشفيات",null,"24mg","16mg","Anti - Allergic Drugs",["piriton"],"",12,459],[459,"Ketotifen","1 mg","tab","sp","اسبوع و يكرر من الاستشاري",null,null,"2mg","Anti - Allergic Drugs",[],"",0,460],[460,"Ketotifen ( student )","5 mg / 5 ml","syrup","sp","اسبوع و يكرر من الاستشاري",null,null,"0.25-0.5mg*2","Anti - Allergic Drugs",[],"",0,461],[461,"Cetirizine",null,"tab","cons","اسبوع و يكرر من الاستشاري",null,"10mg","5mg-10mg","Anti - Allergic Drugs",["zyrtec"],"",0,462],[462,"Hydrocortisone sodium succinate","100 mg","vial","sp","مستشفيات",null,null,null,"Anti - Allergic Drugs",[],"",0,463],[463,"Hydrocortisone 10 mg tab","10 mg","tab","cons","اسبوع و يكرر من الاستشاري",null,"20-240mg","10-25mg","Anti - Allergic Drugs",[],"",0,464],[464,"Prednisolone","5 mg","tab","sp","اسبوع و يكرر من الاستشاري",null,"60-80mg","40-60mg","Anti - Allergic Drugs",[],"",0,465],[465,"Prednisolone","20 mg","tab","cons","اسبوع و يكرر من الاستشاري",null,"60-80mg","40-60mg","Anti - Allergic Drugs",[],"",12,466],[466,"Triamcinolone Acetate","40 mg","vial","sp","اسبوع و يكرر من الاستشاري",null,"80mg","weakly","Anti - Allergic Drugs",[],"",0,467],[467,"Triamcinolone Acetate","4 mg","tab","sp","اسبوع و يكرر من الاستشاري",null,"80mg","1*1","Anti - Allergic Drugs",[],"",8,468],[468,"Fexofenadine","120 mg","tab","sp","اسبوع و يكرر من الاستشاري",null,null,null,"Anti - Allergic Drugs",["telfast"],"",0,469],[469,"Fexofenadine","180 mg","captab","sp","اسبوع و يكرر من الاستشاري",null,"360mg","1*1","Anti - Allergic Drugs",["telfast"],"",0,470],[470,"Dexamethasone Na phosphate","4mg / ml","amp","sp","اسبوع و يكرر من الاستشاري",null,null,null,"Anti - Allergic Drugs",[],"",0,471],[471,"Dexamethasone","0.5 mg","tab","sp","اسبوع و يكرر من الاستشاري",null,"20-40mg",".5-10mg","Anti - Allergic Drugs",[],"",0,472],[472,"Dexamethasone","8mg","tab","cons","اسبوع و يكرر من الاستشاري",null,"20-40mg",".5-10mg","Anti - Allergic Drugs",[],"",12,473],[473,"Betamethasone",null,"amp","sp","اسبوع و يكرر من الاستشاري",null,null,null,"Anti - Allergic Drugs",[],"",0,474],[474,"Desloratidine","5mg","tab","sp","اسبوع و يكرر من الاستشاري",null,"5mg","1*1","Anti - Allergic Drugs",["aerius"],"",0,475],[475,"Desloratidine","0.5mg/ml","syrup","sp","اسبوع و يكرر من الاستشاري",null,"5mg","1*1","Anti - Allergic Drugs",["aerius"],"",12,476],[476,"acetylcysteine sach","600 mg","sach","sp","مستشفيات",null,null,null,"Drugs For Respiratory System",[],"",0,477],[477,"Couph sedative contain Dextromethorphan","10 mg / 5 ml","syrup","gp","اسبوع و يكرر من الاستشاري",null,"20mg","1*2","Drugs For Respiratory System",[],"",0,478],[478,"Couph sedative contain Dextromethorphan","10 mg","tab","gp","اسبوع و لا يكرر",null,"20mg","1*2","Drugs For Respiratory System",[],"",12,479],[479,"Expectorant (Guaiphenesin+Bronchodialator)",null,"syrup","gp","اسبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,480],[480,"Bromhexine or Ambroxol ( Mucolytic)",null,"syrup","gp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,481],[481,"Bromhexine or Ambroxol",null,"tab","gp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,482],[482,"Salbutamol","2mg / 5ml","syrup","sp","اسيبوع و لا يكرر",null,"6-16mg","1*2","Drugs For Respiratory System",["ventolin"],"",0,483],[483,"Salbutamol","2 mg","tab","sp","اسيبوع و لا يكرر",null,"6-16mg","1*2","Drugs For Respiratory System",["ventolin"],"",12,484],[484,"Salbutamol","4 mg CR","tab","sp","اسيبوع و لا يكرر",null,"6-16mg","1*2","Drugs For Respiratory System",["ventolin"],"",12,485],[485,"Theophylline Anhydrous Ret","300 mg","tab","sp","اسيبوع و لا يكرر",null,"900-1200mg","400-800mg","Drugs For Respiratory System",[],"",0,486],[486,"Theophylline Monohydrate","400 mg","tab","sp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,487],[487,"Acefylline or Theophylline + Guaiphenesin","2.5 mg","syrup","sp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,488],[488,"Terbutaline Sulphate","2.5 mg","tab","gp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,489],[489,"Terbutaline Sulphate",null,"syrup","sp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,490],[490,"Salbutamol + Beclomethasone",null,"inh","sp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",["ventolin","becotide"],"",0,491],[491,"Salbutamol inhaler","200 Dose","inh","sp","اسيبوع و لا يكرر",null,"800mcg","1*2","Drugs For Respiratory System",["ventolin"],"",0,492],[492,"Beclomethasone 50 mcg","50 mcg","inh","sp","اسيبوع و لا يكرر",null,"2000mcg","400-800mcg","Drugs For Respiratory System",["becotide"],"",0,493],[493,"beclomethasone 100 mcg","100mcg","spray","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",["becotide"],"",0,494],[494,"Formoterol 12 mcg for inhalation powder","12 mcg","inh","cons","اسيبوع و لا يكرر",null,"48mcg","12-24mcg","Drugs For Respiratory System",[],"",0,495],[495,"budesonide inhaler powder in cap","400mcg","inh","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",["pulmicort"],"",0,496],[496,"salmetrol 25mcg","25mcg","inh","cons","اسيبوع و لا يكرر",null,"100mcg","50mcg*2","Drugs For Respiratory System",[],"",0,497],[497,"Salmeterol 25mcg + fluticasone 125 mcg evohaler","125mcg","inh","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,498],[498,"Salmeterol 50mcg + fluticasone 250 mcg diskus","250mcg","inh","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,499],[499,"Salmeterol 25mcg + fluticasone 500 mcg diskus","500mcg","inh","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,500],[500,"Glycopyrronium bromide 50 mcg","50 mcg",null,"cons","اسيبوع و لا يكرر",null,"50mcg","1*1","Drugs For Respiratory System",[],"",0,501],[501,"Indacaterol 110 mcg +glycopyrronium 50 mcg","110/50",null,"cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,502],[502,"Carbocysteine","375 mg","tab","cons","اسيبوع و لا يكرر",null,"1500mg","1*3","Drugs For Respiratory System",[],"",0,503],[503,"Carbocysteine","250 mg / 5 ml","syrup","cons","اسيبوع و لا يكرر",null,"1500mg","1*3","Drugs For Respiratory System",[],"",12,504],[504,"montelukast","10mg - 5mg","tab","sp","اسيبوع و لا يكرر",null,"10mg","1*1","Drugs For Respiratory System",["singulair"],"",0,505],[505,"montelukast","4mg","sach","sp","اسيبوع و لا يكرر",null,"10mg","1*1","Drugs For Respiratory System",["singulair"],"",12,506],[506,"Ipratrpium. + salbutamol",null,"inh",null,"اسيبوع و لا يكرر",null,"320mcg","1*1","Drugs For Respiratory System",["ventolin"],"",0,507],[507,"Ipratrpium.0.2mg + salbutamol 0.12 mg",null,"tab","sp","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",["ventolin"],"",0,508],[508,"Fluticosone 50mcg + salmetrol 25mcg",null,"inh","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",[],"",0,509],[509,"Budesonide200mcg + formetrol6mcg",null,null,"cons","اسيبوع و لا يكرر",null,"1280mcg","180-360mcg","Drugs For Respiratory System",["pulmicort"],"",0,510],[510,"Budesonide 160mcg + formetrol 4.5mcg",null,null,"cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",["pulmicort"],"",0,511],[511,"Budesonide 400mcg + formetrol 12mcg",null,"inh","cons","اسيبوع و لا يكرر",null,null,null,"Drugs For Respiratory System",["pulmicort"],"",0,512],[512,"ofev","لجنة عليا",null,null,null,null,null,null,"Drugs For Respiratory System",[],"",0,513],[513,"pirfenindone","لجنة عليا",null,null,null,null,null,null,"Drugs For Respiratory System",[],"",0,514],[514,"Tetracycline","0.03","oint","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,515],[515,"Clotrimazole","0.01","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["canesten"],"",0,516],[516,"Clotrimazole","0.01","susp","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["canesten"],"",0,517],[517,"Silver sulfadiazine","0.01","cream","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,518],[518,"Betamethasone","0.001","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,519],[519,"Tetracycline 3%+ polymyxin 10.000 Units","3%+10.000 U","oint","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,520],[520,"Clobetasol",null,"cream","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,521],[521,"Diflucortolone","0.001","oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,522],[522,"Hydrocortisone","0.01","oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,523],[523,"Hydrocortisone","0.01","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,524],[524,"Hydrocortisone + Tetracycline","1%+3%","oint","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,525],[525,"Benzyl Benzoate","0.25","lotion","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,526],[526,"Benzyl Benzoate","0.1","cream","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,527],[527,"Ivermectin","6 mg","tab","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,528],[528,"Isoconazol Nitrate","0.01","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,529],[529,"Hydrocortisone +Antifungal","1%+1%","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,530],[530,"Methoxsalen","10 mg","cap","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,531],[531,"Methoxsalen",null,"other","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,532],[532,"Gentamycin","0.001","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["garamycin"],"",0,533],[533,"Gentamycin","0.001","oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["garamycin"],"",0,534],[534,"Anticoagulant",null,"gel","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,535],[535,"Medicate Tulle with Antibiotics",null,"dressing","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,536],[536,"Povidon iodine","0.1","vag","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,537],[537,"Salicylic Acid+Flumethasone",null,"oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,538],[538,"Azole derivatives",null,"lotion","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,539],[539,"Azole derivatives",null,"powder","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,540],[540,"Azole derivatives",null,"cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,541],[541,"Azelaic acid","0.2","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,542],[542,"Calamine + antihistamine",null,"lotion","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,543],[543,"Gramicidin+Neomycin+Nystatin+Triamcinolone",null,"cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["mycostatin"],"",0,544],[544,"Betamethasone + Clioquinol",null,"cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,545],[545,"Diflucortolone+Chlorquinaldol",null,"cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,546],[546,"Betamethasone+salicylic acid",null,"oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,547],[547,"Betamethasone+salicylic acid","0.05%+3%","lotion","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,548],[548,"Coal tar +…… +……",null,"oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,549],[549,"Selenium sulphide",null,"lotion","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,550],[550,"Chamomile extract",null,"oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,551],[551,"Povidone iodine","0.075","amp","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,552],[552,"Povidone iodine","1.075","amp","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,553],[553,"propolis,chamomile,Zn ox,honey","30gm","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,554],[554,"Calcipotriol+betamthasone",null,"oint","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,555],[555,"B-sitosterol","0.0025","oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,556],[556,"tazarotene","0.001","gel","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,557],[557,"Anti-corn",null,"other","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,558],[558,"Chloramphenicol + collagenase",null,"oint","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,559],[559,"Fucidic acid","0.02","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,560],[560,"Fucidic acid+Corticosteroid",null,"cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,561],[561,"Retinoic acid","0.0005","cream","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,562],[562,"Betamethasone+Gentamycine+ ……..",null,"oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["garamycin"],"",0,563],[563,"Urea","0.1","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,564],[564,"Iodochlor hydroxyquin + Hydrocortisone",null,"cream","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,565],[565,"Dexamethasone + Panthenol","0.05","cream","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,566],[566,"Chloramphenicol","0.01","oint","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,567],[567,"Gammabenzen hexachloride","0.003","cream","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,568],[568,"Panthenol emulgel","0.05","gel","gp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,569],[569,"Terbinafine","0.01","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["lamisil"],"",0,570],[570,"Mometasone","100 mg","cream","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,571],[571,"Mometasone","100 mg","oint","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,572],[572,"Acyclovir","0.05","cream","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",["zovirax"],"",0,573],[573,"Miconazole Vag","0.02","cream","sp","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,574],[574,"Isoconazole","600mg","vag","cons","اسبوع و لا يكرر",null,null,null,"Dermatological Drugs",[],"",0,575],[575,"Chloramphenicol","0.005","drops","gp","اسبوع و لا يكرر",null,null,null,"Ophthalmic Drugs",[],"",0,576],[576,"Chloramphenicol","0.01","drops","gp","اسبوع و لا يكرر",null,null,null,"Ophthalmic Drugs",[],"",2,577],[577,"Gentamicin","5 ml","drops","sp",null,null,null,null,"Ophthalmic Drugs",["garamycin"],"",0,578],[578,"Gentamicin","0.003","drops","sp",null,null,null,null,"Ophthalmic Drugs",["garamycin"],"",0,579],[579,"Tetracycline 1%+polymyxin","0.01","drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,580],[580,"Ciprofloxacin","0.003","drops","sp",null,null,null,null,"Ophthalmic Drugs",["ciprocin","cipro"],"",0,581],[581,"Sulphacetamide Na","0.1","drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,582],[582,"dexamethasone+tobramycin eye oint",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,583],[583,"dexamethasone+tobramycin eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,584],[584,"Tobramycin eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,585],[585,"Tobramycin eye oint",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,586],[586,"Alcaftadine eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,587],[587,"Tropicamide 1% eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,588],[588,"Tropicamide 0.5% eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,589],[589,"Antazoline hydrochloride+teryzoline hydrochloride eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,590],[590,"diclofenac 0.1% eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",["voltaren","cataflam","declophen","rheumafen"],"",0,591],[591,"Timolol 0.1%-Eye Gel tube 5mg",null,"gel","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,592],[592,"Hydroxy propyl methyl cellulose 0.3% eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,593],[593,"moxifloxacin+dexamethasone eye drop",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,594],[594,"Sulphacetamide Na","0.2","drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,595],[595,"Acyclovir","0.03","drops","sp",null,null,null,null,"Ophthalmic Drugs",["zovirax"],"",0,596],[596,"Dexamethasone","0.001","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,597],[597,"Dexamethasone",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,598],[598,"Non-steroidal Anti-inflammatory","0.001","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,599],[599,"Chloramphinicol+prednisolone Acetate",null,"drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,600],[600,"Dexamethasone+Neomycine+polimyxin",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,601],[601,"Oxytetracycline +Hydrocortisone",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,602],[602,"Oxytetracycline +Hydrocortisone",null,"drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,603],[603,"Timolol Maleate","0.0025","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,604],[604,"Timolol Maleate","0.005","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,605],[605,"Betaxolol (protocol)","0.005","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,606],[606,"Moxifloxacin",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,607],[607,"Azithromycin","0.01","drops","sp",null,null,null,null,"Ophthalmic Drugs",["zithromax","azomax"],"",0,608],[608,"Gatifloxacin",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,609],[609,"Prednisolone",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,610],[610,"Travoprost + Timolol",null,"drops","cons",null,null,null,null,"Ophthalmic Drugs",[],"",0,611],[611,"Tetrahydrozoline","0.0005","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,612],[612,"Tetrahydrozoline Hcl 0.05%+Zinc sulfate","0.0005","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,613],[613,"Cromoglycate","0.02","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,614],[614,"Chlorobutanol + Polyvinyl alcohol",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,615],[615,"Polyvinylpyrrolidone","0.02","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,616],[616,"Prostaglandin analogue",null,"drops","cons",null,null,null,null,"Ophthalmic Drugs",[],"",0,617],[617,"Dichlorphenamide","50 mg","tab","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,618],[618,"Brimonidine 0.15",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,619],[619,"Brimonidine tartrate",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,620],[620,"Dorzolamide 2% EYE DROP",null,"drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,621],[621,"Dorzolamide Hcl 2%+Timolol Maleate 0.5%","2%+0.5%","drops","cons",null,null,null,null,"Ophthalmic Drugs",[],"",0,622],[622,"Carbonic Anhydrous Inhibitor","0.02","drops","cons",null,null,null,null,"Ophthalmic Drugs",[],"",0,623],[623,"Pilocarpine","1%,2%,3%,4%","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,624],[624,"Atropin sulphate","0.01","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,625],[625,"Atropin sulphate","0.01","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,626],[626,"Cyclopentolate","0.01","drops","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,627],[627,"phenylephrine HCL","0.025","drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,628],[628,"Naphazolin HCL 0.5mg+chlorpheniramin maleate","0.5 mg","drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,629],[629,"Naphazolin HCL+zinc sulphate +Methylene blue",null,"drops","gp",null,null,null,null,"Ophthalmic Drugs",[],"",0,630],[630,"Acetazolamide","250 mg","tab","sp",null,null,null,null,"Ophthalmic Drugs",[],"",0,631],[631,"(Nasal Decongestant)",null,"drops","gp","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,632],[632,"mometasone nasal spray",null,null,"sp","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,633],[633,"oxymetazoline drop for adult",null,null,null,"اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,634],[634,"xylometazoline hydrochloride drop adult,infant",null,null,null,"اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,635],[635,"Sodium chloride + Sod bicarbonate + borax nasal wash",null,"powder","cons","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,636],[636,"Phenazone+chlorobutanol","5%+1%","drops","sp","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,637],[637,"Antibiotics + steroids",null,"drops","sp","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,638],[638,"Dimenhydrinate",null,"tab","gp","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,639],[639,"Wax Removal",null,"drops","sp","اسبوع و لا يكرر",null,null,null,"Ear & Nose & Throat Drugs",[],"",0,640],[640,"Chlorhexidine Gluconate",null,"wash","gp","اسبوع و لا يكرر",null,null,null,"Dental &Buccal Drugs",[],"",0,641],[641,"Benzydamine","0.0015","wash","gp","اسبوع و لا يكرر",null,null,null,"Dental &Buccal Drugs",[],"",0,642],[642,"Anthraquinone glycosides+Lidocaine+salicylic acid",null,"other","sp","اسبوع و لا يكرر",null,null,null,"Dental &Buccal Drugs",[],"",0,643],[643,"Lidocaine+Aminacrine",null,"gel","sp","اسبوع و لا يكرر",null,null,null,"Dental &Buccal Drugs",[],"",0,644],[644,"povidone iodine",null,"wash","sp","اسبوع و لا يكرر",null,null,null,"Dental &Buccal Drugs",[],"",0,645],[645,"Anti-Hemorrhoidal containing Hydrocortisone",null,"oint","sp","يكرر من الاستشاري",null,null,null,"Drugs For Haemorrhoid",[],"",0,646],[646,"Anti-Hemorrhoidal containing Hydrocortisone",null,"supp","sp","يكرر من الاستشاري",null,null,null,"Drugs For Haemorrhoid",[],"",0,647],[647,"Anti-Hemorrhoidal containing Lignocaine",null,"oint","gp",null,null,null,null,"Drugs For Haemorrhoid",[],"",0,648],[648,"Anti-Hemorrhoidal containing Lignocaine",null,"supp","gp",null,null,null,null,"Drugs For Haemorrhoid",[],"",0,649],[649,"Lidocaine","0.02","gel","cons","يكرر من الاستشاري",null,null,null,"Drugs For Haemorrhoid",[],"",0,650],[650,"Lidocaine","0.05","cream","cons","يكرر من الاستشاري",null,null,null,"Drugs For Haemorrhoid",[],"",0,651],[651,"Antacid containing AL-Mg compounds",null,"tab","gp","اسبوعان و لا يكرر",null,"30ml","1*2","Gastro-Intestinal Drugs",[],"",0,652],[652,"Antacid containing Al-Mg compounds",null,"syrup","gp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",[],"",0,653],[653,"Antacid containing Alginate",null,"tab","sp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",[],"",0,654],[654,"Sod alginate 5g+sod bicarb 2.5g","5g+2.5g","susp","sp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",[],"",0,655],[655,"Proton pump inhibitors","20 mg","cap","cons","اسبوع ومنظار",null,"80mg","20-40mg","Gastro-Intestinal Drugs",[],"",0,657],[656,"Proton pump inhibitors","40 mg","cap","cons","اسبوع ومنظار",null,"80mg","20-40mg","Gastro-Intestinal Drugs",[],"",12,658],[657,"Famotidine","20 mg","tab","cons","اسبوعان و لا يكرر",null,"80mg","20-40mg","Gastro-Intestinal Drugs",["pepcidine"],"",0,659],[658,"Famotidine","40 mg","tab","cons","اسبوعان و لا يكرر",null,"80mg","20-40mg","Gastro-Intestinal Drugs",["pepcidine"],"",12,660],[659,"Pantoprazole","20 mg","tab","cons","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["controloc"],"",0,661],[660,"Esomeprazole","20 mg","tab","cons","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["nexium"],"",0,662],[661,"Esomeprazole","40 mg","tab","cons","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["nexium"],"",0,663],[662,"Metoclopramide Hcl","10 mg","tab","gp","اسبوعان و لا يكرر",null,"80mg","60mg","Gastro-Intestinal Drugs",["primperan"],"",0,664],[663,"Metoclopramide Hcl +Vit.B6",null,"amp","sp","5ايام",null,null,null,"Gastro-Intestinal Drugs",["primperan"],"",0,665],[664,"Metoclopramide (adult)","20 mg","supp","sp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["primperan"],"",0,666],[665,"Metoclopramide","10 mg","supp","gp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["primperan"],"",0,667],[666,"Metoclopramide",null,"syrup","gp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["primperan"],"",0,668],[667,"Domperidone","10 mg","tab","sp","اسبوعان و لا يكرر",null,"40mg","30mg","Gastro-Intestinal Drugs",["motilium"],"",0,669],[668,"Domperidone Adult","30 mg","supp","sp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["motilium"],"",0,670],[669,"Domperidone","1mg / ml","syrup","sp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",["motilium"],"",0,671],[670,"Activated charcoal 1000","1000 mg","tab",null,"مستشفيات",null,null,null,"Gastro-Intestinal Drugs",[],"",0,672],[671,"Trimebutine 200 mg","200 mg","tab","sp","اسبوعان و لا يكرر",null,"600mg","300-600mg","Gastro-Intestinal Drugs",[],"",0,673],[672,"Suprarenal cortical Extract+Vit B6 (adult)",null,"amp","gp","5ايام",null,null,null,"Gastro-Intestinal Drugs",[],"",0,674],[673,"Digestive",null,"tab","gp","اسبوعان و لا يكرر",null,null,"1*3","Gastro-Intestinal Drugs",[],"",0,675],[674,"Digestive (student)",null,"syrup","gp","اسبوعان و لا يكرر",null,null,null,"Gastro-Intestinal Drugs",[],"",0,676],[675,"Atropine sulphate","1 mg","amp","sp","مستشفيات",null,null,null,"Gastro-Intestinal Drugs",[],"",0,677],[676,"Hyoscine butyl bromide","10 mg","tab","gp","اسبوعان و لا يكرر",null,"80mg","30-60mg","Gastro-Intestinal Drugs",["buscopan"],"",0,678],[677,"Mebeverine","100 mg","tab","sp","اسبوعان و لا يكرر",null,"405mg","1*3","Gastro-Intestinal Drugs",["duspatalin"],"",0,679],[678,"Tiemonium methyl sulphate","50 mg","syrup","sp","اسبوعان و لا يكرر",null,"300mg","150mg","Gastro-Intestinal Drugs",[],"",0,680],[679,"Sulfaslazine","500 mg","tab","sp","اسبوعان و لا يكرر",null,"4gm","2-4gm","Gastro-Intestinal Drugs",["salazopyrin"],"",0,681],[680,"Mesalazine","500 mg","tab","cons","اسبوعان و لا يكرر",null,"4.5gm","1.2-2.4gm","Gastro-Intestinal Drugs",["pentasa"],"",0,682],[681,"Menthol+Menthone+Borneol",null,"cap","sp","اسبوعان و لا يكرر",null,null,"2*3","Gastro-Intestinal Drugs",[],"",0,683],[682,"Sorbitol powder",null,"sach","sp","اسبوعان و لا يكرر",null,"50gm","20-50gm","Gastro-Intestinal Drugs",[],"",0,684],[683,"Antacids containing simethicone",null,"susp","sp","اسبوعان و لا يكرر",null,"40-50ml","5-10ml","Gastro-Intestinal Drugs",[],"",0,685],[684,"Rebamipide","100mg","sach","cons","اسبوعان و لا يكرر",null,"300mg","1*3","Gastro-Intestinal Drugs",[],"",0,686],[685,"Rebamipide","100mg","tab","cons","اسبوعان و لا يكرر",null,"300mg","1*3","Gastro-Intestinal Drugs",[],"",12,687],[686,"Sulpiride 25mg +Mebeverine 100mg","25mg +100mg","tab","cons","اسبوعان و لا يكرر",null,"1*2",null,"Gastro-Intestinal Drugs",["duspatalin"],"",0,688],[687,"Miopan","100ml","syrup","sp","اسبوعان و لا يكرر",null,"1*4",null,"Gastro-Intestinal Drugs",[],"",0,689],[688,"Loperamide Hcl","2mg","tab","gp","اسبوع و لا يكرر",null,"16mg","2*2","Antidiarrheal Drugs",["imodium"],"",0,690],[689,"Kaolin+pectin","1gm+20 mg / 5ml","susp","gp","اسبوع و لا يكرر",null,"1*4","5-10gm","Antidiarrheal Drugs",[],"",0,691],[690,"Nifuroxazide","200 mg","cap","sp","اسبوع و لا يكرر",null,"800mg","1*3","Antidiarrheal Drugs",[],"",0,692],[691,"Oral rehydration salt formulation",null,"sach","gp","اسبوع و لا يكرر",null,null,"1*2","Antidiarrheal Drugs",[],"",0,693],[692,"Oral rehydration salt formulation +Zinc",null,"sach","gp","اسبوع و لا يكرر",null,null,null,"Antidiarrheal Drugs",[],"",0,694],[693,"Racecadotril","10mg","sach","sp","اسبوع و لا يكرر",null,"100-150mg*3 adult","1-1.5mg/kg infant","Antidiarrheal Drugs",[],"",0,695],[694,"Racecadotril","30mg","sach","sp","اسبوع و لا يكرر",null,"100-150mg*3 adult","1-1.5mg/kg infant","Antidiarrheal Drugs",[],"",12,696],[695,"Racecadotril","100mg","tab","sp","اسبوع و لا يكرر",null,"100-150mg*3 adult","1-1.5mg/kg infant","Antidiarrheal Drugs",[],"",12,697],[696,"Lactobacillus",null,"cap","sp","اسبوع و لا يكرر",null,null,"1*2","Antidiarrheal Drugs",[],"",0,698],[697,"Laxative from Plant origin",null,"tab","gp","اسبوع و لا يكرر",null,null,"1*2","Laxative Drugs",[],"",0,699],[698,"Glycerin + gelatin adult",null,"supp","gp","اسبوع و لا يكرر",null,null,"1*1","Laxative Drugs",[],"",0,700],[699,"Lactulose",null,"syrup","sp","اسبوع ولا يكرر مزمن مرضى الكبد",null,null,"15-30ml","Laxative Drugs",["duphalac"],"",0,701],[700,"Docusate sodium","20 mg / 5ml","syrup","sp","اسبوع و لا يكرر",null,null,"1*2","Laxative Drugs",[],"",0,702],[701,"Hepato protective",null,"tab","sp","مزمن",null,null,null,"Drugs For Hepatic Diseases",[],"",0,706],[702,"Interferon pegylated (protocol)",null,"vial","cons","مزمن",null,null,null,"Drugs For Hepatic Diseases",[],"",0,707],[703,"Interferon 3000.000 I.U (protocol)","3000.000 I.U","vial","cons","مزمن",null,null,null,"Drugs For Hepatic Diseases",[],"",0,708],[704,"Amantadine","100 mg","cap","cons","مزمن",null,"300mg","1*2","Drugs For Hepatic Diseases",[],"",0,709],[705,"Ribavirin","200 mg","cap","cons","مزمن",null,"10-15mg/kg",null,"Drugs For Hepatic Diseases",[],"",0,710],[706,"Ursodeoxycholic acid (protocol)","250 mg","cap","cons","مزمن",null,"bil analysis","10-15mg/kg","Drugs For Hepatic Diseases",["ursofalk"],"",0,711],[707,"Ursodeoxycholic acid (protocol)","450mg","cap","cons","مزمن",null,"bil analysis","10-15mg/kg","Drugs For Hepatic Diseases",["ursofalk"],"",12,712],[708,"Doxazocin 1 mg","1 mg","tab","sp","مزمن",null,null,null,"Drugs For Urinary & Prostatic diseases",["cardura"],"",0,713],[709,"Doxazocin 4 mg","4 mg","tab","sp","مزمن",null,null,null,"Drugs For Urinary & Prostatic diseases",["cardura"],"",0,714],[710,"Anethole+Borneol+pinene",null,"cap","sp","مزمن",null,null,"1*3","Drugs For Urinary & Prostatic diseases",[],"",0,715],[711,"Ichthyol+potassium iodide",null,"supp","gp","مزمن",null,null,"1*1","Drugs For Urinary & Prostatic diseases",[],"",0,716],[712,"Flavoxate","200 mg","tab","cons","مزمن",null,"800mg","1*3","Drugs For Urinary & Prostatic diseases",[],"",0,717],[713,"Echinacea Angustifolia Ext",null,"tab","sp","مزمن",null,"1500mg","1*3","Drugs For Urinary & Prostatic diseases",[],"",0,718],[714,"Oxybutynin","5 mg","tab","sp","مزمن",null,"30mg","1*3","Drugs For Urinary & Prostatic diseases",[],"",0,719],[715,"Finasteride ( for benign prostatic hypertrophy)","5 mg","tab","sp","مزمن",null,"5mg","1*1","Drugs For Urinary & Prostatic diseases",["propecia","proscar"],"",0,720],[716,"Tadalafil 5 mg","5 mg","tab","cons","مزمن",null,"40mg","1*1","Drugs For Urinary & Prostatic diseases",["cialis"],"",0,721],[717,"Tamsulin","0.4 mg","tab","cons","مزمن",null,"0.8mg","1*1","Drugs For Urinary & Prostatic diseases",["flomax","harnal"],"",0,722],[718,"Tamsulin 0.4 mg+ Solifenacin 6 mg","0.4 mg/50 mg","tab","cons","مزمن",null,null,null,"Drugs For Urinary & Prostatic diseases",["flomax","harnal","vesicare"],"",0,723],[719,"Prostaglandin (PGI) + Alprostadil","20 mcg","amp","cons","مستشفيات",null,null,null,"Drugs For Urinary & Prostatic diseases",[],"",0,724],[720,"Dutasteride","0.5mg","tab","sp","مزمن",null,null,"1*1","Drugs For Urinary & Prostatic diseases",["avodart"],"",0,725],[721,"Solifenacin","10 mg","tab","sp","مزمن",null,"5-10mg","1*2","Drugs For Urinary & Prostatic diseases",["vesicare"],"",0,726],[722,"Solifenacin 5mg + Mirabegron 50 mg","5mg/50 mg","tab","cons","مزمن",null,null,"1*1","Drugs For Urinary & Prostatic diseases",["vesicare"],"",0,727],[723,"Magnesium citrate",null,"sach","sp","اسبوع و لا يكرر",null,"150-300ml*2",null,"Effervescent & Antispasmodic Drugs",[],"",0,728],[724,"Hyoscine Butylbromid","20 mg","amp","gp","اسبوع و لا يكرر",null,null,"1*1","Effervescent & Antispasmodic Drugs",["buscopan"],"",0,729],[725,"(piperazine+hexamine+khellin)",null,"eff","gp","اسبوع و لا يكرر",null,null,"1*2","Effervescent & Antispasmodic Drugs",[],"",0,730],[726,"Piperazine hydrate+colchicine+Atropine",null,"sach","gp","اسبوع و لا يكرر",null,null,null,"Effervescent & Antispasmodic Drugs",[],"",0,731],[727,"Halphabarol+piprazine Eff.G",null,"eff","sp","اسبوع و لا يكرر",null,null,null,"Effervescent & Antispasmodic Drugs",[],"",0,732],[728,"Halphabarol","0.4 mg","tab","sp","اسبوع و لا يكرر",null,null,"1-2 tab*3","Effervescent & Antispasmodic Drugs",[],"",0,733],[729,"Khellin+atropine+phenobarbital",null,"amp","gp","اسبوع و لا يكرر",null,null,null,"Effervescent & Antispasmodic Drugs",[],"",0,734],[730,"Antispasmodic",null,"tab","gp","اسبوع و لا يكرر",null,null,"1*2","Effervescent & Antispasmodic Drugs",[],"",0,735],[731,"Antispasmodic Supp(adult )",null,"supp","gp","اسبوع و لا يكرر",null,null,"1*1","Effervescent & Antispasmodic Drugs",[],"",0,736],[732,"Mesna","400 mg","amp","cons","مستشفيات",null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,737],[733,"Lomustine 10 mg","10 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,738],[734,"Lomustine 40 mg","40 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,739],[735,"Lomustine 100 mg","100 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,740],[736,"Bleomycin","15 mg","amp","cons","مستشفيات",null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,741],[737,"Mitomycin","5 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,742],[738,"Disodium Clodronate 400 mg","400 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,743],[739,"Disodium Clodronate 300 mg","300 mg","amp","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,744],[740,"Megestrol Acetate","40 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,745],[741,"Etoposide100 mg","100 mg","amp","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,746],[742,"Etoposide 50 mg","50 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,747],[743,"Carboplatin 150 mg","150 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,748],[744,"Carboplatin 450 mg","450 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,749],[745,"Epirubicin 10 mg","10 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,750],[746,"Epirubicin 50 mg","50 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,751],[747,"Flutamide","250 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,752],[748,"Methotrexate","2.5 mg","tab","sp",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",["methotrexate"],"",0,753],[749,"Methotrexate","500 mg/20 ml","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",["methotrexate"],"",0,754],[750,"Methotrexate","50 mg /ml","vial","sp",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",["methotrexate"],"",0,755],[751,"Fluorouracil","250 mg-500 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,756],[752,"Vincristine Sulfate","1 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,757],[753,"Doxorubicin 10 mg","10 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,758],[754,"Doxorubicin 50 mg","50 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,759],[755,"Cisplatin 10 mg","10 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,760],[756,"Cisplatin 50 mg","50 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,761],[757,"Paclitaxel 30 mg","30 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,762],[758,"Paclitaxel 300 mg","300 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,763],[759,"Paclitaxel 100 mg","100 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,764],[760,"Calcium Folinate","50mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,765],[761,"Aromatase inhibitor",null,"tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,766],[762,"Vinblastine sulphate","10mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,767],[763,"Tamoxifen citrate","10mg","tab","sp",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",["nolvadex"],"",0,768],[764,"Mitoxantrone","2mg / ml","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,769],[765,"Cyclophosphamide 200 mg+Nacl","200mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,770],[766,"Cyclophosphamide","500mg- 1g","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,771],[767,"Cyclophosphamide","50mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,772],[768,"Hydroxyurea","500 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,773],[769,"Ifosfamide 1g","1g","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,774],[770,"Ifosfamide 2g","2g","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,775],[771,"Procarbazine Hcl","25mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,776],[772,"L-Asparaginase","10,000 I.U","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,777],[773,"Busulphan","2 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,778],[774,"Chlorambucil","5 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,779],[775,"Melphalan","2 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,780],[776,"Docetaxel","20 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,781],[777,"Docetaxel","80 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,782],[778,"Capcitabine","500 mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,783],[779,"Gemcitabine","1 gm","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,784],[780,"Gemcitabine","200 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,785],[781,"Fludarabine","25 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,786],[782,"Mistletoe extract",null,"amp","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,787],[783,"Imatinib","100&400mg","cap","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,788],[784,"Oxaliplatin","50 -100-150mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,789],[785,"Serotonin antagonist",null,"amp","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,790],[786,"Growth factor (granocyte )",null,"vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,791],[787,"Azathioprine","50 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,792],[788,"Leflunamide","10 mg- 20 mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,793],[789,"Rapammune","1gm","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,794],[790,"Anastrazole","1mg","tab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,795],[791,"Cytarabine","100 mg","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,796],[792,"Cytarabine","1gm","vial","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,797],[793,"Bicalutamide","50 mg","captab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,798],[794,"Neurokinin 1 receptor antagonist",null,"captab","cons",null,null,null,null,"Cytotoxic, Immunosuppressive & Complimentary Drugs",[],"",0,799],[795,"Vitamin B complex",null,"tab","gp","5 ايام",null,"100mg",null,"vitamins Drugs",[],"",0,800],[796,"Ergocalciferol (vit D3) 600.000 I.U","600.000 I.U","amp","sp","مزمن بتحليل",null,"50000iu","800-2000iu","vitamins Drugs",[],"",0,801],[797,"cholicalciferol VIT D3 2800 IU/ML",null,"syrup","cons",null,null,null,null,"vitamins Drugs",[],"",0,802],[798,"cholicalciferol VIT D3 400 IU/ML",null,"syrup","cons",null,null,null,null,"vitamins Drugs",[],"",0,803],[799,"cholicalciferol VIT D3 10,000 IU/ML",null,"syrup","cons",null,null,null,null,"vitamins Drugs",[],"",0,804],[800,"Calcium Gluconate","0.1","amp","sp","مستشفيات",null,null,null,"vitamins Drugs",[],"",0,805],[801,"Ferrous Iron salts",null,"tab","gp",null,null,"65mg","1*2","vitamins Drugs",[],"",0,806],[802,"Ascorbic acid+Rutin","160 mg +60 mg","tab","gp",null,null,"2000mg","1*2","vitamins Drugs",[],"",0,807],[803,"Elemental calcium 500mg + vitamin D tablet",null,"tab","sp",null,null,null,"1*1","vitamins Drugs",[],"",0,808],[804,"Elemental calcium at least 500 mg without vitamin D TAB",null,"tab","sp",null,null,null,"1*1","vitamins Drugs",[],"",0,811],[805,"Calcium acetate 700 mg tablet","700 mg","tab","sp",null,null,"2-3gm","667-2.667mg","vitamins Drugs",[],"",0,812],[806,"calcium citrate+ magnesium citrate",null,"tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,813],[807,"calcium+magnesium+zinc+vitamin D3 tablet",null,"tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,814],[808,"Calcium carbonate","500 mg","cap","sp",null,null,null,null,"vitamins Drugs",[],"",0,815],[809,"Elemental iron27mg+ folic acid600mcg+vitamin B 12 tablet",null,"tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,816],[810,"zinc sulphate syrup",null,"syrup","gp",null,null,"40mg","20mg","vitamins Drugs",[],"",0,817],[811,"iron drops",null,"drops","gp",null,null,null,"1mg/kg","vitamins Drugs",[],"",0,818],[812,"Ferrous Syrup student",null,"syrup","gp",null,null,null,"10-15mg","vitamins Drugs",[],"",0,819],[813,"Ferrous Fumarate+Folic acid",null,"tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,820],[814,"Calcium+ Vitamins student",null,"syrup","sp",null,null,null,null,"vitamins Drugs",[],"",0,821],[815,"Folic acid+Iron+ calcium tablet",null,"tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,822],[816,"Folic acid","0.5 mg","tab","cons",null,null,"1000mcg","400-800mcg","vitamins Drugs",[],"",0,823],[817,"Folic acid","5 mg","tab","gp",null,null,"1000mcg","400-800mcg","vitamins Drugs",[],"",12,824],[818,"Vitamin B12","1000 mcg","amp","sp",null,null,"2.8mcg","500-1000mcg","vitamins Drugs",[],"",0,825],[819,"Vitamin C (ascorbic acid)","500 mg","tab","gp",null,null,"2000mg","75-120mg","vitamins Drugs",[],"",0,826],[820,"syp contain ca salt except calcium levulinate",null,"syrup","sp",null,null,"3000mcg","700-1300mcg","vitamins Drugs",[],"",0,827],[821,"syrup containig vitamin B",null,"syrup","sp",null,null,null,null,"vitamins Drugs",[],"",0,828],[822,"pyridoxine Hcl+VIT B6+Riboflavin+VIT B2+VIT B1+thiamine+NICOTINAMIDE+dexapanthenol syp",null,"syrup","sp",null,null,null,null,"vitamins Drugs",[],"",0,829],[823,"Calcium + Vitamin D",null,"tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,830],[824,"ergocalciferol 0.25mg","10000iu","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,831],[825,"Milga","tab","tab","sp",null,null,"4000iu","250mg-2gm","vitamins Drugs",[],"",0,832],[826,"Alfacalcidol 1 mcg","1mcg","captab","cons",null,null,null,null,"vitamins Drugs",[],"",0,null],[827,"Alfacalcidol 0.5 mcg","0.5 mcg","captab","cons",null,null,null,null,"vitamins Drugs",[],"",0,836],[828,"Alfacalcidol 0.25 mcg","0.25 mcg","captab","cons",null,null,null,null,"vitamins Drugs",[],"",0,837],[829,"Alfacalcidol Drop","2 mcg/ml","drops","cons",null,null,null,null,"vitamins Drugs",[],"",0,838],[830,"Erythropoietin","2000 I.U","vial","cons",null,null,null,null,"vitamins Drugs",[],"",0,839],[831,"Erythropoietin","4000 I.U","vial","cons",null,null,null,null,"vitamins Drugs",[],"",0,840],[832,"Deferiprone","500 mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,846],[833,"Deferasirox 125 mg","125 mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,847],[834,"Deferasirox 250 mg","250mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,848],[835,"Deferasirox 500 mg","500 mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,849],[836,"Deferoxamine mesylate","500 mg","amp","cons",null,null,null,null,"vitamins Drugs",[],"",0,850],[837,"Memantine","10 mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,851],[838,"Memantine","10mg/ml","drops","cons",null,null,null,null,"vitamins Drugs",[],"",0,852],[839,"citicholine","500mg/4ml","amp","cons",null,null,null,null,"vitamins Drugs",[],"",0,853],[840,"citicholine","100mg/ml","drops","cons",null,null,null,null,"vitamins Drugs",[],"",0,854],[841,"Cabergoline","0.5mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,856],[842,"Sildenafil","20mg","tab","cons",null,null,null,null,"vitamins Drugs",["viagra"],"",0,857],[843,"Sildenafil","50mg","tab","cons",null,null,null,null,"vitamins Drugs",["viagra"],"",0,858],[844,"Sildenafil","100mg","tab","cons",null,null,null,null,"vitamins Drugs",["viagra"],"",0,859],[845,"Cinacalcet","30mg","tab","cons",null,null,null,null,"vitamins Drugs",[],"",0,860],[846,"Aranesp","10,20,30","syrup","committee",null,null,null,null,"vitamins Drugs",[],"",0,861],[847,"Dimethyl fumarate","240mg","tab","committee",null,null,null,null,"vitamins Drugs",[],"",0,862],[848,"Cladribine","10mg","tab","committee",null,null,null,null,"vitamins Drugs",[],"",0,863],[849,"Natalizumab","20mg/ml","vial","committee",null,null,null,null,"vitamins Drugs",[],"",0,864],[851,"Trastuzumab IV",null,null,null,null,null,null,null,"vitamins Drugs",["herceptin"],"",0,866],[852,"Herceptin (Trastuzumab) SC",null,null,null,null,null,null,null,"vitamins Drugs",["herceptin"],"",0,null],[853,"pertuzumab/ Trastuzumab",null,null,null,null,null,null,null,"vitamins Drugs",["herceptin"],"",0,867],[854,"vinorelbin 30 tab",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,868],[855,"Rituximab",null,null,null,null,null,null,null,"vitamins Drugs",["mabthera"],"",0,869],[856,"Temodal (Temozolamide)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,870],[857,"Sutent (Sunitinib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,871],[858,"Alimta (Pemetrexed)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,872],[859,"Tykerb (Lapatinib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,873],[860,"Avastin (bevacizumab)",null,null,null,null,null,null,null,"vitamins Drugs",["avastin"],"",0,874],[861,"Nexavar (Sorafenib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,875],[862,"Votrient (Pazopanib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,876],[863,"Caelyx (liposomal doxorubicin)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,877],[864,"liposomal doxorubicin/bevacizumab",null,null,null,null,null,null,null,"vitamins Drugs",["avastin"],"",0,878],[865,"Olaparib",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,879],[866,"Erbitux (Cetuximab)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,880],[867,"Vectibix (panitumumab)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,881],[868,"Prolia ONCO (Denosumab 60 )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,882],[869,"Xgeva (denosumab 120 )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,883],[870,"Zytiga (abiraterone acetate)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,884],[871,"Imbruvica (Ibrutinib",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,885],[872,"calquence ( acalabrutinb)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,886],[873,"obinutuzumab",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,887],[874,"Cladrabine",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,888],[875,"Cyramza (Ramucirumab)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,889],[876,"Xalkori (crizotinib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,890],[877,"Iressa (gefitinib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,891],[878,"tagrisso ( osimertinib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,892],[879,"Bortozimab",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,893],[880,"Lenalidomide",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,894],[881,"Daratumumab IV",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,895],[882,"Venetoclax",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,896],[883,"Sandostatin LAR (octreotide)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,897],[884,"Fulvustrant",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,898],[885,"Kadcyla (trastuzumab emtansine)",null,null,null,null,null,null,null,"vitamins Drugs",["herceptin"],"",0,899],[886,"ibrance ( palbociclib)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,900],[887,"kisqali ( ribocilclib )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,901],[888,"verzenio ( abemaciclib )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,902],[889,"Everolimus",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,903],[890,"ادوية اللجنة العليا للدواء بيولوجى",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,904],[891,"Tocilizumab (Actemra)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,905],[892,"Adalimumab (Humira)",null,null,null,null,null,null,null,"vitamins Drugs",["humira"],"",0,null],[893,"Etanercept (Enbrel)",null,null,null,null,null,null,null,"vitamins Drugs",["enbrel"],"",0,906],[894,"Infliximab (Remicade)",null,null,null,null,null,null,null,"vitamins Drugs",["remicade"],"",0,907],[895,"Secukinumab (Cosentyx)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,908],[896,"Nplate (ROMIPLOSTIM)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,909],[897,"CIMZIA (CERTOLIZUMAB)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,910],[898,"Mabthera (Rituximab)",null,null,null,null,null,null,null,"vitamins Drugs",["mabthera"],"",0,911],[899,"Prolia BIO (Denosumab",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,912],[900,"Jakavi",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,913],[901,"Hemlibra (Emicizumab)",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,914],[902,"Tremfya",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,915],[903,"Amgevita 40 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,916],[904,"Stelara (ustekinumab)","100 mg /ml","vial","cons",null,null,null,null,"vitamins Drugs",[],"",0,917],[905,"Simponi (golimumab)","25 mg","cap","cons",null,null,null,null,"vitamins Drugs",[],"",0,918],[906,"Revolade 5 ( eltrombage )","50 mg","cap","cons",null,null,null,null,"vitamins Drugs",[],"",0,919],[907,"darbepoetin (aranesep )","100 mg","cap","cons",null,null,null,null,"vitamins Drugs",[],"",0,920],[908,"factor 7",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,921],[909,"factor 9",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,922],[910,"immnunoglobulin ( ivig )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,923],[911,"mycophenolic acid",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,924],[912,"amino acid supp",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,925],[913,"miglustat",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,926],[914,"xeljanx ( tofacitinib )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,927],[915,"zometa (zoledronic acid ) 4 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,928],[916,"zometa (zoledronic acid ) 5 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,929],[917,"kuvan ( sapropterin )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,930],[918,"invega ( paliperidone )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,931],[919,"sandotatin ( octreotide 0.1 mg )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,932],[920,"sandostatin lar( octreotide 30 mg )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,933],[921,"baritava ( baracitinib )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,934],[922,"forteo ( teripatide )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,935],[923,"opsumit ( macitentan )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,936],[924,"skirizi (risankizumab )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,937],[925,"rinvoq ( upadacitinib )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,938],[926,"Cyclosporine soln 50ml",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,939],[927,"Cyclosporine 25 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,940],[928,"Cyclosporine 50 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,941],[929,"Cyclosporine 100 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,942],[930,"dupilumab (dupixent )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,943],[931,"omalizumab ( xolair )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,944],[932,"deferasirox",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,945],[933,"factor 8",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,946],[934,"Tacrolimus",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,947],[935,"zoladex",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,948],[936,"ponovory",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,949],[937,"aubagio",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,950],[938,"gilenya",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,951],[939,"ocrevus",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,952],[940,"pexonamide",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,953],[941,"sphingomod",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,954],[942,"Tysabri",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,955],[943,"mavenclade",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,956],[944,"siponimod",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,957],[945,"epoetin",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,958],[946,"sirolimus",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,959],[947,"Acitretin",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,960],[948,"mycophenolate mofetil",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,961],[949,"creon",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,962],[950,"penicillamine",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,963],[951,"Riluzole 50 mg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,964],[952,"oprasta vial",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,965],[953,"filgrastim",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,966],[954,"thrombonorm",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,967],[955,"spravato",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,968],[956,"conerta",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,969],[957,"bosentan",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,970],[958,"plavix تجاري",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,971],[959,"Cibinqo 100 (Abrocitinib 100 mg )",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,972],[960,"xarelto تجاري",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,973],[961,"eliquis تجاري",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,974],[962,"zavicefta",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,975],[963,"colistin",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,976],[964,"tygacil",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,977],[965,"spiriva 18 mcg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,978],[966,"anoro ellipta 62.5 mcg / 24 mcg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,979],[967,"breztri 160mcg / 9 mcg / 5 mcg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,980],[968,"enerzairbreezhaler 150/50/160 mcg",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,981],[969,"novorapid / mixtard / lantus / toujeo / tersiba",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,982],[970,"pulmicort / atrovent amp",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,983],[971,"cinnacalcet",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,984],[972,"affinitor",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,985],[973,"omegapress",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,986],[974,"minirin melt",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,987],[975,"kcl amp",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,988],[976,"sod bicarb amp",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,989],[977,"pirfenadone",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,990],[978,"nintedanib",null,null,null,null,null,null,null,"vitamins Drugs",[],"",0,991]];
+
+</script>
+<script>
+(function(){
+'use strict';
+
+const DEDICATION = "For every pharmacist who ever squinted at a handwritten script at 2am.";
+
+const CONFIG = { defaultLimit: 30, defaultEnough: 25 };
+
+const F = Object.fromEntries(SCHEMA.fields.map((f,i)=>[f.key,i]));
+const ROW = (i,k) => DATA[i][F[k]];
+const N = DATA.length;
+const ALL_INDICES = Array.from({length:N}, (_,i)=>i);
+
+const AR_DIACRITICS = /[\u0610-\u061A\u064B-\u0652\u0670\u06D6-\u06ED\u0640]/g;
+const AR_DIGIT = /[\u0660-\u0669\u06F0-\u06F9]/g;
+const BIDI_JUNK = /[\u200B-\u200F\u202A-\u202E]/g;
+
+function norm(s){
+  if (s == null) return '';
+  return String(s)
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+    .replace(AR_DIACRITICS,'')
+    .replace(/[أإآٱ]/g,'ا').replace(/[ىي]/g,'ي')
+    .replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه')
+    .replace(AR_DIGIT, d => String(d.charCodeAt(0) & 0xF))
+    .replace(BIDI_JUNK,'')
+    .replace(/(\d)\s*(mg|mcg|µg|ug|g|ml|iu|%)/g,'$1$2')
+    .replace(/[^\p{L}\p{N}%+.'-]+/gu,' ')
+    .replace(/\s+/g,' ').trim();
+}
+
+const UNIT_ALIAS = { 'ug':'mcg', 'µg':'mcg', 'iu':'iu', 'i.u':'iu' };
+function canonUnit(u){
+  if (!u) return null;
+  u = u.toLowerCase().replace(/\./g,'');
+  return UNIT_ALIAS[u] || u;
+}
+function parseDoseTokens(str){
+  if (!str) return [];
+  const out = [];
+  const re = /(\d+(?:\.\d+)?)\s*(mg|mcg|µg|ug|g|ml|iu|i\.u|%)?/gi;
+  let m;
+  while ((m = re.exec(str))) out.push({ num: parseFloat(m[1]), unit: canonUnit(m[2]) });
+  return out;
+}
+function doseMatches(constraint, tokens){
+  if (!tokens || !tokens.length) return false;
+  for (const t of tokens){
+    if (Math.abs(t.num - constraint.num) < 1e-9){
+      if (!constraint.unit || !t.unit || constraint.unit === t.unit) return true;
+    }
+  }
+  if (tokens.length >= 2){
+    const nums = tokens.map(t=>t.num).sort((a,b)=>a-b);
+    if (constraint.num >= nums[0] && constraint.num <= nums[nums.length-1]) return true;
+  }
+  return false;
+}
+
+const DOSE_TOKEN_RE = /^(\d+(?:\.\d+)?)(mg|mcg|µg|ug|g|ml|iu|%)?$/i;
+
+function parseQuery(raw){
+  const out = {
+    freeTerms: [], phrases: [], excludes: [],
+    doseConstraints: [], formFacet: [], fieldFilters: { form:[], auth:[], group:[] },
+  };
+  if (!raw) return out;
+  const re = /"([^"]+)"|(\S+)/g;
+  let m;
+  while ((m = re.exec(raw))){
+    if (m[1] != null){ const p = norm(m[1]); if (p) out.phrases.push(p); continue; }
+    let tok = m[2];
+    if (tok.startsWith('-') && tok.length > 1){ const ex = norm(tok.slice(1)); if (ex) out.excludes.push(ex); continue; }
+    const fieldMatch = /^(max|day|form|auth|group):(.+)$/i.exec(tok);
+    if (fieldMatch){
+      const field = fieldMatch[1].toLowerCase();
+      const val = fieldMatch[2];
+      if (field === 'max' || field === 'day'){
+        const dm = DOSE_TOKEN_RE.exec(val);
+        if (dm){ out.doseConstraints.push({ field, num: parseFloat(dm[1]), unit: canonUnit(dm[2]) }); continue; }
+      } else { out.fieldFilters[field].push(norm(val)); continue; }
+    }
+    const dm2 = DOSE_TOKEN_RE.exec(tok);
+    if (dm2){ out.doseConstraints.push({ field:'conc', num: parseFloat(dm2[1]), unit: canonUnit(dm2[2]) }); continue; }
+    const nt = norm(tok);
+    if (!nt) continue;
+    let matchedForm = null;
+    for (const k in SCHEMA.enums.form){
+      const e = SCHEMA.enums.form[k];
+      if (k === nt || norm(e.s) === nt || norm(e.l) === nt){ matchedForm = k; break; }
+    }
+    if (matchedForm){ out.formFacet.push(matchedForm); continue; }
+    out.freeTerms.push(nt);
+  }
+  return out;
+}
+
+let META, HAY_A, HAY_B, TOKENS, PRE, FACET;
+function addFacet(map, key, i){ let s = map.get(key); if (!s){ s = []; map.set(key, s); } s.push(i); }
+
+function build(){
+  META = new Array(N);
+  HAY_A = new Array(N);
+  HAY_B = new Array(N);
+  TOKENS = new Array(N);
+  PRE = new Map();
+  FACET = { form: new Map(), auth: new Map(), group: new Map() };
+  for (let i=0;i<N;i++){
+    const name = ROW(i,'name'), conc = ROW(i,'conc'), formKey = ROW(i,'form'), authKey = ROW(i,'auth'),
+          duration = ROW(i,'duration'), maxDose = ROW(i,'maxDose'), dayDose = ROW(i,'dayDose'),
+          group = ROW(i,'group'), syn = ROW(i,'syn') || [];
+    const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
+    const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
+    const nName = norm([name, syn.join(' '), conc||'', formLbl ? (formLbl.l+' '+formLbl.s) : ''].join(' '));
+    const nAll = norm([nName, authLbl ? (authLbl.l+' '+authLbl.s) : '', duration||'', group||'', maxDose||'', dayDose||''].join(' '));
+    HAY_A[i] = nName; HAY_B[i] = nAll;
+    const toks = nName.split(' ').filter(Boolean);
+    TOKENS[i] = toks;
+    for (const t of toks){ if (t.length >= 3) addFacet(PRE, t.slice(0,3), i); }
+    META[i] = { concTokens: parseDoseTokens(conc), maxTokens: parseDoseTokens(maxDose), dayTokens: parseDoseTokens(dayDose) };
+    if (formKey) addFacet(FACET.form, formKey, i);
+    if (authKey) addFacet(FACET.auth, authKey, i);
+    if (group) addFacet(FACET.group, group, i);
+  }
+}
+build();
+
+const UNI = {
+  unicode: true,
+  interSplit: "[^\\p{L}\\d']+",
+  intraSplit: "\\p{Ll}\\p{Lu}",
+  intraBound: "\\p{L}\\d|\\d\\p{L}|\\p{Ll}\\p{Lu}",
+  intraChars: "[\\p{L}\\d']",
+  intraContr: "'\\p{L}{1,2}\\b",
+};
+const TOLERANCE = {
+  strict:    { opts:Object.assign({},UNI,{intraMode:0,intraIns:0,interLft:2,interRgt:1,outOfOrder:0}), rescue:null },
+  balanced:  { opts:Object.assign({},UNI,{intraMode:0,intraIns:1,interLft:1,interRgt:0,outOfOrder:1}), rescue:0.65 },
+  forgiving: { opts:Object.assign({},UNI,{intraMode:1,intraIns:1,intraSub:1,intraTrn:1,intraDel:1,interLft:0,interRgt:0,outOfOrder:1}), rescue:0.55 },
+  wild:      { opts:Object.assign({},UNI,{intraMode:1,intraIns:1,intraSub:1,intraTrn:1,intraDel:1,intraChars:"[\\p{L}\\d' ]",interLft:0,interRgt:0,outOfOrder:1,interIns:1e9}), rescue:0.45 },
+};
+
+const ufCache = new Map();
+function getUF(opts){
+  const key = JSON.stringify(opts);
+  let u = ufCache.get(key);
+  if (!u){ u = new uFuzzy(opts); ufCache.set(key, u); }
+  return u;
+}
+
+function scoreOf(inf, k, fieldWeight, pass, needleLen, rank){
+  let s = 100 * fieldWeight;
+  s += pass===0?120:pass===1?60:pass===2?35:pass===3?15:5;
+  const chars = (inf.chars && inf.chars[k]) || 0;
+  const terms = (inf.terms && inf.terms[k]) || 0;
+  const intraIns = (inf.intraIns && inf.intraIns[k]) || 0;
+  const interIns = (inf.interIns && inf.interIns[k]) || 0;
+  const lft = ((inf.interLft2 && inf.interLft2[k]) || 0) + ((inf.interLft1 && inf.interLft1[k]) || 0);
+  const rgt = ((inf.interRgt2 && inf.interRgt2[k]) || 0) + ((inf.interRgt1 && inf.interRgt1[k]) || 0);
+  s += 26 * Math.min(1, chars / Math.max(1, needleLen));
+  s += 18 * terms;
+  s += lft > 0 ? 22 : 0;
+  s += rgt > 0 ? 10 : 0;
+  s -= 9 * intraIns;
+  s -= 3 * interIns;
+  s -= (rank || 0) * 0.08;
+  return s;
+}
+
+function runUFuzzyPass(opts, haystackFull, universe, needle){
+  const out = [];
+  if (!needle) return out;
+  const uf = getUF(opts);
+  const sub = universe.map(i => haystackFull[i]);
+  const idxs = uf.filter(sub, needle);
+  if (!idxs || !idxs.length) return out;
+  const info = uf.info(idxs, sub, needle);
+  if (!info.idx.length) return out;
+  const order = uf.sort(info, sub, needle);
+  for (let rank=0;rank<order.length;rank++){ const oi = order[rank]; out.push({ rowIdx: universe[info.idx[oi]], info, k: oi, rank }); }
+  return out;
+}
+
+function prefixPass(freeTerms, universeSet){
+  if (!freeTerms.length) return null;
+  const candidateSets = [];
+  for (const term of freeTerms){
+    if (term.length < 2) return null;
+    const bucket = PRE.get(term.slice(0,3)) || [];
+    const verified = new Set();
+    for (const i of bucket){
+      if (universeSet && !universeSet.has(i)) continue;
+      const toks = TOKENS[i];
+      for (let ti=0; ti<toks.length; ti++){ if (toks[ti].startsWith(term)){ verified.add(i); break; } }
+    }
+    candidateSets.push(verified);
+  }
+  candidateSets.sort((a,b)=>a.size-b.size);
+  let result = candidateSets[0];
+  for (let ci=1; ci<candidateSets.length; ci++){
+    const next = new Set();
+    for (const v of result) if (candidateSets[ci].has(v)) next.add(v);
+    result = next;
+  }
+  return result;
+}
+
+function diceCoeff(a,b){
+  if (a.length < 2 || b.length < 2) return a===b?1:0;
+  const bigrams = s => { const m = new Map(); for (let i=0;i<s.length-1;i++){ const g=s.substr(i,2); m.set(g,(m.get(g)||0)+1); } return m; };
+  const ma = bigrams(a), mb = bigrams(b);
+  let inter = 0;
+  for (const [g,c] of ma) if (mb.has(g)) inter += Math.min(c, mb.get(g));
+  const total = (a.length-1)+(b.length-1);
+  return total <= 0 ? 0 : (2*inter)/total;
+}
+function damerauLevNorm(a,b){
+  const CAP = 24;
+  if (a.length > CAP) a = a.slice(0,CAP);
+  if (b.length > CAP) b = b.slice(0,CAP);
+  const m = a.length, n = b.length;
+  if (m===0 || n===0) return m===n?1:0;
+  const d = Array.from({length:m+1}, ()=> new Array(n+1).fill(0));
+  for (let i=0;i<=m;i++) d[i][0]=i;
+  for (let j=0;j<=n;j++) d[0][j]=j;
+  for (let i=1;i<=m;i++){
+    for (let j=1;j<=n;j++){
+      const cost = a[i-1]===b[j-1]?0:1;
+      d[i][j] = Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+cost);
+      if (i>1 && j>1 && a[i-1]===b[j-2] && a[i-2]===b[j-1]) d[i][j] = Math.min(d[i][j], d[i-2][j-2]+cost);
+    }
+  }
+  return 1 - d[m][n] / Math.max(m,n);
+}
+function rescuePass(term, universe, threshold){
+  const out = [];
+  for (const i of universe){
+    let best = 0;
+    for (const tok of TOKENS[i]){ const sc = Math.max(diceCoeff(term,tok), damerauLevNorm(term,tok)); if (sc > best) best = sc; }
+    if (best >= threshold) out.push({ rowIdx:i, rescueScore:best });
+  }
+  return out;
+}
+
+function executeSearch(freeTerms, phrases, excludes, universe0, tolerance, enough){
+  const tol = TOLERANCE[tolerance] || TOLERANCE.balanced;
+  const merged = new Map();
+  const put = (rowIdx, score, pass) => { const cur = merged.get(rowIdx); if (!cur || score > cur.score) merged.set(rowIdx, {score, pass}); };
+  let universe = universe0;
+  if (phrases.length) universe = universe.filter(i => phrases.every(p => HAY_B[i].includes(p)));
+  const finish = () => {
+    if (excludes.length){ for (const [i] of merged) if (excludes.some(ex => HAY_B[i].includes(ex))) merged.delete(i); }
+    return merged;
+  };
+  if (!freeTerms.length){ for (const i of universe) put(i, 0, 9); return finish(); }
+  const needle = freeTerms.join(' ');
+  const needleLen = needle.length;
+  const universeSet = new Set(universe);
+
+  const pre = prefixPass(freeTerms, universeSet);
+  if (pre && pre.size) for (const i of pre) put(i, 1000 - HAY_A[i].length*0.01, 0);
+
+  if (merged.size < enough){
+    const passA = runUFuzzyPass(tol.opts, HAY_A, universe, needle);
+    for (const r of passA) put(r.rowIdx, scoreOf(r.info, r.k, 1.0, 1, needleLen, r.rank), 1);
+  }
+  if (merged.size < enough && tolerance !== 'strict'){
+    const typoOpts = Object.assign({}, tol.opts, { intraMode:1, intraIns:1, intraSub:1, intraTrn:1, intraDel:1 });
+    const passT = runUFuzzyPass(typoOpts, HAY_A, universe, needle);
+    for (const r of passT) put(r.rowIdx, scoreOf(r.info, r.k, 1.0, 2, needleLen, r.rank), 2);
+  }
+  if (merged.size < enough){
+    const passB = runUFuzzyPass(tol.opts, HAY_B, universe, needle);
+    for (const r of passB) put(r.rowIdx, scoreOf(r.info, r.k, 0.5, 3, needleLen, r.rank), 3);
+  }
+  if (merged.size < 5 && freeTerms.length === 1 && freeTerms[0].length >= 4 && tol.rescue){
+    const resc = rescuePass(freeTerms[0], universe, tol.rescue);
+    for (const r of resc) put(r.rowIdx, r.rescueScore*90, 4);
+  }
+  return finish();
+}
+
+const SETTINGS_KEY = 'rx.settings.v3';
+const defaultSettings = {
+  tolerance: 'balanced', limit: CONFIG.defaultLimit, enough: CONFIG.defaultEnough,
+  showScores: false, showProvenance: false, searchArabic: true,
+  fieldToggles: { A: true, B: true }, theme: 'auto',
+};
+function loadSettings(){
+  try{ const raw = localStorage.getItem(SETTINGS_KEY); if (raw) return Object.assign({}, defaultSettings, JSON.parse(raw)); }
+  catch(e){}
+  return Object.assign({}, defaultSettings);
+}
+function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings)); }catch(e){} }
+
+function loadJSON(key, fallback){ try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } }
+function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+
+const state = {
+  settings: loadSettings(),
+  activeFacets: { form: new Set(), auth: new Set(), group: new Set() },
+  sort: 'relevance',
+  view: 'card',
+  recents: loadJSON('rx.recents.v1', []),
+  pins: new Set(loadJSON('rx.pins.v1', [])),
+  lastQuery: { freeKey: '', structKey: '', resultIdxs: null },
+  currentIdxs: [],
+  currentPasses: new Map(),
+  currentFreeText: '',
+  renderCount: 0,
+};
+
+function structKey(pq){
+  return JSON.stringify({
+    f: [...state.activeFacets.form].sort(), a: [...state.activeFacets.auth].sort(), g: [...state.activeFacets.group].sort(),
+    ff: pq.fieldFilters, fa: pq.formFacet, dc: pq.doseConstraints, ph: pq.phrases, ex: pq.excludes,
+  });
+}
+
+function computeUniverse(pq){
+  const sets = [];
+  for (const type of ['form','auth','group']){
+    if (state.activeFacets[type].size){
+      const acc = new Set();
+      for (const val of state.activeFacets[type]) for (const i of (FACET[type].get(val)||[])) acc.add(i);
+      sets.push(acc);
+    }
+  }
+  const formVals = [...pq.fieldFilters.form, ...pq.formFacet];
+  if (formVals.length){
+    const acc = new Set();
+    for (const val of formVals) for (const i of (FACET.form.get(val)||[])) acc.add(i);
+    sets.push(acc);
+  }
+  if (pq.fieldFilters.auth.length){
+    const acc = new Set();
+    for (const [k, arr] of FACET.auth){
+      const lbl = SCHEMA.enums.auth[k];
+      if (pq.fieldFilters.auth.some(v => k===v || norm(lbl.l)===v || norm(lbl.s)===v)) for (const i of arr) acc.add(i);
+    }
+    sets.push(acc);
+  }
+  if (pq.fieldFilters.group.length){
+    const acc = new Set();
+    for (const [k, arr] of FACET.group){
+      const nk = norm(k);
+      if (pq.fieldFilters.group.some(v => nk.includes(v))) for (const i of arr) acc.add(i);
+    }
+    sets.push(acc);
+  }
+  for (const c of pq.doseConstraints){
+    const acc = new Set();
+    const field = c.field==='conc' ? 'concTokens' : c.field==='max' ? 'maxTokens' : 'dayTokens';
+    for (let i=0;i<N;i++) if (doseMatches(c, META[i][field])) acc.add(i);
+    sets.push(acc);
+  }
+  if (!sets.length) return ALL_INDICES;
+  sets.sort((a,b)=>a.size-b.size);
+  let base = sets[0];
+  for (let s=1;s<sets.length;s++){ const next = new Set(); for (const v of base) if (sets[s].has(v)) next.add(v); base = next; }
+  return [...base];
+}
+
+function runSearch(raw){
+  const pq = parseQuery(raw);
+  const universe = computeUniverse(pq);
+  const sKey = structKey(pq);
+  const freeKey = pq.freeTerms.join(' ');
+  let candidateUniverse = universe;
+  if (state.lastQuery.resultIdxs && state.lastQuery.structKey === sKey && freeKey.length > 0 && state.lastQuery.freeKey.length > 0 && freeKey.startsWith(state.lastQuery.freeKey)){
+    candidateUniverse = state.lastQuery.resultIdxs;
+  }
+  const merged = executeSearch(pq.freeTerms, pq.phrases, pq.excludes, candidateUniverse, state.settings.tolerance, state.settings.enough);
+  let arr = [...merged.entries()];
+  applySort(arr);
+  const idxs = arr.map(e=>e[0]);
+  state.lastQuery = { freeKey, structKey: sKey, resultIdxs: idxs };
+  state.currentIdxs = idxs;
+  state.currentPasses = new Map(arr.map(([i,v])=>[i, v.pass]));
+  state.currentFreeText = freeKey;
+  return idxs;
+}
+
+function applySort(arr){
+  switch(state.sort){
+    case 'name':
+      arr.sort((a,b)=> ROW(a[0],'name').localeCompare(ROW(b[0],'name'))); break;
+    case 'conc':
+      arr.sort((a,b)=>{
+        const ca = (META[a[0]].concTokens[0]||{}).num ?? Infinity;
+        const cb = (META[b[0]].concTokens[0]||{}).num ?? Infinity;
+        return ca - cb;
+      }); break;
+    case 'form':
+      arr.sort((a,b)=> (ROW(a[0],'form')||'').localeCompare(ROW(b[0],'form')||'')); break;
+    case 'class':
+      arr.sort((a,b)=> (ROW(a[0],'group')||'').localeCompare(ROW(b[0],'group')||'')); break;
+    default:
+      arr.sort((a,b)=> b[1].score - a[1].score || ROW(a[0],'name').localeCompare(ROW(b[0],'name')));
+  }
+  arr.sort((a,b)=>{
+    const pa = state.pins.has(ROW(a[0],'id')) ? 1 : 0;
+    const pb = state.pins.has(ROW(b[0],'id')) ? 1 : 0;
+    return pb - pa;
+  });
+}
+
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function highlightName(name, freeText){
+  if (!freeText) return esc(name);
+  const hay = [name.toLowerCase()];
+  const uf = getUF(TOLERANCE.balanced.opts);
+  const idxs = uf.filter(hay, freeText);
+  if (!idxs || !idxs.length) return esc(name);
+  const info = uf.info(idxs, hay, freeText);
+  if (!info.idx.length) return esc(name);
+  const order = uf.sort(info, hay, freeText);
+  const k = order[0];
+  if (!info.ranges[k]) return esc(name);
+  return uFuzzy.highlight(name, info.ranges[k], (part, matched) => matched ? '<b>'+esc(part)+'</b>' : esc(part));
+}
+
+function titleCase(s){ return s.replace(/\w\S*/g, t => t[0].toUpperCase()+t.slice(1).toLowerCase()); }
+
+const PASS_LABEL = { 0:'exact', 1:'fuzzy', 2:'typo', 3:'field', 4:'rescue', 9:'' };
+
+function cardHTML(i){
+  const id = ROW(i,'id');
+  const name = ROW(i,'name');
+  const conc = ROW(i,'conc');
+  const formKey = ROW(i,'form');
+  const authKey = ROW(i,'auth');
+  const duration = ROW(i,'duration');
+  const group = ROW(i,'group');
+  const inh = ROW(i,'inh') || 0;
+  const authInh = !!(inh & 1), durInh = !!(inh & 2), dayInh = !!(inh & 4), maxInh = !!(inh & 8);
+  const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
+  const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
+  const nameHTML = highlightName(name, state.currentFreeText);
+  const pinned = state.pins.has(id);
+
+  let pills = '';
+  if (conc) pills += '<span class="pill pill-conc">'+esc(conc)+'</span>';
+  if (formLbl) pills += '<span class="pill pill-form">'+esc(formLbl.s)+'</span>';
+  if (authLbl) pills += '<span class="pill pill-auth-'+authKey+(authInh?' inherited':'')+'" title="'+(authInh?'Same as previous entry':'')+'">'+esc(authLbl.s)+'</span>';
+  if (duration) pills += '<span class="pill pill-duration'+(durInh?' inherited':'')+'" dir="auto" title="'+(durInh?'Same as previous entry':'')+'">'+esc(duration)+'</span>';
+
+  const pass = state.currentPasses.get(i);
+  const showProv = state.settings.showProvenance && pass != null && PASS_LABEL[pass];
+  const showScore = state.settings.showScores;
+
+  return (
+    '<div class="card" data-i="'+i+'" role="button" tabindex="0">'+
+      '<div class="card-main">'+
+        '<div class="card-name">'+nameHTML+'</div>'+
+        '<div class="pillrow">'+pills+'</div>'+
+        (group ? '<div class="card-class">'+esc(group)+'</div>' : '')+
+        (showProv ? '<div class="matchbadge">'+PASS_LABEL[pass]+(showScore?' · '+Math.round(state.currentPasses.get(i)):'')+'</div>' : '')+
+      '</div>'+
+      '<div class="card-rail">'+
+        '<button class="copybtn pinbtn" data-i="'+i+'" data-act="pin" aria-label="Pin" title="Pin">'+(pinned ? svgStarFilled() : svgStar())+'</button>'+
+        '<button class="copybtn" data-i="'+i+'" data-act="copy" aria-label="Copy" title="Copy">'+svgCopy()+'</button>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+function svgCopy(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>'; }
+function svgStar(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'; }
+function svgStarFilled(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'; }
+function svgSearch(){ return '<svg class="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>'; }
+
+const els = {};
+function q(id){ return document.getElementById(id); }
+
+function greeting(){
+  const h = new Date().getHours();
+  if (h < 5) return 'Still up?';
+  if (h < 12) return 'Good morning.';
+  if (h < 17) return 'Good afternoon.';
+  if (h < 21) return 'Good evening.';
+  return 'Good evening.';
+}
+
+function renderEmptyState(){
+  const chips = state.recents.slice(0,8).map(r => '<span class="chip recent-chip" data-q="'+esc(r)+'">'+esc(r)+'</span>').join('');
+  els.results.innerHTML = (
+    '<div class="emptystate">'+
+      '<div class="bloom"></div>'+
+      '<div class="greet">'+greeting()+'</div>'+
+      (chips ? '<div class="recentchips">'+chips+'</div>' : '<div style="color:var(--ink-3);font-size:13.5px">Type a drug name to begin.</div>')+
+    '</div>'
+  );
+  els.sentinel.style.display = 'none';
+  els.resultcount.textContent = '';
+}
+
+function renderNoResults(){
+  els.results.innerHTML = (
+    '<div class="emptystate">'+
+      '<div class="bloom"></div>'+
+      '<div class="greet">No matches.</div>'+
+      '<div style="color:var(--ink-3);font-size:13.5px">Try a shorter term, or loosen tolerance in Settings.</div>'+
+    '</div>'
+  );
+  els.sentinel.style.display = 'none';
+  els.resultcount.textContent = '0 results';
+}
+
+function paint(reset){
+  if (reset) state.renderCount = 0;
+  const limit = state.settings.limit || CONFIG.defaultLimit;
+  const total = state.currentIdxs.length;
+  const upto = Math.min(total, state.renderCount + limit);
+  const slice = state.currentIdxs.slice(reset ? 0 : state.renderCount, upto);
+  const html = slice.map(cardHTML).join('');
+  if (reset) els.results.innerHTML = html; else els.results.insertAdjacentHTML('beforeend', html);
+  state.renderCount = upto;
+  els.sentinel.style.display = upto < total ? 'block' : 'none';
+  els.resultcount.textContent = total === 0 ? '0 results' : (total + (total===1?' result':' results'));
+  els.resultcount.setAttribute('aria-live','polite');
+}
+
+let rafToken = null, pendingValue = null;
+function scheduleSearch(){
+  if (rafToken) return;
+  rafToken = requestAnimationFrame(() => {
+    rafToken = null;
+    const raw = pendingValue;
+    if (raw.trim() === '' && state.activeFacets.form.size===0 && state.activeFacets.auth.size===0 && state.activeFacets.group.size===0){
+      state.currentIdxs = []; state.currentFreeText=''; renderEmptyState(); updateChipCounts(); return;
+    }
+    const idxs = runSearch(raw);
+    if (!idxs.length) { renderNoResults(); } else { paint(true); }
+    updateChipCounts();
+  });
+}
+
+function onInput(e){
+  pendingValue = e.target.value;
+  els.clearbtn.classList.toggle('show', pendingValue.length>0);
+  scheduleSearch();
+}
+
+function commitRecent(raw){
+  const v = raw.trim();
+  if (!v) return;
+  const list = state.recents.filter(r => r.toLowerCase() !== v.toLowerCase());
+  list.unshift(v);
+  state.recents = list.slice(0,8);
+  saveJSON('rx.recents.v1', state.recents);
+}
+
+const FORM_KEYS = Object.keys(SCHEMA.enums.form).filter(k=>k!=='other');
+const AUTH_KEYS = Object.keys(SCHEMA.enums.auth).filter(k=>k!=='other');
+const GROUP_KEYS = [...FACET.group.keys()].sort((a,b)=>a.localeCompare(b));
+
+function updateChipCounts(){
+  const formChip = q('chip-filters');
+  const activeCount = state.activeFacets.form.size + state.activeFacets.auth.size + state.activeFacets.group.size;
+  if (formChip){
+    formChip.classList.toggle('active', activeCount>0);
+    formChip.querySelector('.chip-label').textContent = activeCount>0 ? ('Filters ('+activeCount+')') : 'Filters';
+  }
+}
+
+function buildFacetSheet(){
+  const sections = [
+    ['Form', 'form', FORM_KEYS.map(k=>({v:k, l:SCHEMA.enums.form[k].l}))],
+    ['Authority', 'auth', AUTH_KEYS.map(k=>({v:k, l:SCHEMA.enums.auth[k].l}))],
+    ['Class', 'group', GROUP_KEYS.map(k=>({v:k, l:k}))],
+  ];
+  let html = '';
+  for (const [title, type, items] of sections){
+    html += '<div class="facet-group"><div class="facet-title">'+title+'</div><div class="facet-chips">';
+    for (const it of items){
+      const active = state.activeFacets[type].has(it.v);
+      html += '<span class="chip facet-opt'+(active?' active':'')+'" data-type="'+type+'" data-v="'+esc(it.v)+'">'+esc(it.l)+'</span>';
+    }
+    html += '</div></div>';
+  }
+  html += '<button class="btn" id="clearFilters" style="width:100%">Clear all filters</button>';
+  q('sheet-filters-body').innerHTML = html;
+}
+
+function openSheet(name){
+  q('sheetbackdrop').classList.add('show');
+  document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
+  if (name === 'filters') buildFacetSheet();
+  if (name === 'sort') buildSortSheet();
+  if (name === 'settings') buildSettingsSheet();
+  q('sheet-'+name).classList.add('show');
+}
+function closeSheets(){
+  q('sheetbackdrop').classList.remove('show');
+  document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
+}
+
+function buildSortSheet(){
+  const opts = [['relevance','Relevance'],['name','Name A→Z'],['conc','Concentration'],['form','Form'],['class','Class']];
+  let html = '';
+  for (const [v,l] of opts){
+    html += '<div class="rowline sort-opt" data-v="'+v+'"><span class="rl-label">'+l+'</span><span class="rl-check">'+svgCheck()+'</span></div>';
+  }
+  q('sheet-sort-body').innerHTML = html;
+  document.querySelectorAll('.sort-opt').forEach(el => el.classList.toggle('selected', el.dataset.v === state.sort));
+}
+function svgCheck(){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'; }
+
+function buildSettingsSheet(){
+  const tol = state.settings.tolerance;
+  const tolLabels = [['strict','Strict'],['balanced','Balanced'],['forgiving','Forgiving'],['wild','Wild']];
+  let html = '<div class="facet-group"><div class="facet-title">Search tolerance</div><div class="facet-chips">';
+  for (const [v,l] of tolLabels) html += '<span class="chip tol-opt'+(v===tol?' active':'')+'" data-v="'+v+'">'+l+'</span>';
+  html += '</div></div>';
+  html += togglerow('showScores', 'Show scores', state.settings.showScores);
+  html += togglerow('showProvenance', 'Show match provenance', state.settings.showProvenance);
+  html += '<div class="slider-row"><div class="facet-title">Result limit ('+state.settings.limit+')</div><input type="range" id="limitSlider" min="10" max="60" step="5" value="'+state.settings.limit+'"></div>';
+  html += '<hr style="border:none;border-top:1px solid var(--cloudy);opacity:.3;margin:14px 0">';
+  html += '<div class="rowline" id="aboutOpen"><span class="rl-label">About Rx Express</span></div>';
+  html += '<div class="rowline" id="downloadSW"><span class="rl-label">Download sw.js (full offline)</span></div>';
+  html += '<div class="rowline" id="resetData"><span class="rl-label" style="color:var(--crail)">Clear pins, recents & settings</span></div>';
+  q('sheet-settings-body').innerHTML = html;
+}
+function togglerow(key, label, val){
+  return '<div class="togglerow"><span class="rl-label">'+label+'</span><span class="switch'+(val?' on':'')+'" data-key="'+key+'"></span></div>';
+}
+
+function openDetail(i){
+  const name = ROW(i,'name');
+  const conc = ROW(i,'conc');
+  const formKey = ROW(i,'form');
+  const authKey = ROW(i,'auth');
+  const duration = ROW(i,'duration');
+  const maxDose = ROW(i,'maxDose');
+  const dayDose = ROW(i,'dayDose');
+  const group = ROW(i,'group');
+  const syn = ROW(i,'syn') || [];
+  const inh = ROW(i,'inh') || 0;
+  const authInh = !!(inh&1), durInh = !!(inh&2), dayInh = !!(inh&4), maxInh = !!(inh&8);
+  const formLbl = formKey ? SCHEMA.enums.form[formKey].l : null;
+  const authLbl = authKey ? SCHEMA.enums.auth[authKey].l : null;
+
+  const rows = [
+    ['Concentration', conc, false, false],
+    ['Form', formLbl, false, false],
+    ['Authority', authLbl, authInh, false],
+    ['Duration', duration, durInh, true],
+    ['Max dose', maxDose, maxInh, false],
+    ['Daily dose', dayDose, dayInh, false],
+    ['Class', group, false, false],
+    ['Also known as', syn.length ? syn.join(', ') : null, false, false],
+  ].filter(r => r[1]);
+
+  let html = '<div class="detail-title">'+esc(name)+'</div>';
+  html += '<div class="detail-sub">'+(syn.length ? esc(syn.slice(0,3).join(' · ')) : ' ')+'</div>';
+  html += '<div class="detail-grid">';
+  for (const [k,v,inherited,rtl] of rows){
+    html += '<div class="detail-row"><span class="detail-k">'+k+'</span><span class="detail-v"'+(rtl?' dir="auto"':'')+'>'+esc(v)+(inherited?'<div class="inh-note">Same as previous entry</div>':'')+'</span></div>';
+  }
+  html += '</div>';
+  const pinned = state.pins.has(ROW(i,'id'));
+  html += '<div class="detail-actions">';
+  html += '<button class="btn" id="detailPin" data-i="'+i+'">'+(pinned?'Unpin':'Pin')+'</button>';
+  html += '<button class="btn primary" id="detailCopy" data-i="'+i+'">Copy</button>';
+  html += '</div>';
+  q('sheet-detail-body').innerHTML = html;
+  openSheet('detail');
+}
+
+function rowAsText(i){
+  const parts = [ROW(i,'name')];
+  if (ROW(i,'conc')) parts.push(ROW(i,'conc'));
+  const formKey = ROW(i,'form'); if (formKey) parts.push(SCHEMA.enums.form[formKey].l);
+  const authKey = ROW(i,'auth'); if (authKey) parts.push(SCHEMA.enums.auth[authKey].l);
+  if (ROW(i,'duration')) parts.push(ROW(i,'duration'));
+  if (ROW(i,'maxDose')) parts.push('Max: '+ROW(i,'maxDose'));
+  if (ROW(i,'dayDose')) parts.push('Daily: '+ROW(i,'dayDose'));
+  return parts.join(' — ');
+}
+
+let toastTimer = null;
+function toast(msg){
+  const el = q('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 1600);
+}
+
+function copyText(text){
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Copied')).catch(()=>fallbackCopy(text));
+  } else fallbackCopy(text);
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Copied'); }catch(e){ toast('Copy failed'); }
+  document.body.removeChild(ta);
+}
+
+function togglePin(i){
+  const id = ROW(i,'id');
+  if (state.pins.has(id)) state.pins.delete(id); else state.pins.add(id);
+  saveJSON('rx.pins.v1', [...state.pins]);
+}
+
+function csvEscape(v){
+  const s = String(v==null?'':v);
+  if (/[",\r\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function exportCSV(){
+  const header = ['Drug','Concentration','Form','Authority','Duration','Max dose','Daily dose','Class'];
+  const lines = [header.map(csvEscape).join(',')];
+  for (const i of state.currentIdxs.length ? state.currentIdxs : ALL_INDICES){
+    const formKey = ROW(i,'form'); const authKey = ROW(i,'auth');
+    lines.push([
+      ROW(i,'name'), ROW(i,'conc')||'', formKey?SCHEMA.enums.form[formKey].l:'', authKey?SCHEMA.enums.auth[authKey].l:'',
+      ROW(i,'duration')||'', ROW(i,'maxDose')||'', ROW(i,'dayDose')||'', ROW(i,'group')||'',
+    ].map(csvEscape).join(','));
+  }
+  const csv = '\uFEFF' + lines.join('\r\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const qpart = els.q.value.trim() ? els.q.value.trim().replace(/[^a-z0-9]+/gi,'-').slice(0,30) : 'all';
+  a.href = url; a.download = 'formulary-'+qpart+'-'+stamp+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+function copyAllTSV(){
+  const header = ['Drug','Concentration','Form','Authority','Duration','Max dose','Daily dose','Class'];
+  const lines = [header.join('\t')];
+  for (const i of state.currentIdxs){
+    const formKey = ROW(i,'form'); const authKey = ROW(i,'auth');
+    lines.push([
+      ROW(i,'name'), ROW(i,'conc')||'', formKey?SCHEMA.enums.form[formKey].l:'', authKey?SCHEMA.enums.auth[authKey].l:'',
+      ROW(i,'duration')||'', ROW(i,'maxDose')||'', ROW(i,'dayDose')||'', ROW(i,'group')||'',
+    ].join('\t'));
+  }
+  copyText(lines.join('\n'));
+}
+
+function initChips(){
+  const wrap = q('chiprow');
+  let html = '<span class="chip" id="chip-filters"><span class="chip-label">Filters</span></span>';
+  html += '<span class="chip" id="chip-sort"><span class="chip-label">Sort</span></span>';
+  html += '<span class="chip" id="chip-pins">Pinned ('+state.pins.size+')</span>';
+  wrap.innerHTML = html;
+}
+
+function bindEvents(){
+  els.q.addEventListener('input', onInput);
+  els.q.addEventListener('focus', ()=> els.searchbar.classList.add('focused'));
+  els.q.addEventListener('blur', ()=>{ els.searchbar.classList.remove('focused'); if (els.q.value.trim()) commitRecent(els.q.value); });
+  els.q.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){ els.q.value=''; pendingValue=''; els.clearbtn.classList.remove('show'); scheduleSearch(); }
+    if (e.key === 'Enter' && state.currentIdxs.length){ openDetail(state.currentIdxs[0]); }
+  });
+  els.clearbtn.addEventListener('click', ()=>{ els.q.value=''; pendingValue=''; els.clearbtn.classList.remove('show'); scheduleSearch(); els.q.focus(); });
+
+  document.addEventListener('keydown', e => {
+    const tag = (document.activeElement && document.activeElement.tagName) || '';
+    if ((e.key === '/' && tag !== 'INPUT') || ((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k')){
+      e.preventDefault(); els.q.focus();
+    }
+  });
+
+  els.results.addEventListener('click', e => {
+    const actBtn = e.target.closest('[data-act]');
+    if (actBtn){
+      const i = parseInt(actBtn.dataset.i, 10);
+      if (actBtn.dataset.act === 'copy') copyText(rowAsText(i));
+      if (actBtn.dataset.act === 'pin'){ togglePin(i); paint(true); }
+      e.stopPropagation();
+      return;
+    }
+    const recentChip = e.target.closest('.recent-chip');
+    if (recentChip){ els.q.value = recentChip.dataset.q; pendingValue = els.q.value; els.clearbtn.classList.add('show'); scheduleSearch(); return; }
+    const card = e.target.closest('.card');
+    if (card){ openDetail(parseInt(card.dataset.i,10)); }
+  });
+
+  q('chip-filters').addEventListener('click', ()=>openSheet('filters'));
+  q('chip-sort').addEventListener('click', ()=>openSheet('sort'));
+  q('settingsBtn').addEventListener('click', ()=>openSheet('settings'));
+  q('chip-pins').addEventListener('click', ()=>{
+    state.currentIdxs = ALL_INDICES.filter(i => state.pins.has(ROW(i,'id')));
+    state.currentFreeText=''; state.currentPasses = new Map();
+    if (!state.currentIdxs.length) renderNoResults(); else paint(true);
+  });
+
+  q('sheetbackdrop').addEventListener('click', closeSheets);
+  document.querySelectorAll('.sheet-close').forEach(b => b.addEventListener('click', closeSheets));
+
+  q('sheet-filters-body').addEventListener('click', e => {
+    const opt = e.target.closest('.facet-opt');
+    if (opt){
+      const type = opt.dataset.type, v = opt.dataset.v;
+      if (state.activeFacets[type].has(v)) state.activeFacets[type].delete(v); else state.activeFacets[type].add(v);
+      buildFacetSheet();
+      scheduleFilterSearch();
+    }
+    if (e.target.id === 'clearFilters'){
+      state.activeFacets.form.clear(); state.activeFacets.auth.clear(); state.activeFacets.group.clear();
+      buildFacetSheet(); scheduleFilterSearch();
+    }
+  });
+
+  q('sheet-sort-body').addEventListener('click', e => {
+    const opt = e.target.closest('.sort-opt');
+    if (opt){
+      state.sort = opt.dataset.v; buildSortSheet();
+      if (state.currentIdxs.length){
+        const arr = state.currentIdxs.map(i => [i, { score:0, pass: state.currentPasses.get(i) }]);
+        applySort(arr);
+        state.currentIdxs = arr.map(e => e[0]);
+        paint(true);
+      }
+      closeSheets();
+    }
+  });
+
+  q('sheet-settings-body').addEventListener('click', e => {
+    const tolOpt = e.target.closest('.tol-opt');
+    if (tolOpt){ state.settings.tolerance = tolOpt.dataset.v; saveSettings(); buildSettingsSheet(); scheduleFilterSearch(); return; }
+    const sw = e.target.closest('.switch');
+    if (sw){ const key = sw.dataset.key; state.settings[key] = !state.settings[key]; sw.classList.toggle('on'); saveSettings(); if (state.currentIdxs.length) paint(true); return; }
+    if (e.target.id === 'aboutOpen'){ openSheet('about'); return; }
+    if (e.target.id === 'downloadSW'){ downloadServiceWorker(); return; }
+    if (e.target.id === 'resetData'){
+      if (confirm('Clear pins, recent searches, and settings on this device?')){
+        localStorage.removeItem(SETTINGS_KEY); localStorage.removeItem('rx.recents.v1'); localStorage.removeItem('rx.pins.v1');
+        state.settings = Object.assign({}, defaultSettings); state.recents = []; state.pins = new Set();
+        closeSheets(); renderEmptyState();
+      }
+      return;
+    }
+  });
+  q('sheet-settings-body').addEventListener('input', e => {
+    if (e.target.id === 'limitSlider'){ state.settings.limit = parseInt(e.target.value,10); saveSettings(); buildSettingsSheet(); }
+  });
+
+  q('sheet-detail-body').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-i]');
+    if (!btn) return;
+    const i = parseInt(btn.dataset.i,10);
+    if (btn.id === 'detailCopy') copyText(rowAsText(i));
+    if (btn.id === 'detailPin'){ togglePin(i); openDetail(i); }
+  });
+
+  q('exportBtn').addEventListener('click', exportCSV);
+  q('copyAllBtn').addEventListener('click', copyAllTSV);
+
+  let lastScrollY = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y > lastScrollY && y > 80) els.bottombar.classList.add('hide');
+    else els.bottombar.classList.remove('hide');
+    lastScrollY = y;
+  }, { passive:true });
+
+  const io = new IntersectionObserver(entries => {
+    if (entries.some(e=>e.isIntersecting) && state.renderCount < state.currentIdxs.length) paint(false);
+  });
+  io.observe(els.sentinel);
+}
+
+let filterSearchTimer = null;
+function scheduleFilterSearch(){
+  clearTimeout(filterSearchTimer);
+  filterSearchTimer = setTimeout(()=>{ pendingValue = els.q.value; if(!rafToken) scheduleSearch(); }, 0);
+}
+
+function downloadServiceWorker(){
+  const src = q('sw-source').textContent;
+  const blob = new Blob([src], { type:'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sw.js';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  toast('sw.js downloaded — place it next to this file');
+}
+
+function registerPWA(){
+  if ('caches' in window){
+    caches.open('rx-v'+SCHEMA.version).then(c => c.add(location.pathname || './')).catch(()=>{});
+  }
+  if ('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (isIOS && !standalone && !localStorage.getItem('rx.ioshint.dismissed')){
+    const hint = document.createElement('div');
+    hint.className = 'ios-hint';
+    hint.innerHTML = 'Add to Home Screen: tap Share, then "Add to Home Screen".<button aria-label="Dismiss">&times;</button>';
+    document.body.appendChild(hint);
+    hint.querySelector('button').addEventListener('click', ()=>{ hint.remove(); localStorage.setItem('rx.ioshint.dismissed','1'); });
+  }
+}
+
+function buildAboutSheet(){
+  let html = '';
+  html += '<div class="about-line">AG Search is a quick formulary reference. It is not a substitute for the official formulary or clinical judgment — always verify doses independently.</div>';
+  html += '<div class="about-line">Brand-name synonyms are seeded for common drugs and should be verified against your local formulary before relying on them.</div>';
+  html += '<div class="detail-actions"><button class="btn" id="exportBtn2">Export CSV</button><button class="btn" id="copyAllBtn2">Copy all (TSV)</button></div>';
+  html += '<div class="datav">data v'+SCHEMA.version+' · '+N+' entries</div>';
+  html += '<div class="about-dedication">'+esc(DEDICATION)+'</div>';
+  q('sheet-about-body').innerHTML = html;
+  q('exportBtn2').addEventListener('click', exportCSV);
+  q('copyAllBtn2').addEventListener('click', copyAllTSV);
+}
+
+function init(){
+  els.q = q('q'); els.results = q('results'); els.sentinel = q('sentinel');
+  els.searchbar = q('searchbar'); els.clearbtn = q('clearbtn');
+  els.bottombar = q('bottombar'); els.resultcount = q('resultcount');
+  initChips();
+  bindEvents();
+  buildAboutSheet();
+  renderEmptyState();
+  updateChipCounts();
+  registerPWA();
+  localStorage.setItem('rx.dataVersion', String(SCHEMA.version));
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+window.__rx = {
+  bench(needles){
+    needles = needles || ['diclo','asprin','panadol','vitamin','amoxicillin 500','form:amp sp'];
+    const results = {};
+    for (const needle of needles){
+      const times = [];
+      let acc = '';
+      for (const ch of needle){
+        acc += ch;
+        const t0 = performance.now();
+        runSearch(acc);
+        times.push(performance.now()-t0);
+      }
+      times.sort((a,b)=>a-b);
+      const p50 = times[Math.floor(times.length*0.5)];
+      const p95 = times[Math.floor(times.length*0.95)] ?? times[times.length-1];
+      results[needle] = { p50: +p50.toFixed(3), p95: +p95.toFixed(3), keystrokes: times.length };
+    }
+    console.table(results);
+    return results;
+  },
+  audit(){
+    const issues = [];
+    const seen = new Map();
+    for (let i=0;i<N;i++){
+      const name = ROW(i,'name');
+      if (!name) issues.push({ i, id:ROW(i,'id'), issue:'missing name' });
+      const conc = ROW(i,'conc');
+      if (conc && !/\d/.test(conc)) issues.push({ i, id:ROW(i,'id'), issue:'unparseable conc', conc });
+      const formKey = ROW(i,'form');
+      if (formKey && !SCHEMA.enums.form[formKey]) issues.push({ i, id:ROW(i,'id'), issue:'unknown form enum', formKey });
+      const key = (name||'').toLowerCase()+'|'+(conc||'')+'|'+(formKey||'');
+      if (seen.has(key)) issues.push({ i, id:ROW(i,'id'), issue:'duplicate name+conc+form', dupOf: seen.get(key) });
+      else seen.set(key, ROW(i,'id'));
+      const day = META[i].dayTokens, max = META[i].maxTokens;
+      if (day.length && max.length && day[0].num > max[0].num && (!day[0].unit || !max[0].unit || day[0].unit===max[0].unit)){
+        issues.push({ i, id:ROW(i,'id'), issue:'daily-dose-above-max', day:ROW(i,'dayDose'), max:ROW(i,'maxDose') });
+      }
+    }
+    console.table(issues);
+    return issues;
+  },
+  state, SCHEMA, DATA, F, ROW, HAY_A, HAY_B, TOKENS, PRE, FACET, META,
+  parseQuery, runSearch, computeUniverse, norm, executeSearch, scoreOf, TOLERANCE, getUF,
+};
+
+})();
+
+</script>
+</body>
+</html>
