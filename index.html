@@ -377,9 +377,16 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
 #clearFilters{ margin-top:4px; }
 #sheet-settings-body hr{ opacity:1 !important; margin:18px 0 !important; }
 .emptystate div[style]{ font-family:var(--serif); font-style:italic; letter-spacing:.004em; }
+.implicitchips{ display:flex; gap:8px; padding:0 14px 10px; flex-wrap:wrap; }
+.implicit-chip{
+  flex:0 0 auto; height:30px; padding:0 12px; border-radius:var(--r-pill);
+  background:color-mix(in srgb, var(--clay) 12%, transparent); border:1px solid color-mix(in srgb, var(--clay) 35%, transparent);
+  color:var(--clay); font-size:12.5px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+}
+.implicit-chip:active{ transform:scale(.96); }
+.pill-unverified{ background:color-mix(in srgb, var(--crail) 18%, var(--pampas)); color:color-mix(in srgb, var(--crail) 70%, black); font-weight:600; }
 
 </style>
-</head>
 <body>
   <div id="app">
     <header class="header">
@@ -411,13 +418,15 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
     </div>
 
     <div class="chiprow" id="chiprow"></div>
+    <div class="implicitchips" id="implicitChips" style="display:none"></div>
 
     <div id="results" aria-live="polite"></div>
+    <template id="cardTemplate"><div class="card" role="button" tabindex="0"><div class="card-main"><div class="card-name"></div><div class="pillrow"></div><div class="card-class" style="display:none"></div><div class="matchbadge" style="display:none"></div></div><div class="card-rail"><button class="copybtn pinbtn" data-act="pin" aria-label="Pin" title="Pin"></button><button class="copybtn" data-act="copy" aria-label="Copy" title="Copy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg></button></div></div></template>
     <div id="sentinel"></div>
   </div>
 
   <div class="bottombar" id="bottombar">
-    <span class="resultcount" id="resultcount"></span>
+    <span class="resultcount" id="resultcount" aria-live="polite"></span>
     <div class="bottomicons">
       <button class="iconbtn" id="copyAllBtn" aria-label="Copy all as TSV" title="Copy all (TSV)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
@@ -538,24 +547,33 @@ function canonUnit(u){
   u = u.toLowerCase().replace(/\./g,'');
   return UNIT_ALIAS[u] || u;
 }
+const DOSE_RANGE_RE = /\d\s*[-–_]\s*\d/;
 function parseDoseTokens(str){
   if (!str) return [];
+  const cut = str.split('/')[0];
   const out = [];
   const re = /(\d+(?:\.\d+)?)\s*(mg|mcg|µg|ug|g|ml|iu|i\.u|%)?/gi;
   let m;
-  while ((m = re.exec(str))) out.push({ num: parseFloat(m[1]), unit: canonUnit(m[2]) });
+  while ((m = re.exec(cut))) out.push({ num: parseFloat(m[1]), unit: canonUnit(m[2]) });
   return out;
 }
-function doseMatches(constraint, tokens){
+function doseIsRangeStr(str){
+  if (!str) return false;
+  return DOSE_RANGE_RE.test(str.split('/')[0]);
+}
+function doseMatches(constraint, tokens, isRange){
   if (!tokens || !tokens.length) return false;
   for (const t of tokens){
     if (Math.abs(t.num - constraint.num) < 1e-9){
       if (!constraint.unit || !t.unit || constraint.unit === t.unit) return true;
     }
   }
-  if (tokens.length >= 2){
-    const nums = tokens.map(t=>t.num).sort((a,b)=>a-b);
-    if (constraint.num >= nums[0] && constraint.num <= nums[nums.length-1]) return true;
+  if (isRange && tokens.length >= 2){
+    const eligible = tokens.filter(t => !constraint.unit || !t.unit || constraint.unit === t.unit);
+    if (eligible.length >= 2){
+      const nums = eligible.map(t=>t.num).sort((a,b)=>a-b);
+      if (constraint.num >= nums[0] && constraint.num <= nums[nums.length-1]) return true;
+    }
   }
   return false;
 }
@@ -565,7 +583,7 @@ const DOSE_TOKEN_RE = /^(\d+(?:\.\d+)?)(mg|mcg|µg|ug|g|ml|iu|%)?$/i;
 function parseQuery(raw){
   const out = {
     freeTerms: [], phrases: [], excludes: [],
-    doseConstraints: [], formFacet: [], fieldFilters: { form:[], auth:[], group:[] },
+    doseConstraints: [], formFacet: [], formFacetRaw: [], fieldFilters: { form:[], auth:[], group:[] },
   };
   if (!raw) return out;
   const re = /"([^"]+)"|(\S+)/g;
@@ -592,41 +610,93 @@ function parseQuery(raw){
       const e = SCHEMA.enums.form[k];
       if (k === nt || norm(e.s) === nt || norm(e.l) === nt){ matchedForm = k; break; }
     }
-    if (matchedForm){ out.formFacet.push(matchedForm); continue; }
+    if (matchedForm){ out.formFacet.push(matchedForm); out.formFacetRaw.push(tok); continue; }
     out.freeTerms.push(nt);
   }
   return out;
 }
 
-let META, HAY_A, HAY_B, TOKENS, PRE, FACET;
+let META, HAY_A, HAY_B, TOKENS_NAME, TOKENS_SYN, NAME_NORM, PRE, FACET, DOSE_IDX;
 function addFacet(map, key, i){ let s = map.get(key); if (!s){ s = []; map.set(key, s); } s.push(i); }
 
-function build(){
-  META = new Array(N);
+function buildDoseIndex(tokensField, rangeField){
+  const exact = new Map();
+  const ranges = [];
+  for (let i=0;i<N;i++){
+    for (const t of META[i][tokensField]){
+      let bucket = exact.get(t.num);
+      if (!bucket){ bucket = []; exact.set(t.num, bucket); }
+      bucket.push(i);
+    }
+    if (META[i][rangeField]) ranges.push(i);
+  }
+  return { exact, ranges };
+}
+
+function buildEager(){
   HAY_A = new Array(N);
   HAY_B = new Array(N);
-  TOKENS = new Array(N);
+  TOKENS_NAME = new Array(N);
+  TOKENS_SYN = new Array(N);
+  NAME_NORM = new Array(N);
   PRE = new Map();
-  FACET = { form: new Map(), auth: new Map(), group: new Map() };
+  FACET = { form: new Map(), auth: new Map(), group: new Map(), duration: new Map() };
   for (let i=0;i<N;i++){
     const name = ROW(i,'name'), conc = ROW(i,'conc'), formKey = ROW(i,'form'), authKey = ROW(i,'auth'),
-          duration = ROW(i,'duration'), maxDose = ROW(i,'maxDose'), dayDose = ROW(i,'dayDose'),
-          group = ROW(i,'group'), syn = ROW(i,'syn') || [];
-    const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
-    const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
-    const nName = norm([name, syn.join(' '), conc||'', formLbl ? (formLbl.l+' '+formLbl.s) : ''].join(' '));
-    const nAll = norm([nName, authLbl ? (authLbl.l+' '+authLbl.s) : '', duration||'', group||'', maxDose||'', dayDose||''].join(' '));
-    HAY_A[i] = nName; HAY_B[i] = nAll;
-    const toks = nName.split(' ').filter(Boolean);
-    TOKENS[i] = toks;
-    for (const t of toks){ if (t.length >= 3) addFacet(PRE, t.slice(0,3), i); }
-    META[i] = { concTokens: parseDoseTokens(conc), maxTokens: parseDoseTokens(maxDose), dayTokens: parseDoseTokens(dayDose) };
+          group = ROW(i,'group'), duration = ROW(i,'duration'), syn = ROW(i,'syn') || [];
+    const nNameOnly = norm(name||'');
+    const nSyn = norm(syn.join(' '));
+    const nName = norm([name, syn.join(' '), conc||''].join(' '));
+    HAY_A[i] = nName;
+    NAME_NORM[i] = nNameOnly;
+    const nameToks = nNameOnly.split(' ').filter(Boolean);
+    const synToks = nSyn.split(' ').filter(Boolean);
+    TOKENS_NAME[i] = nameToks;
+    TOKENS_SYN[i] = synToks;
+    const seenPre = new Set();
+    for (const t of [...nameToks, ...synToks]){
+      if (t.length < 2) continue;
+      const preKey = t.slice(0,2);
+      if (seenPre.has(preKey)) continue;
+      seenPre.add(preKey);
+      addFacet(PRE, preKey, i);
+    }
     if (formKey) addFacet(FACET.form, formKey, i);
     if (authKey) addFacet(FACET.auth, authKey, i);
     if (group) addFacet(FACET.group, group, i);
+    if (duration) addFacet(FACET.duration, duration, i);
   }
 }
-build();
+
+let deferredReady = false;
+function buildDeferred(){
+  if (deferredReady) return;
+  META = new Array(N);
+  for (let i=0;i<N;i++){
+    const conc = ROW(i,'conc'), formKey = ROW(i,'form'), authKey = ROW(i,'auth'),
+          duration = ROW(i,'duration'), maxDose = ROW(i,'maxDose'), dayDose = ROW(i,'dayDose'), group = ROW(i,'group');
+    const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
+    const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
+    const extra = norm([formLbl ? (formLbl.l+' '+formLbl.s) : '', authLbl ? (authLbl.l+' '+authLbl.s) : '', duration||'', group||'', maxDose||'', dayDose||''].join(' '));
+    HAY_B[i] = extra ? (HAY_A[i]+' '+extra) : HAY_A[i];
+    META[i] = {
+      concTokens: parseDoseTokens(conc), concIsRange: doseIsRangeStr(conc),
+      maxTokens: parseDoseTokens(maxDose), maxIsRange: doseIsRangeStr(maxDose),
+      dayTokens: parseDoseTokens(dayDose), dayIsRange: doseIsRangeStr(dayDose),
+      unverified: !formKey && !authKey && !duration && !maxDose && !dayDose && group === 'vitamins Drugs',
+    };
+  }
+  DOSE_IDX = {
+    concTokens: buildDoseIndex('concTokens', 'concIsRange'),
+    maxTokens: buildDoseIndex('maxTokens', 'maxIsRange'),
+    dayTokens: buildDoseIndex('dayTokens', 'dayIsRange'),
+  };
+  deferredReady = true;
+}
+function ensureDeferredReady(){ if (!deferredReady) buildDeferred(); }
+
+buildEager();
+(typeof requestIdleCallback === 'function' ? requestIdleCallback : (cb => setTimeout(cb, 1)))(buildDeferred);
 
 const UNI = {
   unicode: true,
@@ -637,15 +707,19 @@ const UNI = {
   intraContr: "'\\p{L}{1,2}\\b",
 };
 const TOLERANCE = {
-  strict:    { opts:Object.assign({},UNI,{intraMode:0,intraIns:0,interLft:2,interRgt:1,outOfOrder:0}), rescue:null },
-  balanced:  { opts:Object.assign({},UNI,{intraMode:0,intraIns:1,interLft:1,interRgt:0,outOfOrder:1}), rescue:0.65 },
-  forgiving: { opts:Object.assign({},UNI,{intraMode:1,intraIns:1,intraSub:1,intraTrn:1,intraDel:1,interLft:0,interRgt:0,outOfOrder:1}), rescue:0.55 },
-  wild:      { opts:Object.assign({},UNI,{intraMode:1,intraIns:1,intraSub:1,intraTrn:1,intraDel:1,intraChars:"[\\p{L}\\d' ]",interLft:0,interRgt:0,outOfOrder:1,interIns:1e9}), rescue:0.45 },
+  strict:    { opts:Object.assign({},UNI,{intraMode:0,intraIns:0,interLft:2,interRgt:1}), outOfOrder:0, rescue:null },
+  balanced:  { opts:Object.assign({},UNI,{intraMode:0,intraIns:1,interLft:1,interRgt:0}), outOfOrder:1, rescue:0.65 },
+  forgiving: { opts:Object.assign({},UNI,{intraMode:1,intraIns:1,intraSub:1,intraTrn:1,intraDel:1,interLft:0,interRgt:0}), outOfOrder:1, rescue:0.55 },
+  wild:      { opts:Object.assign({},UNI,{intraMode:1,intraIns:1,intraSub:1,intraTrn:1,intraDel:1,intraChars:"[\\p{L}\\d' ]",interLft:0,interRgt:0,interIns:1e9}), outOfOrder:1, rescue:0.45 },
 };
+for (const tk in TOLERANCE){
+  TOLERANCE[tk].key = tk;
+  TOLERANCE[tk].typoKey = tk+'_typo';
+  TOLERANCE[tk].typoOpts = Object.assign({}, TOLERANCE[tk].opts, { intraMode:1, intraIns:1, intraSub:1, intraTrn:1, intraDel:1 });
+}
 
 const ufCache = new Map();
-function getUF(opts){
-  const key = JSON.stringify(opts);
+function getUF(key, opts){
   let u = ufCache.get(key);
   if (!u){ u = new uFuzzy(opts); ufCache.set(key, u); }
   return u;
@@ -670,31 +744,41 @@ function scoreOf(inf, k, fieldWeight, pass, needleLen, rank){
   return s;
 }
 
-function runUFuzzyPass(opts, haystackFull, universe, needle){
+function runUFuzzyPass(key, opts, haystackFull, universe, needle, outOfOrder){
   const out = [];
   if (!needle) return out;
-  const uf = getUF(opts);
-  const sub = universe.map(i => haystackFull[i]);
-  const idxs = uf.filter(sub, needle);
-  if (!idxs || !idxs.length) return out;
-  const info = uf.info(idxs, sub, needle);
-  if (!info.idx.length) return out;
-  const order = uf.sort(info, sub, needle);
-  for (let rank=0;rank<order.length;rank++){ const oi = order[rank]; out.push({ rowIdx: universe[info.idx[oi]], info, k: oi, rank }); }
+  const uf = getUF(key, opts);
+  const multiTerm = needle.trim().indexOf(' ') !== -1;
+  let idxs, info, order;
+  if (outOfOrder && multiTerm){
+    [idxs, info, order] = uf.search(haystackFull, needle, 5, 1e4, universe);
+    if (!idxs || !info || !order || !order.length) return out;
+  } else {
+    idxs = uf.filter(haystackFull, needle, universe);
+    if (!idxs || !idxs.length) return out;
+    info = uf.info(idxs, haystackFull, needle);
+    if (!info.idx.length) return out;
+    order = uf.sort(info, haystackFull, needle);
+    if (!order.length) return out;
+  }
+  for (let rank=0;rank<order.length;rank++){ const oi = order[rank]; out.push({ rowIdx: info.idx[oi], info, k: oi, rank }); }
   return out;
 }
 
 function prefixPass(freeTerms, universeSet){
   if (!freeTerms.length) return null;
+  const longTerms = freeTerms.filter(t => t.length >= 2);
+  const shortTerms = freeTerms.filter(t => t.length < 2);
+  if (!longTerms.length) return null;
   const candidateSets = [];
-  for (const term of freeTerms){
-    if (term.length < 2) return null;
-    const bucket = PRE.get(term.slice(0,3)) || [];
+  for (const term of longTerms){
+    const bucket = PRE.get(term.slice(0,2)) || [];
     const verified = new Set();
     for (const i of bucket){
       if (universeSet && !universeSet.has(i)) continue;
-      const toks = TOKENS[i];
-      for (let ti=0; ti<toks.length; ti++){ if (toks[ti].startsWith(term)){ verified.add(i); break; } }
+      if (NAME_NORM[i].startsWith(term) || TOKENS_NAME[i].some(t=>t.startsWith(term)) || TOKENS_SYN[i].some(t=>t.startsWith(term))){
+        verified.add(i);
+      }
     }
     candidateSets.push(verified);
   }
@@ -705,7 +789,25 @@ function prefixPass(freeTerms, universeSet){
     for (const v of result) if (candidateSets[ci].has(v)) next.add(v);
     result = next;
   }
+  if (shortTerms.length){
+    const filtered = new Set();
+    for (const i of result){
+      if (shortTerms.every(t => TOKENS_NAME[i].includes(t) || TOKENS_SYN[i].includes(t))) filtered.add(i);
+    }
+    result = filtered;
+  }
   return result;
+}
+
+function prefixTierBonus(term, i){
+  const matches = tok => term.length < 2 ? tok === term : tok.startsWith(term);
+  if (term.length >= 2 && NAME_NORM[i].startsWith(term)) return 40;
+  const nameToks = TOKENS_NAME[i];
+  if (nameToks.length && matches(nameToks[0])) return 25;
+  for (let k=0;k<nameToks.length;k++) if (matches(nameToks[k])) return 15;
+  const synToks = TOKENS_SYN[i];
+  for (let k=0;k<synToks.length;k++) if (matches(synToks[k])) return 10;
+  return 0;
 }
 
 function diceCoeff(a,b){
@@ -739,7 +841,8 @@ function rescuePass(term, universe, threshold){
   const out = [];
   for (const i of universe){
     let best = 0;
-    for (const tok of TOKENS[i]){ const sc = Math.max(diceCoeff(term,tok), damerauLevNorm(term,tok)); if (sc > best) best = sc; }
+    for (const tok of TOKENS_NAME[i]){ const sc = Math.max(diceCoeff(term,tok), damerauLevNorm(term,tok)); if (sc > best) best = sc; }
+    for (const tok of TOKENS_SYN[i]){ const sc = Math.max(diceCoeff(term,tok), damerauLevNorm(term,tok)); if (sc > best) best = sc; }
     if (best >= threshold) out.push({ rowIdx:i, rescueScore:best });
   }
   return out;
@@ -761,19 +864,24 @@ function executeSearch(freeTerms, phrases, excludes, universe0, tolerance, enoug
   const universeSet = new Set(universe);
 
   const pre = prefixPass(freeTerms, universeSet);
-  if (pre && pre.size) for (const i of pre) put(i, 1000 - HAY_A[i].length*0.01, 0);
+  if (pre && pre.size){
+    for (const i of pre){
+      let bonus = 0;
+      for (const term of freeTerms) bonus += prefixTierBonus(term, i);
+      put(i, 900 + bonus - 0.01*NAME_NORM[i].length, 0);
+    }
+  }
 
   if (merged.size < enough){
-    const passA = runUFuzzyPass(tol.opts, HAY_A, universe, needle);
+    const passA = runUFuzzyPass(tol.key, tol.opts, HAY_A, universe, needle, tol.outOfOrder);
     for (const r of passA) put(r.rowIdx, scoreOf(r.info, r.k, 1.0, 1, needleLen, r.rank), 1);
   }
   if (merged.size < enough && tolerance !== 'strict'){
-    const typoOpts = Object.assign({}, tol.opts, { intraMode:1, intraIns:1, intraSub:1, intraTrn:1, intraDel:1 });
-    const passT = runUFuzzyPass(typoOpts, HAY_A, universe, needle);
+    const passT = runUFuzzyPass(tol.typoKey, tol.typoOpts, HAY_A, universe, needle, tol.outOfOrder);
     for (const r of passT) put(r.rowIdx, scoreOf(r.info, r.k, 1.0, 2, needleLen, r.rank), 2);
   }
   if (merged.size < enough){
-    const passB = runUFuzzyPass(tol.opts, HAY_B, universe, needle);
+    const passB = runUFuzzyPass(tol.key, tol.opts, HAY_B, universe, needle, tol.outOfOrder);
     for (const r of passB) put(r.rowIdx, scoreOf(r.info, r.k, 0.5, 3, needleLen, r.rank), 3);
   }
   if (merged.size < 5 && freeTerms.length === 1 && freeTerms[0].length >= 4 && tol.rescue){
@@ -787,7 +895,6 @@ const SETTINGS_KEY = 'rx.settings.v3';
 const defaultSettings = {
   tolerance: 'balanced', limit: CONFIG.defaultLimit, enough: CONFIG.defaultEnough,
   showScores: false, showProvenance: false, searchArabic: true,
-  fieldToggles: { A: true, B: true }, theme: 'auto',
 };
 function loadSettings(){
   try{ const raw = localStorage.getItem(SETTINGS_KEY); if (raw) return Object.assign({}, defaultSettings, JSON.parse(raw)); }
@@ -801,28 +908,49 @@ function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val))
 
 const state = {
   settings: loadSettings(),
-  activeFacets: { form: new Set(), auth: new Set(), group: new Set() },
+  activeFacets: { form: new Set(), auth: new Set(), group: new Set(), duration: new Set() },
   sort: 'relevance',
-  view: 'card',
   recents: loadJSON('rx.recents.v1', []),
   pins: new Set(loadJSON('rx.pins.v1', [])),
-  lastQuery: { freeKey: '', structKey: '', resultIdxs: null },
+  pinsOnly: false,
   currentIdxs: [],
   currentPasses: new Map(),
+  currentScores: new Map(),
   currentFreeText: '',
+  currentImplicitForm: [],
   renderCount: 0,
 };
 
 function structKey(pq){
   return JSON.stringify({
-    f: [...state.activeFacets.form].sort(), a: [...state.activeFacets.auth].sort(), g: [...state.activeFacets.group].sort(),
+    f: [...state.activeFacets.form].sort(), a: [...state.activeFacets.auth].sort(), g: [...state.activeFacets.group].sort(), du: [...state.activeFacets.duration].sort(),
     ff: pq.fieldFilters, fa: pq.formFacet, dc: pq.doseConstraints, ph: pq.phrases, ex: pq.excludes,
+    po: state.pinsOnly, tol: state.settings.tolerance, en: state.settings.enough,
   });
+}
+
+const SEARCH_CACHE_MAX = 12;
+const searchCache = new Map();
+function searchCacheGet(key){
+  if (!searchCache.has(key)) return null;
+  const v = searchCache.get(key);
+  searchCache.delete(key); searchCache.set(key, v);
+  return v;
+}
+function searchCacheSet(key, val){
+  searchCache.delete(key);
+  searchCache.set(key, val);
+  if (searchCache.size > SEARCH_CACHE_MAX) searchCache.delete(searchCache.keys().next().value);
 }
 
 function computeUniverse(pq){
   const sets = [];
-  for (const type of ['form','auth','group']){
+  if (state.pinsOnly){
+    const acc = new Set();
+    for (let i=0;i<N;i++) if (state.pins.has(ROW(i,'id'))) acc.add(i);
+    sets.push(acc);
+  }
+  for (const type of ['form','auth','group','duration']){
     if (state.activeFacets[type].size){
       const acc = new Set();
       for (const val of state.activeFacets[type]) for (const i of (FACET[type].get(val)||[])) acc.add(i);
@@ -854,7 +982,11 @@ function computeUniverse(pq){
   for (const c of pq.doseConstraints){
     const acc = new Set();
     const field = c.field==='conc' ? 'concTokens' : c.field==='max' ? 'maxTokens' : 'dayTokens';
-    for (let i=0;i<N;i++) if (doseMatches(c, META[i][field])) acc.add(i);
+    const rangeField = c.field==='conc' ? 'concIsRange' : c.field==='max' ? 'maxIsRange' : 'dayIsRange';
+    const idx = DOSE_IDX[field];
+    const exactBucket = idx.exact.get(c.num) || [];
+    for (const i of exactBucket) if (doseMatches(c, META[i][field], META[i][rangeField])) acc.add(i);
+    for (const i of idx.ranges) if (doseMatches(c, META[i][field], META[i][rangeField])) acc.add(i);
     sets.push(acc);
   }
   if (!sets.length) return ALL_INDICES;
@@ -865,21 +997,31 @@ function computeUniverse(pq){
 }
 
 function runSearch(raw){
+  ensureDeferredReady();
   const pq = parseQuery(raw);
-  const universe = computeUniverse(pq);
+  state.currentImplicitForm = pq.formFacet.map((key,idx) => ({ key, raw: pq.formFacetRaw[idx] }));
   const sKey = structKey(pq);
   const freeKey = pq.freeTerms.join(' ');
-  let candidateUniverse = universe;
-  if (state.lastQuery.resultIdxs && state.lastQuery.structKey === sKey && freeKey.length > 0 && state.lastQuery.freeKey.length > 0 && freeKey.startsWith(state.lastQuery.freeKey)){
-    candidateUniverse = state.lastQuery.resultIdxs;
+  const cacheKey = sKey + '|' + freeKey;
+  const cached = searchCacheGet(cacheKey);
+  if (cached){
+    state.currentIdxs = cached.idxs;
+    state.currentPasses = cached.passes;
+    state.currentScores = cached.scores;
+    state.currentFreeText = freeKey;
+    return cached.idxs;
   }
-  const merged = executeSearch(pq.freeTerms, pq.phrases, pq.excludes, candidateUniverse, state.settings.tolerance, state.settings.enough);
+  const universe = computeUniverse(pq);
+  const merged = executeSearch(pq.freeTerms, pq.phrases, pq.excludes, universe, state.settings.tolerance, state.settings.enough);
   let arr = [...merged.entries()];
   applySort(arr);
   const idxs = arr.map(e=>e[0]);
-  state.lastQuery = { freeKey, structKey: sKey, resultIdxs: idxs };
+  const passes = new Map(arr.map(([i,v])=>[i, v.pass]));
+  const scores = new Map(arr.map(([i,v])=>[i, v.score]));
+  searchCacheSet(cacheKey, { idxs, passes, scores });
   state.currentIdxs = idxs;
-  state.currentPasses = new Map(arr.map(([i,v])=>[i, v.pass]));
+  state.currentPasses = passes;
+  state.currentScores = scores;
   state.currentFreeText = freeKey;
   return idxs;
 }
@@ -912,10 +1054,33 @@ function esc(s){
   return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+function indexOfRanges(name, freeText){
+  const terms = freeText.split(' ').filter(Boolean);
+  if (!terms.length) return null;
+  const nameLower = name.toLowerCase();
+  const pairs = [];
+  for (const term of terms){
+    const idx = nameLower.indexOf(term.toLowerCase());
+    if (idx === -1) return null;
+    pairs.push([idx, idx+term.length]);
+  }
+  pairs.sort((a,b)=>a[0]-b[0]);
+  const merged = [];
+  for (const [s,e] of pairs){
+    if (merged.length && s <= merged[merged.length-1][1]) merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], e);
+    else merged.push([s,e]);
+  }
+  const flat = [];
+  for (const [s,e] of merged) flat.push(s,e);
+  return flat;
+}
+
 function highlightName(name, freeText){
   if (!freeText) return esc(name);
-  const hay = [name.toLowerCase()];
-  const uf = getUF(TOLERANCE.balanced.opts);
+  const fastRanges = indexOfRanges(name, freeText);
+  if (fastRanges) return uFuzzy.highlight(name, fastRanges, (part, matched) => matched ? '<b>'+esc(part)+'</b>' : esc(part));
+  const uf = getUF('balanced', TOLERANCE.balanced.opts);
+  const hay = [name];
   const idxs = uf.filter(hay, freeText);
   if (!idxs || !idxs.length) return esc(name);
   const info = uf.info(idxs, hay, freeText);
@@ -929,49 +1094,9 @@ function highlightName(name, freeText){
 function titleCase(s){ return s.replace(/\w\S*/g, t => t[0].toUpperCase()+t.slice(1).toLowerCase()); }
 
 const PASS_LABEL = { 0:'exact', 1:'fuzzy', 2:'typo', 3:'field', 4:'rescue', 9:'' };
+const AUTH_CLASS_KEYS = new Set(Object.keys(SCHEMA.enums.auth));
 
-function cardHTML(i){
-  const id = ROW(i,'id');
-  const name = ROW(i,'name');
-  const conc = ROW(i,'conc');
-  const formKey = ROW(i,'form');
-  const authKey = ROW(i,'auth');
-  const duration = ROW(i,'duration');
-  const group = ROW(i,'group');
-  const inh = ROW(i,'inh') || 0;
-  const authInh = !!(inh & 1), durInh = !!(inh & 2), dayInh = !!(inh & 4), maxInh = !!(inh & 8);
-  const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
-  const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
-  const nameHTML = highlightName(name, state.currentFreeText);
-  const pinned = state.pins.has(id);
 
-  let pills = '';
-  if (conc) pills += '<span class="pill pill-conc">'+esc(conc)+'</span>';
-  if (formLbl) pills += '<span class="pill pill-form">'+esc(formLbl.s)+'</span>';
-  if (authLbl) pills += '<span class="pill pill-auth-'+authKey+(authInh?' inherited':'')+'" title="'+(authInh?'Same as previous entry':'')+'">'+esc(authLbl.s)+'</span>';
-  if (duration) pills += '<span class="pill pill-duration'+(durInh?' inherited':'')+'" dir="auto" title="'+(durInh?'Same as previous entry':'')+'">'+esc(duration)+'</span>';
-
-  const pass = state.currentPasses.get(i);
-  const showProv = state.settings.showProvenance && pass != null && PASS_LABEL[pass];
-  const showScore = state.settings.showScores;
-
-  return (
-    '<div class="card" data-i="'+i+'" role="button" tabindex="0">'+
-      '<div class="card-main">'+
-        '<div class="card-name">'+nameHTML+'</div>'+
-        '<div class="pillrow">'+pills+'</div>'+
-        (group ? '<div class="card-class">'+esc(group)+'</div>' : '')+
-        (showProv ? '<div class="matchbadge">'+PASS_LABEL[pass]+(showScore?' · '+Math.round(state.currentPasses.get(i)):'')+'</div>' : '')+
-      '</div>'+
-      '<div class="card-rail">'+
-        '<button class="copybtn pinbtn" data-i="'+i+'" data-act="pin" aria-label="Pin" title="Pin">'+(pinned ? svgStarFilled() : svgStar())+'</button>'+
-        '<button class="copybtn" data-i="'+i+'" data-act="copy" aria-label="Copy" title="Copy">'+svgCopy()+'</button>'+
-      '</div>'+
-    '</div>'
-  );
-}
-
-function svgCopy(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>'; }
 function svgStar(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'; }
 function svgStarFilled(){ return '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>'; }
 function svgSearch(){ return '<svg class="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>'; }
@@ -988,6 +1113,68 @@ function greeting(){
   return 'Good evening.';
 }
 
+let cardPool = [];
+let cardTemplateEl = null;
+
+function getPooledCard(n){
+  if (cardPool[n]) return cardPool[n];
+  if (!cardTemplateEl) cardTemplateEl = q('cardTemplate');
+  const el = cardTemplateEl.content.firstElementChild.cloneNode(true);
+  els.results.appendChild(el);
+  cardPool[n] = el;
+  return el;
+}
+
+function updateCardEl(el, i){
+  const id = ROW(i,'id');
+  const name = ROW(i,'name');
+  const conc = ROW(i,'conc');
+  const formKey = ROW(i,'form');
+  const authKey = ROW(i,'auth');
+  const duration = ROW(i,'duration');
+  const group = ROW(i,'group');
+  const inh = ROW(i,'inh') || 0;
+  const authInh = !!(inh & 1), durInh = !!(inh & 2);
+  const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
+  const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
+  const nameHTML = highlightName(name, state.currentFreeText);
+  const pinned = state.pins.has(id);
+
+  el.dataset.i = i;
+
+  el.querySelector('.card-name').innerHTML = nameHTML;
+
+  let pills = '';
+  if (META[i] && META[i].unverified) pills += '<span class="pill pill-unverified" title="No authority, form, or duration data in the source list for this entry">Unverified entry</span>';
+  if (conc) pills += '<span class="pill pill-conc">'+esc(conc)+'</span>';
+  if (formLbl) pills += '<span class="pill pill-form">'+esc(formLbl.s)+'</span>';
+  if (authLbl) pills += '<span class="pill pill-auth-'+(AUTH_CLASS_KEYS.has(authKey)?authKey:'other')+(authInh?' inherited':'')+'" title="'+(authInh?'Same as previous entry':'')+'">'+esc(authLbl.s)+'</span>';
+  if (duration) pills += '<span class="pill pill-duration'+(durInh?' inherited':'')+'" dir="auto" title="'+(durInh?'Same as previous entry':'')+'">'+esc(duration)+'</span>';
+  el.querySelector('.pillrow').innerHTML = pills;
+
+  const classEl = el.querySelector('.card-class');
+  if (group){ classEl.style.display = ''; classEl.textContent = group; }
+  else { classEl.style.display = 'none'; classEl.textContent = ''; }
+
+  const pass = state.currentPasses.get(i);
+  const showProv = state.settings.showProvenance && pass != null && PASS_LABEL[pass];
+  const showScore = state.settings.showScores;
+  const badgeEl = el.querySelector('.matchbadge');
+  if (showProv){
+    badgeEl.style.display = '';
+    badgeEl.textContent = PASS_LABEL[pass] + (showScore ? ' · '+Math.round(state.currentScores.get(i)||0) : '');
+  } else {
+    badgeEl.style.display = 'none';
+    badgeEl.textContent = '';
+  }
+
+  const pinBtn = el.querySelector('[data-act="pin"]');
+  pinBtn.dataset.i = i;
+  pinBtn.innerHTML = pinned ? svgStarFilled() : svgStar();
+
+  el.querySelector('[data-act="copy"]').dataset.i = i;
+}
+
 function renderEmptyState(){
   const chips = state.recents.slice(0,8).map(r => '<span class="chip recent-chip" data-q="'+esc(r)+'">'+esc(r)+'</span>').join('');
   els.results.innerHTML = (
@@ -997,6 +1184,7 @@ function renderEmptyState(){
       (chips ? '<div class="recentchips">'+chips+'</div>' : '<div style="color:var(--ink-3);font-size:13.5px">Type a drug name to begin.</div>')+
     '</div>'
   );
+  cardPool = [];
   els.sentinel.style.display = 'none';
   els.resultcount.textContent = '';
 }
@@ -1009,8 +1197,17 @@ function renderNoResults(){
       '<div style="color:var(--ink-3);font-size:13.5px">Try a shorter term, or loosen tolerance in Settings.</div>'+
     '</div>'
   );
+  cardPool = [];
   els.sentinel.style.display = 'none';
-  els.resultcount.textContent = '0 results';
+  updateResultCount(0);
+}
+
+let resultCountTimer = null;
+function updateResultCount(total){
+  clearTimeout(resultCountTimer);
+  resultCountTimer = setTimeout(() => {
+    els.resultcount.textContent = total === 0 ? '0 results' : (total + (total===1?' result':' results'));
+  }, 500);
 }
 
 function paint(reset){
@@ -1018,33 +1215,56 @@ function paint(reset){
   const limit = state.settings.limit || CONFIG.defaultLimit;
   const total = state.currentIdxs.length;
   const upto = Math.min(total, state.renderCount + limit);
-  const slice = state.currentIdxs.slice(reset ? 0 : state.renderCount, upto);
-  const html = slice.map(cardHTML).join('');
-  if (reset) els.results.innerHTML = html; else els.results.insertAdjacentHTML('beforeend', html);
+  const startAt = reset ? 0 : state.renderCount;
+  for (let n = startAt; n < upto; n++){
+    const el = getPooledCard(n);
+    updateCardEl(el, state.currentIdxs[n]);
+    el.style.display = '';
+  }
+  for (let n = upto; n < cardPool.length; n++){
+    cardPool[n].style.display = 'none';
+  }
+  if (reset) window.scrollTo(0,0);
   state.renderCount = upto;
   els.sentinel.style.display = upto < total ? 'block' : 'none';
-  els.resultcount.textContent = total === 0 ? '0 results' : (total + (total===1?' result':' results'));
-  els.resultcount.setAttribute('aria-live','polite');
+  updateResultCount(total);
 }
 
-let rafToken = null, pendingValue = null;
-function scheduleSearch(){
-  if (rafToken) return;
-  rafToken = requestAnimationFrame(() => {
-    rafToken = null;
-    const raw = pendingValue;
-    if (raw.trim() === '' && state.activeFacets.form.size===0 && state.activeFacets.auth.size===0 && state.activeFacets.group.size===0){
-      state.currentIdxs = []; state.currentFreeText=''; renderEmptyState(); updateChipCounts(); return;
-    }
+let rafToken = null, pendingValue = '', slowMode = false, debounceTimer = null, isComposing = false;
+let commitIdleTimer = null;
+function runScheduledSearch(){
+  const raw = pendingValue;
+  const t0 = performance.now();
+  if (raw.trim() === '' && state.activeFacets.form.size===0 && state.activeFacets.auth.size===0 && state.activeFacets.group.size===0 && state.activeFacets.duration.size===0 && !state.pinsOnly){
+    state.currentIdxs = []; state.currentFreeText=''; state.currentImplicitForm = []; renderEmptyState(); updateChipCounts();
+    clearTimeout(commitIdleTimer);
+  } else {
     const idxs = runSearch(raw);
-    if (!idxs.length) { renderNoResults(); } else { paint(true); }
+    if (!idxs.length){ renderNoResults(); clearTimeout(commitIdleTimer); }
+    else {
+      paint(true);
+      clearTimeout(commitIdleTimer);
+      if (raw.trim()) commitIdleTimer = setTimeout(() => { if (pendingValue === raw) commitRecent(raw); }, 1200);
+    }
     updateChipCounts();
-  });
+  }
+  renderImplicitChips();
+  slowMode = (performance.now() - t0) > 12;
+}
+function scheduleSearch(){
+  if (slowMode){
+    if (debounceTimer) return;
+    debounceTimer = setTimeout(() => { debounceTimer = null; runScheduledSearch(); }, 70);
+    return;
+  }
+  if (rafToken) return;
+  rafToken = requestAnimationFrame(() => { rafToken = null; runScheduledSearch(); });
 }
 
 function onInput(e){
   pendingValue = e.target.value;
   els.clearbtn.classList.toggle('show', pendingValue.length>0);
+  if (isComposing) return;
   scheduleSearch();
 }
 
@@ -1060,14 +1280,31 @@ function commitRecent(raw){
 const FORM_KEYS = Object.keys(SCHEMA.enums.form).filter(k=>k!=='other');
 const AUTH_KEYS = Object.keys(SCHEMA.enums.auth).filter(k=>k!=='other');
 const GROUP_KEYS = [...FACET.group.keys()].sort((a,b)=>a.localeCompare(b));
+const DURATION_KEYS = [...FACET.duration.keys()].sort((a,b)=>a.localeCompare(b));
 
 function updateChipCounts(){
   const formChip = q('chip-filters');
-  const activeCount = state.activeFacets.form.size + state.activeFacets.auth.size + state.activeFacets.group.size;
+  const activeCount = state.activeFacets.form.size + state.activeFacets.auth.size + state.activeFacets.group.size + state.activeFacets.duration.size;
   if (formChip){
     formChip.classList.toggle('active', activeCount>0);
     formChip.querySelector('.chip-label').textContent = activeCount>0 ? ('Filters ('+activeCount+')') : 'Filters';
   }
+  const pinChip = q('chip-pins');
+  if (pinChip){
+    pinChip.classList.toggle('active', state.pinsOnly);
+    pinChip.textContent = 'Pinned (' + state.pins.size + ')';
+  }
+}
+
+function renderImplicitChips(){
+  const items = state.currentImplicitForm;
+  if (!els.implicitChips) return;
+  if (!items.length){ els.implicitChips.innerHTML = ''; els.implicitChips.style.display = 'none'; return; }
+  els.implicitChips.style.display = '';
+  els.implicitChips.innerHTML = items.map(it => {
+    const lbl = SCHEMA.enums.form[it.key] ? SCHEMA.enums.form[it.key].l : it.key;
+    return '<span class="chip implicit-chip" data-raw="'+esc(it.raw)+'">Filtering to: '+esc(lbl)+' <b>&times;</b></span>';
+  }).join('');
 }
 
 function buildFacetSheet(){
@@ -1075,13 +1312,14 @@ function buildFacetSheet(){
     ['Form', 'form', FORM_KEYS.map(k=>({v:k, l:SCHEMA.enums.form[k].l}))],
     ['Authority', 'auth', AUTH_KEYS.map(k=>({v:k, l:SCHEMA.enums.auth[k].l}))],
     ['Class', 'group', GROUP_KEYS.map(k=>({v:k, l:k}))],
+    ['Duration', 'duration', DURATION_KEYS.map(k=>({v:k, l:k}))],
   ];
   let html = '';
   for (const [title, type, items] of sections){
     html += '<div class="facet-group"><div class="facet-title">'+title+'</div><div class="facet-chips">';
     for (const it of items){
       const active = state.activeFacets[type].has(it.v);
-      html += '<span class="chip facet-opt'+(active?' active':'')+'" data-type="'+type+'" data-v="'+esc(it.v)+'">'+esc(it.l)+'</span>';
+      html += '<span class="chip facet-opt'+(active?' active':'')+'" data-type="'+type+'" data-v="'+esc(it.v)+'"'+(type==='duration'?' dir="auto"':'')+'>'+esc(it.l)+'</span>';
     }
     html += '</div></div>';
   }
@@ -1090,16 +1328,21 @@ function buildFacetSheet(){
 }
 
 function openSheet(name){
+  const target = q('sheet-'+name);
+  if (target.classList.contains('show')) return;
   q('sheetbackdrop').classList.add('show');
   document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
   if (name === 'filters') buildFacetSheet();
   if (name === 'sort') buildSortSheet();
   if (name === 'settings') buildSettingsSheet();
-  q('sheet-'+name).classList.add('show');
+  target.classList.add('show');
+  history.pushState({ rxSheet: name }, '');
 }
-function closeSheets(){
+function closeSheets(fromPopstate){
+  const wasOpen = q('sheetbackdrop').classList.contains('show');
   q('sheetbackdrop').classList.remove('show');
   document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
+  if (wasOpen && !fromPopstate) history.back();
 }
 
 function buildSortSheet(){
@@ -1121,7 +1364,7 @@ function buildSettingsSheet(){
   html += '</div></div>';
   html += togglerow('showScores', 'Show scores', state.settings.showScores);
   html += togglerow('showProvenance', 'Show match provenance', state.settings.showProvenance);
-  html += '<div class="slider-row"><div class="facet-title">Result limit ('+state.settings.limit+')</div><input type="range" id="limitSlider" min="10" max="60" step="5" value="'+state.settings.limit+'"></div>';
+  html += '<div class="slider-row"><div class="facet-title" id="limitLabel">Result limit ('+state.settings.limit+')</div><input type="range" id="limitSlider" min="10" max="60" step="5" value="'+state.settings.limit+'"></div>';
   html += '<hr style="border:none;border-top:1px solid var(--cloudy);opacity:.3;margin:14px 0">';
   html += '<div class="rowline" id="aboutOpen"><span class="rl-label">About Rx Express</span></div>';
   html += '<div class="rowline" id="downloadSW"><span class="rl-label">Download sw.js (full offline)</span></div>';
@@ -1133,6 +1376,7 @@ function togglerow(key, label, val){
 }
 
 function openDetail(i){
+  if (els.q.value.trim()) commitRecent(els.q.value);
   const name = ROW(i,'name');
   const conc = ROW(i,'conc');
   const formKey = ROW(i,'form');
@@ -1160,6 +1404,9 @@ function openDetail(i){
 
   let html = '<div class="detail-title">'+esc(name)+'</div>';
   html += '<div class="detail-sub">'+(syn.length ? esc(syn.slice(0,3).join(' · ')) : ' ')+'</div>';
+  if (META[i] && META[i].unverified){
+    html += '<div class="pill pill-unverified" style="margin-bottom:10px">Unverified entry — no authority, form, or duration data in the source list</div>';
+  }
   html += '<div class="detail-grid">';
   for (const [k,v,inherited,rtl] of rows){
     html += '<div class="detail-row"><span class="detail-k">'+k+'</span><span class="detail-v"'+(rtl?' dir="auto"':'')+'>'+esc(v)+(inherited?'<div class="inh-note">Same as previous entry</div>':'')+'</span></div>';
@@ -1212,6 +1459,7 @@ function togglePin(i){
   const id = ROW(i,'id');
   if (state.pins.has(id)) state.pins.delete(id); else state.pins.add(id);
   saveJSON('rx.pins.v1', [...state.pins]);
+  searchCache.clear();
 }
 
 function csvEscape(v){
@@ -1262,19 +1510,45 @@ function initChips(){
 
 function bindEvents(){
   els.q.addEventListener('input', onInput);
+  els.q.addEventListener('compositionstart', () => { isComposing = true; });
+  els.q.addEventListener('compositionend', () => { isComposing = false; pendingValue = els.q.value; scheduleSearch(); });
   els.q.addEventListener('focus', ()=> els.searchbar.classList.add('focused'));
-  els.q.addEventListener('blur', ()=>{ els.searchbar.classList.remove('focused'); if (els.q.value.trim()) commitRecent(els.q.value); });
+  els.q.addEventListener('blur', ()=>{ els.searchbar.classList.remove('focused'); });
   els.q.addEventListener('keydown', e => {
     if (e.key === 'Escape'){ els.q.value=''; pendingValue=''; els.clearbtn.classList.remove('show'); scheduleSearch(); }
     if (e.key === 'Enter' && state.currentIdxs.length){ openDetail(state.currentIdxs[0]); }
   });
   els.clearbtn.addEventListener('click', ()=>{ els.q.value=''; pendingValue=''; els.clearbtn.classList.remove('show'); scheduleSearch(); els.q.focus(); });
+  els.implicitChips.addEventListener('click', e => {
+    const chip = e.target.closest('.implicit-chip');
+    if (!chip) return;
+    const raw = chip.dataset.raw;
+    const re = new RegExp('(^|\\s)'+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=\\s|$)', 'i');
+    els.q.value = els.q.value.replace(re, '$1').replace(/\s+/g,' ').trim();
+    pendingValue = els.q.value;
+    els.clearbtn.classList.toggle('show', pendingValue.length>0);
+    scheduleSearch();
+    els.q.focus();
+  });
 
   document.addEventListener('keydown', e => {
     const tag = (document.activeElement && document.activeElement.tagName) || '';
     if ((e.key === '/' && tag !== 'INPUT') || ((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k')){
       e.preventDefault(); els.q.focus();
     }
+    if (e.key === 'Escape' && q('sheetbackdrop').classList.contains('show')){
+      closeSheets();
+    }
+  });
+
+  window.addEventListener('popstate', () => closeSheets(true));
+
+  els.results.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.card');
+    if (!card) return;
+    e.preventDefault();
+    openDetail(parseInt(card.dataset.i,10));
   });
 
   els.results.addEventListener('click', e => {
@@ -1282,7 +1556,12 @@ function bindEvents(){
     if (actBtn){
       const i = parseInt(actBtn.dataset.i, 10);
       if (actBtn.dataset.act === 'copy') copyText(rowAsText(i));
-      if (actBtn.dataset.act === 'pin'){ togglePin(i); paint(true); }
+      if (actBtn.dataset.act === 'pin'){
+        togglePin(i);
+        updateChipCounts();
+        if (state.pinsOnly) scheduleFilterSearch();
+        else actBtn.innerHTML = state.pins.has(ROW(i,'id')) ? svgStarFilled() : svgStar();
+      }
       e.stopPropagation();
       return;
     }
@@ -1296,24 +1575,24 @@ function bindEvents(){
   q('chip-sort').addEventListener('click', ()=>openSheet('sort'));
   q('settingsBtn').addEventListener('click', ()=>openSheet('settings'));
   q('chip-pins').addEventListener('click', ()=>{
-    state.currentIdxs = ALL_INDICES.filter(i => state.pins.has(ROW(i,'id')));
-    state.currentFreeText=''; state.currentPasses = new Map();
-    if (!state.currentIdxs.length) renderNoResults(); else paint(true);
+    state.pinsOnly = !state.pinsOnly;
+    updateChipCounts();
+    scheduleFilterSearch();
   });
 
-  q('sheetbackdrop').addEventListener('click', closeSheets);
-  document.querySelectorAll('.sheet-close').forEach(b => b.addEventListener('click', closeSheets));
+  q('sheetbackdrop').addEventListener('click', ()=>closeSheets());
+  document.querySelectorAll('.sheet-close').forEach(b => b.addEventListener('click', ()=>closeSheets()));
 
   q('sheet-filters-body').addEventListener('click', e => {
     const opt = e.target.closest('.facet-opt');
     if (opt){
       const type = opt.dataset.type, v = opt.dataset.v;
       if (state.activeFacets[type].has(v)) state.activeFacets[type].delete(v); else state.activeFacets[type].add(v);
-      buildFacetSheet();
+      opt.classList.toggle('active', state.activeFacets[type].has(v));
       scheduleFilterSearch();
     }
     if (e.target.id === 'clearFilters'){
-      state.activeFacets.form.clear(); state.activeFacets.auth.clear(); state.activeFacets.group.clear();
+      state.activeFacets.form.clear(); state.activeFacets.auth.clear(); state.activeFacets.group.clear(); state.activeFacets.duration.clear();
       buildFacetSheet(); scheduleFilterSearch();
     }
   });
@@ -1323,7 +1602,7 @@ function bindEvents(){
     if (opt){
       state.sort = opt.dataset.v; buildSortSheet();
       if (state.currentIdxs.length){
-        const arr = state.currentIdxs.map(i => [i, { score:0, pass: state.currentPasses.get(i) }]);
+        const arr = state.currentIdxs.map(i => [i, { score: state.currentScores.get(i) || 0, pass: state.currentPasses.get(i) }]);
         applySort(arr);
         state.currentIdxs = arr.map(e => e[0]);
         paint(true);
@@ -1342,14 +1621,19 @@ function bindEvents(){
     if (e.target.id === 'resetData'){
       if (confirm('Clear pins, recent searches, and settings on this device?')){
         localStorage.removeItem(SETTINGS_KEY); localStorage.removeItem('rx.recents.v1'); localStorage.removeItem('rx.pins.v1');
-        state.settings = Object.assign({}, defaultSettings); state.recents = []; state.pins = new Set();
-        closeSheets(); renderEmptyState();
+        state.settings = Object.assign({}, defaultSettings); state.recents = []; state.pins = new Set(); state.pinsOnly = false;
+        closeSheets(); renderEmptyState(); updateChipCounts();
       }
       return;
     }
   });
   q('sheet-settings-body').addEventListener('input', e => {
-    if (e.target.id === 'limitSlider'){ state.settings.limit = parseInt(e.target.value,10); saveSettings(); buildSettingsSheet(); }
+    if (e.target.id === 'limitSlider'){
+      state.settings.limit = parseInt(e.target.value,10);
+      saveSettings();
+      const label = q('limitLabel');
+      if (label) label.textContent = 'Result limit ('+state.settings.limit+')';
+    }
   });
 
   q('sheet-detail-body').addEventListener('click', e => {
@@ -1357,7 +1641,7 @@ function bindEvents(){
     if (!btn) return;
     const i = parseInt(btn.dataset.i,10);
     if (btn.id === 'detailCopy') copyText(rowAsText(i));
-    if (btn.id === 'detailPin'){ togglePin(i); openDetail(i); }
+    if (btn.id === 'detailPin'){ togglePin(i); openDetail(i); updateChipCounts(); }
   });
 
   q('exportBtn').addEventListener('click', exportCSV);
@@ -1373,7 +1657,7 @@ function bindEvents(){
 
   const io = new IntersectionObserver(entries => {
     if (entries.some(e=>e.isIntersecting) && state.renderCount < state.currentIdxs.length) paint(false);
-  });
+  }, { rootMargin: '600px' });
   io.observe(els.sentinel);
 }
 
@@ -1395,9 +1679,6 @@ function downloadServiceWorker(){
 }
 
 function registerPWA(){
-  if ('caches' in window){
-    caches.open('rx-v'+SCHEMA.version).then(c => c.add(location.pathname || './')).catch(()=>{});
-  }
   if ('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   }
@@ -1425,7 +1706,7 @@ function buildAboutSheet(){
 }
 
 function init(){
-  els.q = q('q'); els.results = q('results'); els.sentinel = q('sentinel');
+  els.q = q('q'); els.results = q('results'); els.sentinel = q('sentinel'); els.implicitChips = q('implicitChips');
   els.searchbar = q('searchbar'); els.clearbtn = q('clearbtn');
   els.bottombar = q('bottombar'); els.resultcount = q('resultcount');
   initChips();
@@ -1441,26 +1722,94 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 
 window.__rx = {
   bench(needles){
-    needles = needles || ['diclo','asprin','panadol','vitamin','amoxicillin 500','form:amp sp'];
+    needles = needles || ['a','as','asp','aspirin','asprin','diclo','diclofenac 50','panadol','vit','vitamin d','amoxicillin 500','form:amp sp','quinolones','مزمن','xyzzy'];
     const results = {};
+    const pct = (arr, p) => { const s = [...arr].sort((a,b)=>a-b); return s[Math.min(s.length-1, Math.floor(s.length*p))]; };
     for (const needle of needles){
-      const times = [];
+      const searchTimes = [], paintTimes = [];
       let acc = '';
       for (const ch of needle){
         acc += ch;
         const t0 = performance.now();
         runSearch(acc);
-        times.push(performance.now()-t0);
+        searchTimes.push(performance.now()-t0);
+        const t1 = performance.now();
+        paint(true);
+        paintTimes.push(performance.now()-t1);
       }
-      times.sort((a,b)=>a-b);
-      const p50 = times[Math.floor(times.length*0.5)];
-      const p95 = times[Math.floor(times.length*0.95)] ?? times[times.length-1];
-      results[needle] = { p50: +p50.toFixed(3), p95: +p95.toFixed(3), keystrokes: times.length };
+      results[needle] = {
+        search_p50: +pct(searchTimes,0.5).toFixed(3), search_p95: +pct(searchTimes,0.95).toFixed(3),
+        paint_p50: +pct(paintTimes,0.5).toFixed(3), paint_p95: +pct(paintTimes,0.95).toFixed(3),
+        keystrokes: searchTimes.length,
+      };
     }
     console.table(results);
     return results;
   },
+  test(){
+    const savedTol = state.settings.tolerance, savedFacets = { form:new Set(state.activeFacets.form), auth:new Set(state.activeFacets.auth), group:new Set(state.activeFacets.group) };
+    const idOf = i => ROW(i,'id');
+    const nameOf = i => ROW(i,'name');
+    const cases = [
+      { label:'exact generic + dose', run:()=>{ state.settings.tolerance='balanced'; return runSearch('amoxicillin 500'); }, check: r => r.length>0 && idOf(r[0])===61 },
+      { label:'brand synonym (brufen -> Ibuprofen)', run:()=>{ state.settings.tolerance='balanced'; return runSearch('brufen'); }, check: r => r.length>0 && nameOf(r[0]).includes('Ibuprofen') },
+      { label:'typo tolerance rejected under strict', run:()=>{ state.settings.tolerance='strict'; return runSearch('asprin'); }, check: r => r.length===0 },
+      { label:'typo tolerance accepted under balanced', run:()=>{ state.settings.tolerance='balanced'; return runSearch('asprin'); }, check: r => r.length>0 },
+      { label:'Arabic duration free text', run:()=>{ state.settings.tolerance='balanced'; return runSearch('مزمن'); }, check: r => r.length>50 },
+      { label:'bare dose token (conc)', run:()=>{ state.settings.tolerance='balanced'; return runSearch('500'); }, check: r => r.length>0 && r.every(i => doseMatches({num:500,unit:null}, META[i].concTokens, META[i].concIsRange)) },
+      { label:'form: filter', run:()=>runSearch('form:amp'), check: r => r.length>0 && r.every(i => ROW(i,'form')==='amp') },
+      { label:'auth: filter', run:()=>runSearch('auth:committee'), check: r => r.length>0 && r.every(i => ROW(i,'auth')==='committee') },
+      { label:'group: filter', run:()=>runSearch('group:quinolones'), check: r => r.length>0 && r.every(i => norm(ROW(i,'group')).includes('quinolones')) },
+      { label:'quoted phrase', run:()=>runSearch('"clavulanic acid"'), check: r => r.length>0 && r.every(i => HAY_B[i].includes('clavulanic acid')) },
+      { label:'-exclusion', run:()=>runSearch('amoxicillin -clavulanic'), check: r => r.length>0 && r.every(i => !HAY_B[i].includes('clavulanic')) },
+      { label:'empty query + facet only', run:()=>{ state.activeFacets.form.add('amp'); return runSearch(''); }, check: r => { const ok = r.length>0 && r.every(i => ROW(i,'form')==='amp'); state.activeFacets.form.clear(); return ok; } },
+      { label:'out-of-order (balanced, uFuzzy layer)', run:()=>{ state.settings.tolerance='balanced'; return runSearch('sodium diclofenac'); }, check: r => r.some(i => nameOf(i).includes('Diclofenac sodium')) },
+      { label:'2-char prefix (B3)', run:()=>null, check: () => prefixPass(['as'], null).size > 0 },
+      { label:'zero-result cache does not poison (B4)', run:()=>{ state.settings.tolerance='balanced'; runSearch('zz'); return runSearch('zzaspirin'); }, check: r => r.length>0 },
+      { label:'dose range false positive fixed (B7)', run:()=>null, check: () => { const tok=parseDoseTokens('100 mg / 5ml'); return tok.length===1 && !doseMatches({num:40,unit:null}, tok, doseIsRangeStr('100 mg / 5ml')); } },
+      { label:'genuine dose range still works (B7)', run:()=>null, check: () => { const tok=parseDoseTokens('600-900mg'); return doseMatches({num:750,unit:'mg'}, tok, doseIsRangeStr('600-900mg')); } },
+      { label:'form-label words excluded from name/syn tokens (T2.6)', run:()=>null, check: () => { const i = DATA.findIndex(r=>r[1]==='Ibuprofen' && r[3]==='tab'); return i>=0 && !TOKENS_NAME[i].includes('tablet') && !TOKENS_NAME[i].includes('tab'); } },
+      { label:'exact name match outranks longer combo match (T2.5)', run:()=>{ state.settings.tolerance='balanced'; return runSearch('amoxicillin 500'); }, check: r => r.length>0 && nameOf(r[0])==='Amoxicillin' },
+      { label:'short second term not ignored in multi-term prefix match', run:()=>{ state.settings.tolerance='balanced'; return runSearch('vitamin d'); }, check: r => r.length>0 && nameOf(r[0]).toLowerCase().includes('vitamin d') },
+      { label:'single-char term requires exact token, not prefix', run:()=>{ state.settings.tolerance='balanced'; return runSearch('vitamin c'); }, check: r => r.length>0 && nameOf(r[0]).toLowerCase().includes('vitamin c') },
+      { label:'unpin while pinsOnly+freetext active does not serve stale cache (T3.3)', run:()=>{
+          state.settings.tolerance='balanced';
+          const before = runSearch('amoxicillin');
+          const target = before[0];
+          togglePin(target);
+          state.pinsOnly = true;
+          const pinned = runSearch('amoxicillin');
+          togglePin(target);
+          const after = runSearch('amoxicillin');
+          state.pinsOnly = false;
+          return { pinnedHasTarget: pinned.includes(target), afterHasTarget: after.includes(target) };
+        }, check: r => r.pinnedHasTarget===true && r.afterHasTarget===false },
+      { label:'duration facet filter (T4)', run:()=>{ state.activeFacets.duration.add('مزمن'); const r = runSearch(''); state.activeFacets.duration.clear(); return r; }, check: r => r.length>0 && r.every(i=>ROW(i,'duration')==='مزمن') },
+      { label:'unverified-entry tag isolates the misfiled batch, not real vitamins (Phase5)', run:()=>null, check: () => {
+          ensureDeferredReady();
+          let flagged = 0, legitVitamins = 0;
+          for (let i=0;i<N;i++){
+            if (META[i].unverified) flagged++;
+            if (ROW(i,'group')==='vitamins Drugs' && !META[i].unverified) legitVitamins++;
+          }
+          return flagged === 124 && legitVitamins === 59;
+        } },
+    ];
+    const results = cases.map(c => {
+      let pass, error = null;
+      try { const r = c.run(); pass = !!c.check(r); }
+      catch(e){ pass = false; error = e.message; }
+      return { label: c.label, pass: pass ? 'PASS' : 'FAIL', error: error||'' };
+    });
+    state.settings.tolerance = savedTol;
+    state.activeFacets = savedFacets;
+    console.table(results);
+    const failed = results.filter(r=>r.pass==='FAIL').length;
+    console.log(failed===0 ? 'All '+results.length+' golden queries passed.' : failed+' of '+results.length+' golden queries FAILED.');
+    return results;
+  },
   audit(){
+    ensureDeferredReady();
     const issues = [];
     const seen = new Map();
     for (let i=0;i<N;i++){
@@ -1481,8 +1830,9 @@ window.__rx = {
     console.table(issues);
     return issues;
   },
-  state, SCHEMA, DATA, F, ROW, HAY_A, HAY_B, TOKENS, PRE, FACET, META,
-  parseQuery, runSearch, computeUniverse, norm, executeSearch, scoreOf, TOLERANCE, getUF,
+  state, SCHEMA, DATA, F, ROW, HAY_A, HAY_B, TOKENS_NAME, TOKENS_SYN, PRE, FACET,
+  get META(){ return META; }, get DOSE_IDX(){ return DOSE_IDX; },
+  parseQuery, runSearch, computeUniverse, norm, executeSearch, scoreOf, TOLERANCE, getUF, togglePin,
 };
 
 })();
