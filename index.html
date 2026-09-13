@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AG Search</title>
 <meta name="description" content="Fast offline formulary lookup — search a drug, brand, or class in one tap.">
-<meta name="theme-color" content="#A6677D" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#191817" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" id="agThemeColor" content="#A6677D">
 <link rel="manifest" id="agManifest">
 <link rel="icon" id="agFavicon" type="image/svg+xml" sizes="any">
 <link rel="icon" type="image/svg+xml" sizes="16x16" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20192%20192'%3E%3Crect%20width='192'%20height='192'%20rx='42'%20fill='%23A6677D'/%3E%3Cg%20transform='rotate(-45%2096%2096)'%3E%3Crect%20x='35'%20y='73'%20width='122'%20height='46'%20rx='23'%20fill='%23FAF9F5'/%3E%3Cpath%20d='M96%2073V119'%20fill='none'%20stroke='%23A6677D'%20stroke-width='10'/%3E%3C/g%3E%3C/svg%3E">
@@ -49,6 +48,30 @@
   };
   img.src = enc(ICON);
 })();
+
+var THEME_KEY = 'rx.theme';
+var themePref = 'system';
+try { themePref = localStorage.getItem(THEME_KEY) || 'system'; } catch(e){}
+var themeMQ = window.matchMedia('(prefers-color-scheme: dark)');
+function agResolveTheme(p){ return p === 'system' ? (themeMQ.matches ? 'dark' : 'light') : p; }
+function agApplyTheme(p){
+  var eff = agResolveTheme(p);
+  document.documentElement.setAttribute('data-theme', eff);
+  document.documentElement.style.colorScheme = eff;
+  var m = document.getElementById('agThemeColor');
+  if (m) m.setAttribute('content', eff === 'dark' ? '#191817' : '#A6677D');
+}
+window.__agTheme = {
+  get: function(){ return themePref; },
+  set: function(p){
+    themePref = (p === 'light' || p === 'dark') ? p : 'system';
+    try { localStorage.setItem(THEME_KEY, themePref); } catch(e){}
+    agApplyTheme(themePref);
+  }
+};
+agApplyTheme(themePref);
+if (themeMQ.addEventListener) themeMQ.addEventListener('change', function(){ if (themePref === 'system') agApplyTheme(themePref); });
+else if (themeMQ.addListener) themeMQ.addListener(function(){ if (themePref === 'system') agApplyTheme(themePref); });
 </script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -90,14 +113,12 @@
   --header-h: 56px;
   --bottom-h: 58px;
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --milk:#181614; --pampas:#201D1A; --card:#272422;
-    --ink:#F3F0EA; --ink-2:#C9C3B8; --ink-3:#989185; --cloudy:#4A4640;
-    --clay:#CD8496; --crail:#C48297; --cloth:#B98998; --on-clay:#181614;
-    --nu-lo:rgba(0,0,0,.44); --nu-lo2:rgba(0,0,0,.28); --nu-hi:rgba(255,255,255,.05);
-    --hairline: color-mix(in srgb, #FFFFFF 9%, transparent);
-  }
+:root[data-theme="dark"]{
+  --milk:#181614; --pampas:#201D1A; --card:#272422;
+  --ink:#F3F0EA; --ink-2:#C9C3B8; --ink-3:#989185; --cloudy:#4A4640;
+  --clay:#CD8496; --crail:#C48297; --cloth:#B98998; --on-clay:#181614;
+  --nu-lo:rgba(0,0,0,.44); --nu-lo2:rgba(0,0,0,.28); --nu-hi:rgba(255,255,255,.05);
+  --hairline: color-mix(in srgb, #FFFFFF 9%, transparent);
 }
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html,body{ height:100%; }
@@ -160,9 +181,9 @@ button{ font-family:inherit; }
   width:30px; height:30px; border-radius:var(--r-pill); border:none; background:var(--card);
   color:var(--ink-3); display:flex; align-items:center; justify-content:center; cursor:pointer;
   opacity:0; transform:scale(.8); transition:opacity .12s var(--ease), transform .12s var(--ease);
-  flex:0 0 auto;
+  flex:0 0 auto; pointer-events:none;
 }
-.clearbtn.show{ opacity:1; transform:scale(1); }
+.clearbtn.show{ opacity:1; transform:scale(1); pointer-events:auto; }
 
 .chiprow{
   display:flex; gap:8px; overflow-x:auto; padding:10px 14px; scroll-snap-type:x proximity;
@@ -217,7 +238,8 @@ button{ font-family:inherit; }
 .card-rail{ display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:8px; }
 .pinbtn svg[fill="currentColor"]{ color:var(--clay); }
 .copybtn{
-  width:30px; height:30px; border-radius:var(--r-pill); border:none; background:var(--pampas);
+  width:44px; height:44px; padding:7px; box-sizing:border-box; border-radius:var(--r-pill); border:none;
+  background:var(--pampas); background-clip:content-box;
   color:var(--ink-3); display:flex; align-items:center; justify-content:center; cursor:pointer;
 }
 .copybtn:active{ background:var(--clay-wash); color:var(--crail); }
@@ -243,6 +265,7 @@ button{ font-family:inherit; }
   background:radial-gradient(closest-side, var(--clay-wash), transparent 75%);
 }
 .recentchips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px; }
+.emptyhint{ color:var(--ink-3); font-size:12px; margin-top:16px; }
 
 .bottombar{
   position:fixed; left:0; right:0; bottom:0; z-index:30; max-width:720px; margin:0 auto;
@@ -282,11 +305,25 @@ button{ font-family:inherit; }
   font-variant-caps:small-caps; margin:0;
 }
 .sheet-body{ overflow-y:auto; padding:0 18px 18px; }
-.sheet-close{ border:none; background:var(--pampas); width:30px; height:30px; border-radius:var(--r-pill); color:var(--ink-2); cursor:pointer; }
+.sheet-close{
+  border:none; cursor:pointer; color:var(--ink-2);
+  width:44px; height:44px; padding:7px; box-sizing:border-box;
+  background:var(--pampas); background-clip:content-box; border-radius:var(--r-pill);
+  display:flex; align-items:center; justify-content:center;
+}
 
 .facet-group{ margin-bottom:18px; }
 .facet-title{ font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3); margin-bottom:8px; }
 .facet-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.facet-opt{ max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; }
+.facet-count{ color:var(--ink-3); font-size:11px; margin-inline-start:2px; }
+.chip.active .facet-count{ color:var(--on-clay); opacity:.75; }
+.facet-showall{ background:transparent; border:1px dashed var(--cloudy); color:var(--ink-3); }
+.facetfilter{
+  width:100%; height:44px; border-radius:var(--r-pill); background:var(--pampas); border:none;
+  box-shadow:var(--sh-well); padding:0 16px; font-size:14.5px; color:var(--ink); margin-bottom:16px;
+}
+.facetfilter::placeholder{ color:var(--ink-3); }
 
 .rowline{
   display:flex; align-items:center; justify-content:space-between; padding:13px 2px;
@@ -314,7 +351,7 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
 .detail-row:last-child{ border-bottom:none; }
 .detail-k{ font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); flex:0 0 118px; padding-top:2px; }
 .detail-v{ font-size:14.5px; font-weight:500; color:var(--ink); text-align:end; line-height:1.45; }
-.detail-v[dir=auto]{ font-family:var(--ar); }
+.detail-v.ar{ font-family:var(--ar); }
 .detail-actions{ display:flex; gap:10px; margin-top:18px; }
 .btn{
   flex:1; height:47px; border-radius:var(--r-md); border:none; background:var(--pampas);
@@ -362,14 +399,12 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
   .iconbtn:hover, .settings-btn:hover, .copybtn:hover{ background:var(--clay-wash); color:var(--crail); }
 }
 
-@media (prefers-color-scheme: dark){
-  .pill{ background:color-mix(in srgb, #FFFFFF 6%, transparent); }
-  .pill-conc{ background:color-mix(in srgb, var(--cloth) 20%, transparent); color:var(--ink); }
-  .pill-auth-gp{ background:color-mix(in srgb, var(--gp) 26%, transparent); color:#A8C4AE; }
-  .pill-auth-sp{ background:color-mix(in srgb, var(--sp) 26%, transparent); color:#DDB287; }
-  .pill-auth-cons{ background:color-mix(in srgb, var(--cons) 28%, transparent); color:#BFB4DB; }
-  .pill-auth-committee{ background:color-mix(in srgb, var(--cmte) 28%, transparent); color:#9FBADE; }
-}
+:root[data-theme="dark"] .pill{ background:color-mix(in srgb, #FFFFFF 6%, transparent); }
+:root[data-theme="dark"] .pill-conc{ background:color-mix(in srgb, var(--cloth) 20%, transparent); color:var(--ink); }
+:root[data-theme="dark"] .pill-auth-gp{ background:color-mix(in srgb, var(--gp) 26%, transparent); color:#A8C4AE; }
+:root[data-theme="dark"] .pill-auth-sp{ background:color-mix(in srgb, var(--sp) 26%, transparent); color:#DDB287; }
+:root[data-theme="dark"] .pill-auth-cons{ background:color-mix(in srgb, var(--cons) 28%, transparent); color:#BFB4DB; }
+:root[data-theme="dark"] .pill-auth-committee{ background:color-mix(in srgb, var(--cmte) 28%, transparent); color:#9FBADE; }
 
 .sheet-body::-webkit-scrollbar{ width:8px; }
 .sheet-body::-webkit-scrollbar-thumb{ background:color-mix(in srgb, var(--cloudy) 60%, transparent); border-radius:4px; }
@@ -410,8 +445,8 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
     <div class="searchwrap">
       <div class="searchbar" id="searchbar">
         <svg class="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
-        <input id="q" type="text" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search a drug, brand, or class…" aria-label="Search formulary">
-        <button class="clearbtn" id="clearbtn" aria-label="Clear search">
+        <input id="q" type="text" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" dir="auto" placeholder="Search a drug, brand, or class…" aria-label="Search formulary">
+        <button class="clearbtn" id="clearbtn" aria-label="Clear search" aria-hidden="true">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
         </button>
       </div>
@@ -420,8 +455,8 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
     <div class="chiprow" id="chiprow"></div>
     <div class="implicitchips" id="implicitChips" style="display:none"></div>
 
-    <div id="results" aria-live="polite"></div>
-    <template id="cardTemplate"><div class="card" role="button" tabindex="0"><div class="card-main"><div class="card-name"></div><div class="pillrow"></div><div class="card-class" style="display:none"></div><div class="matchbadge" style="display:none"></div></div><div class="card-rail"><button class="copybtn pinbtn" data-act="pin" aria-label="Pin" title="Pin"></button><button class="copybtn" data-act="copy" aria-label="Copy" title="Copy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg></button></div></div></template>
+    <div id="results"></div>
+    <template id="cardTemplate"><div class="card" role="button" tabindex="0"><div class="card-main"><div class="card-name" dir="auto"></div><div class="pillrow"></div><div class="card-class" style="display:none"></div><div class="matchbadge" style="display:none"></div></div><div class="card-rail"><button class="copybtn pinbtn" data-act="pin" aria-label="Pin" title="Pin"></button><button class="copybtn" data-act="copy" aria-label="Copy" title="Copy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg></button></div></div></template>
     <div id="sentinel"></div>
   </div>
 
@@ -439,43 +474,43 @@ input[type=range]{ width:100%; accent-color:var(--clay); }
 
   <div class="sheetbackdrop" id="sheetbackdrop"></div>
 
-  <div class="sheet" id="sheet-filters">
+  <div class="sheet" id="sheet-filters" role="dialog" aria-modal="true" aria-labelledby="sheet-filters-title" tabindex="-1">
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h2>Filters</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-head"><h2 id="sheet-filters-title">Filters</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
     <div class="sheet-body" id="sheet-filters-body"></div>
   </div>
 
-  <div class="sheet" id="sheet-sort">
+  <div class="sheet" id="sheet-sort" role="dialog" aria-modal="true" aria-labelledby="sheet-sort-title" tabindex="-1">
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h2>Sort</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-head"><h2 id="sheet-sort-title">Sort</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
     <div class="sheet-body" id="sheet-sort-body"></div>
   </div>
 
-  <div class="sheet" id="sheet-settings">
+  <div class="sheet" id="sheet-settings" role="dialog" aria-modal="true" aria-labelledby="sheet-settings-title" tabindex="-1">
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h2>Settings</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-head"><h2 id="sheet-settings-title">Settings</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
     <div class="sheet-body" id="sheet-settings-body"></div>
   </div>
 
-  <div class="sheet" id="sheet-detail">
+  <div class="sheet" id="sheet-detail" role="dialog" aria-modal="true" aria-labelledby="sheet-detail-title" tabindex="-1">
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h2>&nbsp;</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-head"><h2 id="sheet-detail-title">&nbsp;</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
     <div class="sheet-body" id="sheet-detail-body"></div>
   </div>
 
-  <div class="sheet" id="sheet-about">
+  <div class="sheet" id="sheet-about" role="dialog" aria-modal="true" aria-labelledby="sheet-about-title" tabindex="-1">
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h2>About</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
+    <div class="sheet-head"><h2 id="sheet-about-title">About</h2><button class="sheet-close" aria-label="Close">&times;</button></div>
     <div class="sheet-body" id="sheet-about-body"></div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script type="text/plain" id="sw-source">
-const CACHE = 'rx-v4';
+const CACHE = 'rx-v5';
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.add('./')));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', location.pathname].map(u => new Request(u, { cache: 'reload' })))));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(
@@ -583,7 +618,9 @@ const DOSE_TOKEN_RE = /^(\d+(?:\.\d+)?)(mg|mcg|µg|ug|g|ml|iu|%)?$/i;
 function parseQuery(raw){
   const out = {
     freeTerms: [], phrases: [], excludes: [],
-    doseConstraints: [], formFacet: [], formFacetRaw: [], fieldFilters: { form:[], auth:[], group:[] },
+    doseConstraints: [], formFacet: [], formFacetRaw: [], authFacet: [], authFacetRaw: [],
+    groupFacet: [], groupFacetRaw: [], durationFacet: [], durationFacetRaw: [], implicitTerms: [],
+    fieldFilters: { form:[], auth:[], group:[], dur:[] },
   };
   if (!raw) return out;
   const re = /"([^"]+)"|(\S+)/g;
@@ -592,7 +629,7 @@ function parseQuery(raw){
     if (m[1] != null){ const p = norm(m[1]); if (p) out.phrases.push(p); continue; }
     let tok = m[2];
     if (tok.startsWith('-') && tok.length > 1){ const ex = norm(tok.slice(1)); if (ex) out.excludes.push(ex); continue; }
-    const fieldMatch = /^(max|day|form|auth|group):(.+)$/i.exec(tok);
+    const fieldMatch = /^(max|day|form|auth|group|dur):(.+)$/i.exec(tok);
     if (fieldMatch){
       const field = fieldMatch[1].toLowerCase();
       const val = fieldMatch[2];
@@ -605,12 +642,32 @@ function parseQuery(raw){
     if (dm2){ out.doseConstraints.push({ field:'conc', num: parseFloat(dm2[1]), unit: canonUnit(dm2[2]) }); continue; }
     const nt = norm(tok);
     if (!nt) continue;
+
     let matchedForm = null;
     for (const k in SCHEMA.enums.form){
       const e = SCHEMA.enums.form[k];
       if (k === nt || norm(e.s) === nt || norm(e.l) === nt){ matchedForm = k; break; }
     }
-    if (matchedForm){ out.formFacet.push(matchedForm); out.formFacetRaw.push(tok); continue; }
+    if (!matchedForm && FACET_SYN_LOOKUP.form.has(nt)) matchedForm = FACET_SYN_LOOKUP.form.get(nt);
+
+    let matchedAuth = null;
+    for (const k in SCHEMA.enums.auth){
+      const e = SCHEMA.enums.auth[k];
+      if (k === nt || norm(e.s) === nt || norm(e.l) === nt){ matchedAuth = k; break; }
+    }
+    if (!matchedAuth && FACET_SYN_LOOKUP.auth.has(nt)) matchedAuth = FACET_SYN_LOOKUP.auth.get(nt);
+
+    let matchedGroup = nt.length >= 3 && GROUP_KEYS_NORM.some(gk => gk.includes(nt));
+    let matchedDuration = DURATION_KW_SET.has(nt);
+
+    if ((matchedForm || matchedAuth || matchedGroup || matchedDuration) && tokenHitsName(nt)){
+      matchedForm = null; matchedAuth = null; matchedGroup = false; matchedDuration = false;
+    }
+
+    if (matchedForm){ out.formFacet.push(matchedForm); out.formFacetRaw.push(tok); out.implicitTerms.push(nt); continue; }
+    if (matchedAuth){ out.authFacet.push(matchedAuth); out.authFacetRaw.push(tok); out.implicitTerms.push(nt); continue; }
+    if (matchedGroup){ out.groupFacet.push(nt); out.groupFacetRaw.push(tok); out.implicitTerms.push(nt); continue; }
+    if (matchedDuration){ out.durationFacet.push(nt); out.durationFacetRaw.push(tok); out.implicitTerms.push(nt); continue; }
     out.freeTerms.push(nt);
   }
   return out;
@@ -674,10 +731,10 @@ function buildDeferred(){
   META = new Array(N);
   for (let i=0;i<N;i++){
     const conc = ROW(i,'conc'), formKey = ROW(i,'form'), authKey = ROW(i,'auth'),
-          duration = ROW(i,'duration'), maxDose = ROW(i,'maxDose'), dayDose = ROW(i,'dayDose'), group = ROW(i,'group');
+          duration = ROW(i,'duration'), maxDose = ROW(i,'maxDose'), dayDose = ROW(i,'dayDose'), group = ROW(i,'group'), notes = ROW(i,'notes');
     const formLbl = formKey ? SCHEMA.enums.form[formKey] : null;
     const authLbl = authKey ? SCHEMA.enums.auth[authKey] : null;
-    const extra = norm([formLbl ? (formLbl.l+' '+formLbl.s) : '', authLbl ? (authLbl.l+' '+authLbl.s) : '', duration||'', group||'', maxDose||'', dayDose||''].join(' '));
+    const extra = norm([formLbl ? (formLbl.l+' '+formLbl.s) : '', authLbl ? (authLbl.l+' '+authLbl.s) : '', duration||'', group||'', maxDose||'', dayDose||'', notes||''].join(' '));
     HAY_B[i] = extra ? (HAY_A[i]+' '+extra) : HAY_A[i];
     META[i] = {
       concTokens: parseDoseTokens(conc), concIsRange: doseIsRangeStr(conc),
@@ -717,6 +774,37 @@ for (const tk in TOLERANCE){
   TOLERANCE[tk].typoKey = tk+'_typo';
   TOLERANCE[tk].typoOpts = Object.assign({}, TOLERANCE[tk].opts, { intraMode:1, intraIns:1, intraSub:1, intraTrn:1, intraDel:1 });
 }
+
+const FACET_SYNONYMS = {
+  form: {
+    tab:['tablet','tablets','اقراص','قرص'], cap:['capsule','capsules','كبسول','كبسولات'],
+    amp:['ampoule','ampule','ampoules','injection','امبول','امبولات','حقنة','حقن'],
+    vial:['فيال','زجاجة حقن'], supp:['suppository','لبوس','لبوسة','تحاميل'],
+    cream:['كريم'], oint:['ointment','مرهم'], lotion:['لوشن'], gel:['جيل'],
+    syrup:['شراب'], susp:['suspension','معلق'], drops:['drop','قطرة','قطره','نقط'],
+    spray:['بخاخ','بخاخة'], inh:['inhaler','بخاخ استنشاق'], sach:['sachet','كيس','اكياس'],
+    patch:['لصقة','لزقة'], eff:['effervescent','فوار'], vag:['vaginal','مهبلي'],
+    wash:['mouthwash','غرغرة','غسول فم']
+  },
+  auth: {
+    gp:['gp','general practitioner','practitioner','عام','طبيب عام'],
+    sp:['specialist','اخصائي','أخصائي','تخصصي'],
+    cons:['consultant','استشاري','إستشاري'],
+    committee:['committee','لجنة','لجنه','توصية لجنة']
+  },
+  duration: {
+    __kw:['مزمن','اسبوع','ايام','يوم','مستشفيات','زجاجة','زجاجه','تكرار','شهر']
+  }
+};
+const FACET_SYN_LOOKUP = { form:new Map(), auth:new Map() };
+for (const type of ['form','auth']){
+  for (const key in FACET_SYNONYMS[type]){
+    for (const word of FACET_SYNONYMS[type][key]){
+      FACET_SYN_LOOKUP[type].set(norm(word), key);
+    }
+  }
+}
+const DURATION_KW_SET = new Set(FACET_SYNONYMS.duration.__kw.map(norm));
 
 const ufCache = new Map();
 function getUF(key, opts){
@@ -763,6 +851,17 @@ function runUFuzzyPass(key, opts, haystackFull, universe, needle, outOfOrder){
   }
   for (let rank=0;rank<order.length;rank++){ const oi = order[rank]; out.push({ rowIdx: info.idx[oi], info, k: oi, rank }); }
   return out;
+}
+
+function tokenHitsName(t){
+  if (t.length < 2) return false;
+  const bucket = PRE.get(t.slice(0,2)) || [];
+  for (const i of bucket){
+    if (NAME_NORM[i].startsWith(t)) return true;
+    if (TOKENS_NAME[i].some(x=>x.startsWith(t))) return true;
+    if (TOKENS_SYN[i].some(x=>x.startsWith(t))) return true;
+  }
+  return false;
 }
 
 function prefixPass(freeTerms, universeSet){
@@ -894,7 +993,7 @@ function executeSearch(freeTerms, phrases, excludes, universe0, tolerance, enoug
 const SETTINGS_KEY = 'rx.settings.v3';
 const defaultSettings = {
   tolerance: 'balanced', limit: CONFIG.defaultLimit, enough: CONFIG.defaultEnough,
-  showScores: false, showProvenance: false, searchArabic: true,
+  showScores: false, showProvenance: false,
 };
 function loadSettings(){
   try{ const raw = localStorage.getItem(SETTINGS_KEY); if (raw) return Object.assign({}, defaultSettings, JSON.parse(raw)); }
@@ -917,15 +1016,16 @@ const state = {
   currentPasses: new Map(),
   currentScores: new Map(),
   currentFreeText: '',
-  currentImplicitForm: [],
+  currentImplicit: [],
   renderCount: 0,
 };
 
 function structKey(pq){
   return JSON.stringify({
     f: [...state.activeFacets.form].sort(), a: [...state.activeFacets.auth].sort(), g: [...state.activeFacets.group].sort(), du: [...state.activeFacets.duration].sort(),
-    ff: pq.fieldFilters, fa: pq.formFacet, dc: pq.doseConstraints, ph: pq.phrases, ex: pq.excludes,
-    po: state.pinsOnly, tol: state.settings.tolerance, en: state.settings.enough,
+    ff: pq.fieldFilters, fa: pq.formFacet, af: pq.authFacet, gf: pq.groupFacet, df: pq.durationFacet,
+    dc: pq.doseConstraints, ph: pq.phrases, ex: pq.excludes,
+    po: state.pinsOnly, tol: state.settings.tolerance, en: state.settings.enough, so: state.sort,
   });
 }
 
@@ -963,19 +1063,30 @@ function computeUniverse(pq){
     for (const val of formVals) for (const i of (FACET.form.get(val)||[])) acc.add(i);
     sets.push(acc);
   }
-  if (pq.fieldFilters.auth.length){
+  const authVals = [...pq.fieldFilters.auth, ...pq.authFacet];
+  if (authVals.length){
     const acc = new Set();
     for (const [k, arr] of FACET.auth){
       const lbl = SCHEMA.enums.auth[k];
-      if (pq.fieldFilters.auth.some(v => k===v || norm(lbl.l)===v || norm(lbl.s)===v)) for (const i of arr) acc.add(i);
+      if (authVals.some(v => k===v || norm(lbl.l)===v || norm(lbl.s)===v)) for (const i of arr) acc.add(i);
     }
     sets.push(acc);
   }
-  if (pq.fieldFilters.group.length){
+  const groupVals = [...pq.fieldFilters.group, ...pq.groupFacet];
+  if (groupVals.length){
     const acc = new Set();
     for (const [k, arr] of FACET.group){
       const nk = norm(k);
-      if (pq.fieldFilters.group.some(v => nk.includes(v))) for (const i of arr) acc.add(i);
+      if (groupVals.some(v => nk.includes(v))) for (const i of arr) acc.add(i);
+    }
+    sets.push(acc);
+  }
+  const durVals = [...pq.fieldFilters.dur, ...pq.durationFacet];
+  if (durVals.length){
+    const acc = new Set();
+    for (const [k, arr] of FACET.duration){
+      const nk = norm(k);
+      if (durVals.some(v => nk.includes(v))) for (const i of arr) acc.add(i);
     }
     sets.push(acc);
   }
@@ -996,10 +1107,20 @@ function computeUniverse(pq){
   return [...base];
 }
 
+function buildImplicitList(pq){
+  const items = [];
+  pq.formFacet.forEach((key,idx) => items.push({ type:'form', key, raw: pq.formFacetRaw[idx] }));
+  pq.authFacet.forEach((key,idx) => items.push({ type:'auth', key, raw: pq.authFacetRaw[idx] }));
+  pq.groupFacet.forEach((key,idx) => items.push({ type:'group', key, raw: pq.groupFacetRaw[idx] }));
+  pq.durationFacet.forEach((key,idx) => items.push({ type:'duration', key, raw: pq.durationFacetRaw[idx] }));
+  return items;
+}
+
 function runSearch(raw){
   ensureDeferredReady();
   const pq = parseQuery(raw);
-  state.currentImplicitForm = pq.formFacet.map((key,idx) => ({ key, raw: pq.formFacetRaw[idx] }));
+  state.currentImplicit = buildImplicitList(pq);
+  state.currentRecovered = false;
   const sKey = structKey(pq);
   const freeKey = pq.freeTerms.join(' ');
   const cacheKey = sKey + '|' + freeKey;
@@ -1014,6 +1135,24 @@ function runSearch(raw){
   const universe = computeUniverse(pq);
   const merged = executeSearch(pq.freeTerms, pq.phrases, pq.excludes, universe, state.settings.tolerance, state.settings.enough);
   let arr = [...merged.entries()];
+  if (!arr.length && state.currentImplicit.length){
+    const recoveryPq = Object.assign({}, pq, { formFacet:[], authFacet:[], groupFacet:[], durationFacet:[] });
+    const universe2 = computeUniverse(recoveryPq);
+    const merged2 = executeSearch(pq.freeTerms, pq.phrases, pq.excludes, universe2, state.settings.tolerance, state.settings.enough);
+    const arr2 = [...merged2.entries()];
+    if (arr2.length){
+      applySort(arr2);
+      const idxs2 = arr2.map(e=>e[0]);
+      const passes2 = new Map(arr2.map(([i,v])=>[i, v.pass]));
+      const scores2 = new Map(arr2.map(([i,v])=>[i, v.score]));
+      state.currentIdxs = idxs2;
+      state.currentPasses = passes2;
+      state.currentScores = scores2;
+      state.currentFreeText = freeKey;
+      state.currentRecovered = true;
+      return idxs2;
+    }
+  }
   applySort(arr);
   const idxs = arr.map(e=>e[0]);
   const passes = new Map(arr.map(([i,v])=>[i, v.pass]));
@@ -1049,6 +1188,9 @@ function applySort(arr){
     return pb - pa;
   });
 }
+
+const AR_CODEPOINT_RE = /[\u0600-\u06FF]/;
+function hasArabic(v){ return AR_CODEPOINT_RE.test(String(v==null?'':v)); }
 
 function esc(s){
   return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1093,7 +1235,7 @@ function highlightName(name, freeText){
 
 function titleCase(s){ return s.replace(/\w\S*/g, t => t[0].toUpperCase()+t.slice(1).toLowerCase()); }
 
-const PASS_LABEL = { 0:'exact', 1:'fuzzy', 2:'typo', 3:'field', 4:'rescue', 9:'' };
+const PASS_LABEL = { 0:'exact', 1:'fuzzy', 2:'typo', 3:'other field', 4:'close match', 9:'' };
 const AUTH_CLASS_KEYS = new Set(Object.keys(SCHEMA.enums.auth));
 
 
@@ -1153,8 +1295,21 @@ function updateCardEl(el, i){
   el.querySelector('.pillrow').innerHTML = pills;
 
   const classEl = el.querySelector('.card-class');
-  if (group){ classEl.style.display = ''; classEl.textContent = group; }
-  else { classEl.style.display = 'none'; classEl.textContent = ''; }
+  let synHTML = '';
+  if (state.currentFreeText){
+    const nameNorm = NAME_NORM[i];
+    const synList = ROW(i,'syn') || [];
+    const ftTerms = state.currentFreeText.split(' ').filter(Boolean);
+    outer:
+    for (const t of ftTerms){
+      if (nameNorm.includes(t)) continue;
+      for (const s of synList){
+        if (norm(s).includes(t)){ synHTML = '<b>'+esc(s)+'</b>'+(group?' · ':''); break outer; }
+      }
+    }
+  }
+  if (group || synHTML){ classEl.style.display = ''; classEl.innerHTML = synHTML + esc(group||''); }
+  else { classEl.style.display = 'none'; classEl.innerHTML = ''; }
 
   const pass = state.currentPasses.get(i);
   const showProv = state.settings.showProvenance && pass != null && PASS_LABEL[pass];
@@ -1176,12 +1331,14 @@ function updateCardEl(el, i){
 }
 
 function renderEmptyState(){
+  clearTimeout(resultCountTimer);
   const chips = state.recents.slice(0,8).map(r => '<span class="chip recent-chip" data-q="'+esc(r)+'">'+esc(r)+'</span>').join('');
   els.results.innerHTML = (
     '<div class="emptystate">'+
       '<div class="bloom"></div>'+
       '<div class="greet">'+greeting()+'</div>'+
       (chips ? '<div class="recentchips">'+chips+'</div>' : '<div style="color:var(--ink-3);font-size:13.5px">Type a drug name to begin.</div>')+
+      '<div class="emptyhint">Press / to search · Enter opens the first result</div>'+
     '</div>'
   );
   cardPool = [];
@@ -1206,11 +1363,15 @@ let resultCountTimer = null;
 function updateResultCount(total){
   clearTimeout(resultCountTimer);
   resultCountTimer = setTimeout(() => {
-    els.resultcount.textContent = total === 0 ? '0 results' : (total + (total===1?' result':' results'));
-  }, 500);
+    const filtered = state.activeFacets.form.size || state.activeFacets.auth.size || state.activeFacets.group.size || state.activeFacets.duration.size || state.currentImplicit.length;
+    const base = total === 0 ? '0 results' : (total + (total===1?' result':' results'));
+    els.resultcount.textContent = state.currentRecovered ? base+' · without filters' : (filtered ? base+' · filtered' : base);
+  }, 120);
 }
 
 function paint(reset){
+  const stale = els.results.querySelector('.emptystate');
+  if (stale) stale.remove();
   if (reset) state.renderCount = 0;
   const limit = state.settings.limit || CONFIG.defaultLimit;
   const total = state.currentIdxs.length;
@@ -1236,7 +1397,7 @@ function runScheduledSearch(){
   const raw = pendingValue;
   const t0 = performance.now();
   if (raw.trim() === '' && state.activeFacets.form.size===0 && state.activeFacets.auth.size===0 && state.activeFacets.group.size===0 && state.activeFacets.duration.size===0 && !state.pinsOnly){
-    state.currentIdxs = []; state.currentFreeText=''; state.currentImplicitForm = []; renderEmptyState(); updateChipCounts();
+    state.currentIdxs = []; state.currentFreeText=''; state.currentImplicit = []; renderEmptyState(); updateChipCounts();
     clearTimeout(commitIdleTimer);
   } else {
     const idxs = runSearch(raw);
@@ -1261,9 +1422,14 @@ function scheduleSearch(){
   rafToken = requestAnimationFrame(() => { rafToken = null; runScheduledSearch(); });
 }
 
+function setClearBtnVisible(v){
+  els.clearbtn.classList.toggle('show', v);
+  if (v) els.clearbtn.removeAttribute('aria-hidden'); else els.clearbtn.setAttribute('aria-hidden','true');
+}
+
 function onInput(e){
   pendingValue = e.target.value;
-  els.clearbtn.classList.toggle('show', pendingValue.length>0);
+  setClearBtnVisible(pendingValue.length>0);
   if (isComposing) return;
   scheduleSearch();
 }
@@ -1281,6 +1447,7 @@ const FORM_KEYS = Object.keys(SCHEMA.enums.form).filter(k=>k!=='other');
 const AUTH_KEYS = Object.keys(SCHEMA.enums.auth).filter(k=>k!=='other');
 const GROUP_KEYS = [...FACET.group.keys()].sort((a,b)=>a.localeCompare(b));
 const DURATION_KEYS = [...FACET.duration.keys()].sort((a,b)=>a.localeCompare(b));
+const GROUP_KEYS_NORM = GROUP_KEYS.map(norm);
 
 function updateChipCounts(){
   const formChip = q('chip-filters');
@@ -1296,17 +1463,41 @@ function updateChipCounts(){
   }
 }
 
-function renderImplicitChips(){
-  const items = state.currentImplicitForm;
-  if (!els.implicitChips) return;
-  if (!items.length){ els.implicitChips.innerHTML = ''; els.implicitChips.style.display = 'none'; return; }
-  els.implicitChips.style.display = '';
-  els.implicitChips.innerHTML = items.map(it => {
-    const lbl = SCHEMA.enums.form[it.key] ? SCHEMA.enums.form[it.key].l : it.key;
-    return '<span class="chip implicit-chip" data-raw="'+esc(it.raw)+'">Filtering to: '+esc(lbl)+' <b>&times;</b></span>';
-  }).join('');
+function truncateLabel(s, n){
+  n = n || 40;
+  return s.length > n ? s.slice(0,n)+'…' : s;
 }
 
+function renderImplicitChips(){
+  const items = state.currentImplicit;
+  const activeList = [];
+  for (const type of ['form','auth','group','duration']){
+    for (const v of state.activeFacets[type]) activeList.push({ type, key:v, active:true });
+  }
+  if (!els.implicitChips) return;
+  if (!items.length && !activeList.length){ els.implicitChips.innerHTML = ''; els.implicitChips.style.display = 'none'; return; }
+  els.implicitChips.style.display = '';
+  const typeLabel = { form:'Form', auth:'Authority', group:'Class', duration:'Duration' };
+  const queryChipsHTML = items.map(it => {
+    let lbl = it.key;
+    if (it.type === 'form') lbl = SCHEMA.enums.form[it.key] ? SCHEMA.enums.form[it.key].l : it.key;
+    if (it.type === 'auth') lbl = SCHEMA.enums.auth[it.key] ? SCHEMA.enums.auth[it.key].l : it.key;
+    lbl = truncateLabel(lbl);
+    const dirAttr = hasArabic(lbl) || hasArabic(it.raw) ? ' dir="auto"' : '';
+    return '<span class="chip implicit-chip" data-raw="'+esc(it.raw)+'"'+dirAttr+'>'+typeLabel[it.type]+': '+esc(lbl)+' <b>&times;</b></span>';
+  }).join('');
+  const activeChipsHTML = activeList.map(it => {
+    let lbl = it.key;
+    if (it.type === 'form') lbl = SCHEMA.enums.form[it.key] ? SCHEMA.enums.form[it.key].l : it.key;
+    if (it.type === 'auth') lbl = SCHEMA.enums.auth[it.key] ? SCHEMA.enums.auth[it.key].l : it.key;
+    lbl = truncateLabel(lbl);
+    const dirAttr = hasArabic(lbl) ? ' dir="auto"' : '';
+    return '<span class="chip implicit-chip" data-atype="'+it.type+'" data-aval="'+esc(it.key)+'"'+dirAttr+'>'+typeLabel[it.type]+': '+esc(lbl)+' <b>&times;</b></span>';
+  }).join('');
+  els.implicitChips.innerHTML = queryChipsHTML + activeChipsHTML;
+}
+
+let facetSheetExpanded = { group:false, duration:false };
 function buildFacetSheet(){
   const sections = [
     ['Form', 'form', FORM_KEYS.map(k=>({v:k, l:SCHEMA.enums.form[k].l}))],
@@ -1314,12 +1505,22 @@ function buildFacetSheet(){
     ['Class', 'group', GROUP_KEYS.map(k=>({v:k, l:k}))],
     ['Duration', 'duration', DURATION_KEYS.map(k=>({v:k, l:k}))],
   ];
-  let html = '';
+  let html = '<input id="facetFilter" class="facetfilter" type="text" inputmode="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" dir="auto" placeholder="Find a filter…">';
   for (const [title, type, items] of sections){
+    const withCount = items.map(it => Object.assign({}, it, { count: (FACET[type].get(it.v)||[]).length }));
+    withCount.sort((a,b)=>b.count-a.count);
+    const collapsible = (type === 'group' || type === 'duration');
+    const expanded = facetSheetExpanded[type];
     html += '<div class="facet-group"><div class="facet-title">'+title+'</div><div class="facet-chips">';
-    for (const it of items){
+    withCount.forEach((it, idx) => {
       const active = state.activeFacets[type].has(it.v);
-      html += '<span class="chip facet-opt'+(active?' active':'')+'" data-type="'+type+'" data-v="'+esc(it.v)+'"'+(type==='duration'?' dir="auto"':'')+'>'+esc(it.l)+'</span>';
+      const isCollapsed = collapsible && !expanded && idx >= 8 && !active;
+      const label = type==='duration' ? truncateLabel(it.l) : it.l;
+      const titleAttr = (type==='duration' && it.l.length>40) ? ' title="'+esc(it.l)+'"' : '';
+      html += '<span class="chip facet-opt'+(active?' active':'')+(isCollapsed?' facet-collapsed':'')+'" style="'+(isCollapsed?'display:none':'')+'" data-type="'+type+'" data-v="'+esc(it.v)+'" data-label="'+esc(it.l)+'"'+(type==='duration'?' dir="auto"':'')+titleAttr+'>'+esc(label)+' <span class="facet-count">'+it.count+'</span></span>';
+    });
+    if (collapsible && !expanded && withCount.length > 8){
+      html += '<span class="chip facet-showall" data-type="'+type+'">Show all ('+withCount.length+')</span>';
     }
     html += '</div></div>';
   }
@@ -1327,21 +1528,42 @@ function buildFacetSheet(){
   q('sheet-filters-body').innerHTML = html;
 }
 
+let savedFocusEl = null;
+function trapTabKey(e){
+  if (e.key !== 'Tab') return;
+  const sheet = document.querySelector('.sheet.show');
+  if (!sheet) return;
+  const focusable = sheet.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length-1];
+  if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+}
 function openSheet(name){
   const target = q('sheet-'+name);
   if (target.classList.contains('show')) return;
+  const alreadyOpen = q('sheetbackdrop').classList.contains('show');
+  if (!alreadyOpen) savedFocusEl = document.activeElement;
   q('sheetbackdrop').classList.add('show');
   document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
   if (name === 'filters') buildFacetSheet();
   if (name === 'sort') buildSortSheet();
   if (name === 'settings') buildSettingsSheet();
   target.classList.add('show');
-  history.pushState({ rxSheet: name }, '');
+  try { q('app').inert = true; els.bottombar.inert = true; } catch(e){}
+  target.focus();
+  document.addEventListener('keydown', trapTabKey);
+  if (alreadyOpen) history.replaceState({ rxSheet: name }, '');
+  else history.pushState({ rxSheet: name }, '');
 }
 function closeSheets(fromPopstate){
   const wasOpen = q('sheetbackdrop').classList.contains('show');
   q('sheetbackdrop').classList.remove('show');
   document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show'));
+  try { q('app').inert = false; els.bottombar.inert = false; } catch(e){}
+  document.removeEventListener('keydown', trapTabKey);
+  if (savedFocusEl && typeof savedFocusEl.focus === 'function') savedFocusEl.focus();
+  savedFocusEl = null;
   if (wasOpen && !fromPopstate) history.back();
 }
 
@@ -1359,15 +1581,23 @@ function svgCheck(){ return '<svg width="18" height="18" viewBox="0 0 24 24" fil
 function buildSettingsSheet(){
   const tol = state.settings.tolerance;
   const tolLabels = [['strict','Strict'],['balanced','Balanced'],['forgiving','Forgiving'],['wild','Wild']];
-  let html = '<div class="facet-group"><div class="facet-title">Search tolerance</div><div class="facet-chips">';
+  const curTheme = window.__agTheme ? window.__agTheme.get() : 'system';
+  let html = '<div class="facet-group"><div class="facet-title">Appearance</div><div class="facet-chips">';
+  for (const [v,l] of [['system','System'],['light','Light'],['dark','Dark']])
+    html += '<span class="chip theme-opt'+(v===curTheme?' active':'')+'" data-v="'+v+'">'+l+'</span>';
+  html += '</div></div>';
+  html += '<div class="facet-group"><div class="facet-title">Search tolerance</div><div class="facet-chips">';
   for (const [v,l] of tolLabels) html += '<span class="chip tol-opt'+(v===tol?' active':'')+'" data-v="'+v+'">'+l+'</span>';
   html += '</div></div>';
   html += togglerow('showScores', 'Show scores', state.settings.showScores);
   html += togglerow('showProvenance', 'Show match provenance', state.settings.showProvenance);
   html += '<div class="slider-row"><div class="facet-title" id="limitLabel">Result limit ('+state.settings.limit+')</div><input type="range" id="limitSlider" min="10" max="60" step="5" value="'+state.settings.limit+'"></div>';
   html += '<hr style="border:none;border-top:1px solid var(--cloudy);opacity:.3;margin:14px 0">';
-  html += '<div class="rowline" id="aboutOpen"><span class="rl-label">About Rx Express</span></div>';
-  html += '<div class="rowline" id="downloadSW"><span class="rl-label">Download sw.js (full offline)</span></div>';
+  html += '<div class="rowline" id="aboutOpen"><span class="rl-label">About AG Search</span></div>';
+  html += '<div class="rowline" style="cursor:default"><span class="rl-label">'+esc(offlineStatusLabel())+'</span></div>';
+  if (location.protocol !== 'file:'){
+    html += '<div class="rowline" id="downloadSW"><span class="rl-label">Download sw.js (full offline)</span></div>';
+  }
   html += '<div class="rowline" id="resetData"><span class="rl-label" style="color:var(--crail)">Clear pins, recents & settings</span></div>';
   q('sheet-settings-body').innerHTML = html;
 }
@@ -1386,20 +1616,22 @@ function openDetail(i){
   const dayDose = ROW(i,'dayDose');
   const group = ROW(i,'group');
   const syn = ROW(i,'syn') || [];
+  const notes = ROW(i,'notes');
   const inh = ROW(i,'inh') || 0;
   const authInh = !!(inh&1), durInh = !!(inh&2), dayInh = !!(inh&4), maxInh = !!(inh&8);
   const formLbl = formKey ? SCHEMA.enums.form[formKey].l : null;
   const authLbl = authKey ? SCHEMA.enums.auth[authKey].l : null;
 
   const rows = [
-    ['Concentration', conc, false, false],
-    ['Form', formLbl, false, false],
-    ['Authority', authLbl, authInh, false],
-    ['Duration', duration, durInh, true],
-    ['Max dose', maxDose, maxInh, false],
-    ['Daily dose', dayDose, dayInh, false],
-    ['Class', group, false, false],
-    ['Also known as', syn.length ? syn.join(', ') : null, false, false],
+    ['Concentration', conc, false],
+    ['Form', formLbl, false],
+    ['Authority', authLbl, authInh],
+    ['Duration', duration, durInh],
+    ['Max dose', maxDose, maxInh],
+    ['Daily dose', dayDose, dayInh],
+    ['Class', group, false],
+    ['Also known as', syn.length ? syn.join(', ') : null, false],
+    ['Notes', notes, false],
   ].filter(r => r[1]);
 
   let html = '<div class="detail-title">'+esc(name)+'</div>';
@@ -1408,8 +1640,9 @@ function openDetail(i){
     html += '<div class="pill pill-unverified" style="margin-bottom:10px">Unverified entry — no authority, form, or duration data in the source list</div>';
   }
   html += '<div class="detail-grid">';
-  for (const [k,v,inherited,rtl] of rows){
-    html += '<div class="detail-row"><span class="detail-k">'+k+'</span><span class="detail-v"'+(rtl?' dir="auto"':'')+'>'+esc(v)+(inherited?'<div class="inh-note">Same as previous entry</div>':'')+'</span></div>';
+  for (const [k,v,inherited] of rows){
+    const arCls = hasArabic(v) ? ' ar' : '';
+    html += '<div class="detail-row"><span class="detail-k">'+k+'</span><span class="detail-v'+arCls+'" dir="auto">'+esc(v)+(inherited?'<div class="inh-note">Same as previous entry</div>':'')+'</span></div>';
   }
   html += '</div>';
   const pinned = state.pins.has(ROW(i,'id'));
@@ -1429,6 +1662,7 @@ function rowAsText(i){
   if (ROW(i,'duration')) parts.push(ROW(i,'duration'));
   if (ROW(i,'maxDose')) parts.push('Max: '+ROW(i,'maxDose'));
   if (ROW(i,'dayDose')) parts.push('Daily: '+ROW(i,'dayDose'));
+  if (ROW(i,'notes')) parts.push(ROW(i,'notes'));
   return parts.join(' — ');
 }
 
@@ -1490,7 +1724,7 @@ function exportCSV(){
 function copyAllTSV(){
   const header = ['Drug','Concentration','Form','Authority','Duration','Max dose','Daily dose','Class'];
   const lines = [header.join('\t')];
-  for (const i of state.currentIdxs){
+  for (const i of state.currentIdxs.length ? state.currentIdxs : ALL_INDICES){
     const formKey = ROW(i,'form'); const authKey = ROW(i,'auth');
     lines.push([
       ROW(i,'name'), ROW(i,'conc')||'', formKey?SCHEMA.enums.form[formKey].l:'', authKey?SCHEMA.enums.auth[authKey].l:'',
@@ -1515,18 +1749,27 @@ function bindEvents(){
   els.q.addEventListener('focus', ()=> els.searchbar.classList.add('focused'));
   els.q.addEventListener('blur', ()=>{ els.searchbar.classList.remove('focused'); });
   els.q.addEventListener('keydown', e => {
-    if (e.key === 'Escape'){ els.q.value=''; pendingValue=''; els.clearbtn.classList.remove('show'); scheduleSearch(); }
+    if (e.key === 'Escape'){
+      if (q('sheetbackdrop').classList.contains('show')) return;
+      els.q.value=''; pendingValue=''; setClearBtnVisible(false); scheduleSearch();
+    }
     if (e.key === 'Enter' && state.currentIdxs.length){ openDetail(state.currentIdxs[0]); }
   });
-  els.clearbtn.addEventListener('click', ()=>{ els.q.value=''; pendingValue=''; els.clearbtn.classList.remove('show'); scheduleSearch(); els.q.focus(); });
+  els.clearbtn.addEventListener('click', ()=>{ els.q.value=''; pendingValue=''; setClearBtnVisible(false); scheduleSearch(); els.q.focus(); });
   els.implicitChips.addEventListener('click', e => {
     const chip = e.target.closest('.implicit-chip');
     if (!chip) return;
+    if (chip.dataset.atype){
+      state.activeFacets[chip.dataset.atype].delete(chip.dataset.aval);
+      scheduleFilterSearch();
+      if (q('sheet-filters').classList.contains('show')) buildFacetSheet();
+      return;
+    }
     const raw = chip.dataset.raw;
     const re = new RegExp('(^|\\s)'+raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=\\s|$)', 'i');
     els.q.value = els.q.value.replace(re, '$1').replace(/\s+/g,' ').trim();
     pendingValue = els.q.value;
-    els.clearbtn.classList.toggle('show', pendingValue.length>0);
+    setClearBtnVisible(pendingValue.length>0);
     scheduleSearch();
     els.q.focus();
   });
@@ -1566,7 +1809,7 @@ function bindEvents(){
       return;
     }
     const recentChip = e.target.closest('.recent-chip');
-    if (recentChip){ els.q.value = recentChip.dataset.q; pendingValue = els.q.value; els.clearbtn.classList.add('show'); scheduleSearch(); return; }
+    if (recentChip){ els.q.value = recentChip.dataset.q; pendingValue = els.q.value; setClearBtnVisible(true); scheduleSearch(); return; }
     const card = e.target.closest('.card');
     if (card){ openDetail(parseInt(card.dataset.i,10)); }
   });
@@ -1591,10 +1834,29 @@ function bindEvents(){
       opt.classList.toggle('active', state.activeFacets[type].has(v));
       scheduleFilterSearch();
     }
-    if (e.target.id === 'clearFilters'){
+    const showAll = e.target.closest('.facet-showall');
+    if (showAll){
+      const type = showAll.dataset.type;
+      facetSheetExpanded[type] = true;
+      q('sheet-filters-body').querySelectorAll('.facet-opt[data-type="'+type+'"].facet-collapsed').forEach(c => { c.classList.remove('facet-collapsed'); c.style.display = ''; });
+      showAll.remove();
+    }
+    if (e.target.closest('#clearFilters')){
       state.activeFacets.form.clear(); state.activeFacets.auth.clear(); state.activeFacets.group.clear(); state.activeFacets.duration.clear();
       buildFacetSheet(); scheduleFilterSearch();
     }
+  });
+  q('sheet-filters-body').addEventListener('input', e => {
+    if (e.target.id !== 'facetFilter') return;
+    const v = norm(e.target.value);
+    q('sheet-filters-body').querySelectorAll('.facet-opt').forEach(chip => {
+      const active = chip.classList.contains('active');
+      const collapsed = chip.classList.contains('facet-collapsed');
+      if (!v){ chip.style.display = (collapsed && !active) ? 'none' : ''; return; }
+      const matches = norm(chip.dataset.label).includes(v);
+      chip.style.display = (matches || active) ? '' : 'none';
+    });
+    q('sheet-filters-body').querySelectorAll('.facet-showall').forEach(btn => { btn.style.display = v ? 'none' : ''; });
   });
 
   q('sheet-sort-body').addEventListener('click', e => {
@@ -1612,16 +1874,22 @@ function bindEvents(){
   });
 
   q('sheet-settings-body').addEventListener('click', e => {
+    const themeOpt = e.target.closest('.theme-opt');
+    if (themeOpt){ window.__agTheme.set(themeOpt.dataset.v); buildSettingsSheet(); return; }
     const tolOpt = e.target.closest('.tol-opt');
     if (tolOpt){ state.settings.tolerance = tolOpt.dataset.v; saveSettings(); buildSettingsSheet(); scheduleFilterSearch(); return; }
     const sw = e.target.closest('.switch');
     if (sw){ const key = sw.dataset.key; state.settings[key] = !state.settings[key]; sw.classList.toggle('on'); saveSettings(); if (state.currentIdxs.length) paint(true); return; }
-    if (e.target.id === 'aboutOpen'){ openSheet('about'); return; }
-    if (e.target.id === 'downloadSW'){ downloadServiceWorker(); return; }
-    if (e.target.id === 'resetData'){
+    const row = e.target.closest('.rowline');
+    const rowId = row ? row.id : '';
+    if (rowId === 'aboutOpen'){ openSheet('about'); return; }
+    if (rowId === 'downloadSW'){ downloadServiceWorker(); return; }
+    if (rowId === 'resetData'){
       if (confirm('Clear pins, recent searches, and settings on this device?')){
         localStorage.removeItem(SETTINGS_KEY); localStorage.removeItem('rx.recents.v1'); localStorage.removeItem('rx.pins.v1');
+        localStorage.removeItem('rx.theme');
         state.settings = Object.assign({}, defaultSettings); state.recents = []; state.pins = new Set(); state.pinsOnly = false;
+        if (window.__agTheme) window.__agTheme.set('system');
         closeSheets(); renderEmptyState(); updateChipCounts();
       }
       return;
@@ -1675,11 +1943,11 @@ function downloadServiceWorker(){
   a.href = url; a.download = 'sw.js';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url), 4000);
-  toast('sw.js downloaded — place it next to this file');
+  toast('sw.js downloaded — put it in the same folder as this file, then reload');
 }
 
 function registerPWA(){
-  if ('serviceWorker' in navigator){
+  if ('serviceWorker' in navigator && location.protocol !== 'file:'){
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   }
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -1691,6 +1959,12 @@ function registerPWA(){
     document.body.appendChild(hint);
     hint.querySelector('button').addEventListener('click', ()=>{ hint.remove(); localStorage.setItem('rx.ioshint.dismissed','1'); });
   }
+}
+
+function offlineStatusLabel(){
+  if (location.protocol === 'file:') return 'Opened as a local file — already fully offline';
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) return 'Fully offline — service worker active';
+  return 'Offline after first load — no service worker';
 }
 
 function buildAboutSheet(){
@@ -1747,7 +2021,7 @@ window.__rx = {
     return results;
   },
   test(){
-    const savedTol = state.settings.tolerance, savedFacets = { form:new Set(state.activeFacets.form), auth:new Set(state.activeFacets.auth), group:new Set(state.activeFacets.group) };
+    const savedTol = state.settings.tolerance, savedFacets = { form:new Set(state.activeFacets.form), auth:new Set(state.activeFacets.auth), group:new Set(state.activeFacets.group), duration:new Set(state.activeFacets.duration) };
     const idOf = i => ROW(i,'id');
     const nameOf = i => ROW(i,'name');
     const cases = [
@@ -1793,6 +2067,35 @@ window.__rx = {
             if (ROW(i,'group')==='vitamins Drugs' && !META[i].unverified) legitVitamins++;
           }
           return flagged === 124 && legitVitamins === 59;
+        } },
+      { label:'form: + implicit authority word narrows on both facets', run:()=>{ state.settings.tolerance='balanced'; return runSearch('cream specialist'); }, check: r => r.length>0 && r.every(i => ROW(i,'form')==='cream' && ROW(i,'auth')==='sp') },
+      { label:'Arabic form synonym (امبول) resolves to amp facet', run:()=>{ state.settings.tolerance='balanced'; return runSearch('امبول'); }, check: r => r.length>0 && r.every(i => ROW(i,'form')==='amp') && state.currentImplicit.some(it => it.type==='form' && it.key==='amp') },
+      { label:'Arabic authority synonym (اخصائي) resolves to sp facet', run:()=>{ state.settings.tolerance='balanced'; return runSearch('اخصائي'); }, check: r => r.length>0 && r.every(i => ROW(i,'auth')==='sp') },
+      { label:'class word (quinolones) resolves to group facet', run:()=>{ state.settings.tolerance='balanced'; return runSearch('quinolones'); }, check: r => r.length>0 && r.every(i => (ROW(i,'group')||'').includes('Quinolones')) },
+      { label:'name-collision guard leaves ambiguous token as free text', run:()=>{ state.settings.tolerance='balanced'; return runSearch('vitamin d'); }, check: r => r.length>0 && state.currentImplicit.length===0 },
+      { label:'dur: field filter matches by substring', run:()=>runSearch('dur:مزمن'), check: r => r.length>0 && r.every(i => (ROW(i,'duration')||'').includes('مزمن')) },
+      { label:'zero-result auto-recovery demotes implicit facet', run:()=>{ state.settings.tolerance='balanced'; const r = runSearch('patch panadol'); return { r, recovered: state.currentRecovered }; }, check: res => res.r.length>0 && res.recovered===true },
+      { label:'sort is part of cache identity', run:()=>{
+          state.settings.tolerance='balanced'; state.sort='relevance'; runSearch('diclo');
+          state.sort='name'; const r = runSearch('diclo'); state.sort='relevance'; return r;
+        }, check: r => { if (!r.length) return false; const names = r.map(nameOf); const sorted = names.slice().sort((a,b)=>a.localeCompare(b)); return names[0]===sorted[0]; } },
+      { label:'notes wired into search index (Phase 3.1)', run:()=>null, check: () => {
+          ensureDeferredReady();
+          let notesRow = -1;
+          for (let i=0;i<N;i++){ if (ROW(i,'notes')){ notesRow = i; break; } }
+          if (notesRow >= 0) return HAY_B[notesRow].includes(norm(ROW(notesRow,'notes')));
+          return !!SCHEMA.fields.find(f=>f.key==='notes');
+        } },
+      { label:'theme round-trip via window.__agTheme (Phase 2)', run:()=>null, check: () => {
+          if (!window.__agTheme) return false;
+          const orig = window.__agTheme.get();
+          window.__agTheme.set('dark');
+          const darkOk = document.documentElement.getAttribute('data-theme') === 'dark';
+          window.__agTheme.set('system');
+          const resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          const systemOk = document.documentElement.getAttribute('data-theme') === resolved;
+          window.__agTheme.set(orig);
+          return darkOk && systemOk;
         } },
     ];
     const results = cases.map(c => {
