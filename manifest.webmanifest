@@ -1,0 +1,14 @@
+{
+  "name": "AG Search",
+  "short_name": "AG Search",
+  "description": "Fast offline formulary lookup with patient contribution prices",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FBF7F5",
+  "theme_color": "#A6677D",
+  "icons": [
+    { "src": "images/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "images/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
