@@ -547,7 +547,7 @@ function aboutHTML(){
     '<div class="fact"><dt>Form</dt><dd>Words like <i>syrup</i>, <i>eye drops</i>, <i>pen</i>, <i>شراب</i> filter by form.</dd></div>'+
     '<div class="fact"><dt>Arabic keyboard</dt><dd>Forgot to switch layout? <i class="ar">لمعؤخحاشلث</i> still finds <i>glucophage</i>.</dd></div>'+
     '<div class="fact"><dt>Price</dt><dd>Free items cost the patient 0 EGP. Paid items show the patient contribution; some list separate <span class="ar">هيئة</span> and <span class="ar">طلاب</span> amounts.</dd></div>'+
-    '<div class="fact"><dt>Keyboard</dt><dd><span class="kbd">/</span> search · <span class="kbd">↑↓</span> move · <span class="kbd">Enter</span> open · <span class="kbd">Esc</span> clear</dd></div>'+
+    '<div class="fact"><dt>Keyboard</dt><dd>Just start typing anywhere, in English or Arabic, and it goes to search. Or press <span class="kbd">/</span> (no need to switch layout) · <span class="kbd">↑↓</span> move · <span class="kbd">Enter</span> open · <span class="kbd">Esc</span> clear</dd></div>'+
     '<div class="fact"><dt>Data</dt><dd>'+ITEMS.length+' items · '+(ITEMS.length-nPaid)+' free · '+nPaid+' paid. Works offline after first visit.</dd></div>'+
     '</dl><div class="d-actions"><button class="btn" data-act="reset-all">Clear saved & recents</button><button class="btn primary" data-act="close">Got it</button></div>'+
     '<p class="dedication" style="text-align:center;margin:20px 0 0">For every pharmacist who ever squinted at a handwritten script at 2am.</p>';
@@ -695,9 +695,16 @@ function bind(){
     $('sheet-body').querySelectorAll('.opt[data-label]').forEach(o => { o.hidden = f && !o.dataset.label.includes(f); });
   });
   document.addEventListener('keydown', e => {
-    const tag = (document.activeElement && document.activeElement.tagName) || '';
-    if ((e.key === '/' && tag !== 'INPUT') || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')){ e.preventDefault(); closeSheet(); q.focus(); q.select(); }
-    else if (e.key === 'Escape' && S.sheet) closeSheet();
+    const ae = document.activeElement, tag = (ae && ae.tagName) || '';
+    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (ae && ae.isContentEditable);
+    const slash = e.code === 'Slash' || e.key === '/' || e.key === 'ظ';
+    const cmdK = (e.metaKey || e.ctrlKey) && !e.altKey && (e.code === 'KeyK' || e.key.toLowerCase() === 'k' || e.key === 'ن');
+    if (cmdK || (slash && !typing && !e.metaKey && !e.ctrlKey && !e.altKey)){ e.preventDefault(); closeSheet(); q.focus(); q.select(); return; }
+    if (e.key === 'Escape' && S.sheet){ closeSheet(); return; }
+    if (!typing && !S.sheet && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && e.key !== ' ' && !e.isComposing){
+      q.focus();
+      const end = q.value.length; q.setSelectionRange(end, end);
+    }
   });
 
   const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting) && S.shown < S.list.length) renderMore(); }, { rootMargin:'800px 0px' });
