@@ -41,6 +41,8 @@ const SVG_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const PAGE = 40;
 const NF = new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const fmt = n => NF.format(n);
+const st = (el, v) => { if (el._v !== v){ el._v = v; el.textContent = v; } };
+const hid = (el, v) => { if (el.hidden !== v) el.hidden = v; };
 
 const AR_DIAC = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g;
 const HAS_AR = /[\u0600-\u06FF]/;
@@ -92,8 +94,10 @@ function mono(label){
 function load(k,f){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : f; }catch(e){ return f; } }
 function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 
-let ITEMS = [], VOCAB = [], VSKEL = [], VPOST = [], VW = [], KEYMAP = new Map(), GROUPS = [], FORMS = [];
+let ITEMS = [], VOCAB = [], VSKEL = [], VPOST = [], VW = [], KEYMAP = new Map(), GROUPS = [], FORMS = [], N_FREE = 0;
 const termCache = new Map();
+const CARDS = new Map();
+let M = null, homeKey = '', emptyKey = '';
 
 function buildItems(free, paid){
   const out = [];
@@ -289,7 +293,7 @@ function highlight(text, infos){
 const S = {
   q:'', price:'all', cls:null, form:null, sort:'best', pinsOnly:false,
   pins:new Set(load('ag.pins',[])), recents:load('ag.recents',[]),
-  list:[], shown:0, active:-1, selected:null, res:null, sheet:null
+  list:[], shown:0, active:-1, activeEl:null, selected:null, paneItem:null, res:null, sheet:null
 };
 const isDesk = () => matchMedia('(min-width:1024px)').matches;
 const hasFilters = () => S.price !== 'all' || S.cls || S.form || S.pinsOnly;
@@ -325,7 +329,9 @@ function subLine(it, infos){
   else { if (it.generic) parts.push(esc(titleCase(it.generic))); if (it.pack) parts.push(esc(it.pack)); }
   return parts.join(' · ');
 }
-function cardHTML(it, n, infos){
+function cardRec(it){
+  let r = CARDS.get(it.i);
+  if (r) return r;
   const ic = ICONS[FORM_ICON[it.form] || 'box'];
   let tags = '';
   if (it.type === 'free'){
@@ -333,12 +339,29 @@ function cardHTML(it, n, infos){
     if (it.duration) tags += '<span class="tag ar" dir="rtl" lang="ar">'+esc(it.duration.length > 26 ? it.duration.slice(0,26)+'…' : it.duration)+'</span>';
     if (it.unverified) tags += '<span class="tag limited">Limited info</span>';
   } else if (it.group) tags += '<span class="tag">'+esc(prettyGroup(it.group))+'</span>';
-  const pinned = S.pins.has(it.key);
-  return '<article class="card'+(it.type==='paid'?' is-paid':'')+(S.selected===it.i?' selected':'')+'" data-open="'+it.i+'" data-n="'+n+'" tabindex="-1" role="button" aria-label="'+esc(it.name)+'">'+
-    '<span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24">'+ic+'</svg></span>'+
-    '<div class="card-main"><h3 class="card-title" dir="auto">'+highlight(it.name, infos)+'</h3>'+
-    '<p class="card-sub">'+subLine(it, infos)+'</p>'+(tags?'<div class="tags">'+tags+'</div>':'')+'</div>'+
-    '<div class="card-side">'+priceCard(it)+(pinned?SVG_HEART:'')+'</div></article>';
+  const el = document.createElement('article');
+  el.className = 'card'+(it.type==='paid'?' is-paid':'');
+  el.dataset.open = it.i;
+  el.tabIndex = -1;
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', it.name);
+  el.innerHTML = '<span class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24">'+ic+'</svg></span>'+
+    '<div class="card-main"><h3 class="card-title" dir="auto"></h3><p class="card-sub"></p>'+(tags?'<div class="tags">'+tags+'</div>':'')+'</div>'+
+    '<div class="card-side"></div>';
+  r = { el, title:el.querySelector('.card-title'), sub:el.querySelector('.card-sub'), side:el.querySelector('.card-side'), t:null, s:null, n:-1, pin:null, sel:false };
+  CARDS.set(it.i, r);
+  return r;
+}
+function fillCard(r, it, n, infos){
+  const t = highlight(it.name, infos);
+  if (r.t !== t){ r.t = t; r.title.innerHTML = t; }
+  const s = subLine(it, infos);
+  if (r.s !== s){ r.s = s; r.sub.innerHTML = s; }
+  if (r.n !== n){ r.n = n; r.el.dataset.n = n; }
+  const pin = S.pins.has(it.key);
+  if (r.pin !== pin){ r.pin = pin; r.side.innerHTML = priceCard(it) + (pin ? SVG_HEART : ''); }
+  const sel = S.selected === it.i;
+  if (r.sel !== sel){ r.sel = sel; r.el.classList.toggle('selected', sel); }
 }
 
 function related(it){
@@ -389,13 +412,35 @@ function greeting(){
   const h = new Date().getHours();
   return h < 5 ? 'Still up' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
 }
+function setPane(mode){
+  hid($('home'), mode !== 'home');
+  hid($('results'), mode !== 'list');
+  hid($('empty'), mode !== 'empty');
+  hid($('more-loader'), mode !== 'list' || S.shown >= S.list.length);
+}
+function clearActive(){
+  if (S.activeEl){ S.activeEl.classList.remove('active'); S.activeEl = null; }
+  S.active = -1;
+}
+function initMeta(){
+  const root = $('results-meta');
+  root.innerHTML = '<span class="m-count"><b class="m-n"></b> <span class="m-l"></span></span>'+
+    '<span class="meta-split"><span><i class="dot-free"></i><span class="m-free"></span></span><span><i class="dot-paid"></i><span class="m-paid"></span></span></span>'+
+    '<span class="m-extra"></span>';
+  M = { count:root.querySelector('.m-count'), n:root.querySelector('.m-n'), l:root.querySelector('.m-l'), split:root.querySelector('.meta-split'),
+    free:root.querySelector('.m-free'), paid:root.querySelector('.m-paid'), extra:root.querySelector('.m-extra'), xk:'' };
+  hid(M.count, true); hid(M.split, true);
+}
+function setExtra(h){
+  if (M.xk !== h){ M.xk = h; M.extra.innerHTML = h; }
+}
 function renderHome(){
-  S.list = []; S.active = -1;
-  const nFree = ITEMS.filter(x=>x.type==='free').length, nPaid = ITEMS.length - nFree;
+  S.list = []; S.shown = 0; clearActive();
+  const nFree = N_FREE, nPaid = ITEMS.length - nFree;
   const rec = S.recents.slice(0,8).map(r => '<button class="recent" data-q="'+esc(r)+'">'+SVG_CLOCK+esc(r)+'</button>').join('');
   const tiles = GROUPS.slice(0,12).map(g => '<button class="cls-tile" data-cls="'+esc(g.v)+'">'+mono(g.label)+'<span><div class="cls-name">'+esc(g.label)+'</div><div class="cls-count">'+g.n+' items'+(g.paid?' · <b>'+g.paid+' paid</b>':'')+'</div></span></button>').join('');
-  $('results-meta').innerHTML = '';
-  $('results').innerHTML = '<div class="home">'+
+  hid(M.count, true); hid(M.split, true); setExtra('');
+  const h = '<div class="home">'+
     '<div class="hello"><h1>'+greeting()+',<br><em>what are we looking for?</em></h1>'+
     '<p>Type a drug, brand or class — typos are fine. Try <q>amoxcilin</q>, <q>glucofage 1000</q> or <q>insulin pen</q>.</p></div>'+
     '<div class="stats"><button class="stat" data-focus="1"><div class="stat-k">Total</div><div class="stat-v">'+ITEMS.length+'</div><div class="stat-s">items listed</div></button>'+
@@ -405,7 +450,8 @@ function renderHome(){
     '<div class="section-h"><h2>Browse by class</h2><button data-sheet="class">See all '+GROUPS.length+'</button></div><div class="cls-grid">'+tiles+'</div>'+
     '<div class="home-foot"><span class="dedication">For every pharmacist who ever squinted at a handwritten script at 2am.</span><button data-sheet="about">Search tips</button></div>'+
     '</div>';
-  $('more-loader').hidden = true;
+  if (h !== homeKey){ homeKey = h; $('home').innerHTML = h; }
+  setPane('home');
   updateCounts(null);
 }
 
@@ -425,10 +471,9 @@ function sortList(list, hasQuery){
 }
 function updateCounts(pre){
   const all = pre ? pre.length : ITEMS.length;
-  let free = 0;
-  if (pre){ for (const r of pre) if (ITEMS[r.i].type === 'free') free++; }
-  else free = ITEMS.filter(x=>x.type==='free').length;
-  $('c-all').textContent = all; $('c-free').textContent = free; $('c-paid').textContent = all - free;
+  let free = N_FREE;
+  if (pre){ free = 0; for (const r of pre) if (ITEMS[r.i].type === 'free') free++; }
+  st($('c-all'), all); st($('c-free'), free); st($('c-paid'), all - free);
 }
 
 function update(){
@@ -442,57 +487,88 @@ function update(){
   updateCounts(pre);
   const fin = S.price === 'all' ? pre.slice() : pre.filter(r => ITEMS[r.i].type === S.price);
   sortList(fin, !!res);
-  S.list = fin; S.shown = 0; S.active = -1;
+  S.list = fin; S.shown = 0; clearActive();
   renderMeta(fin, res);
   if (!fin.length) renderEmpty(res);
-  else { $('results').innerHTML = ''; renderMore(); }
+  else { paint(); setPane('list'); }
   syncChips();
-  window.scrollTo({ top: 0 });
+  if (window.scrollY > 0) window.scrollTo({ top: 0 });
   if (isDesk() && fin.length && raw && (S.selected == null || !fin.some(r => r.i === S.selected))) select(fin[0].i, false);
 }
 function renderMeta(fin, res){
   let free = 0; for (const r of fin) if (ITEMS[r.i].type === 'free') free++;
-  let h = '<span><b>'+fin.length+'</b> '+(fin.length===1?'result':'results')+'</span>';
-  if (fin.length) h += '<span class="meta-split"><span><i class="dot-free"></i>'+free+' free</span><span><i class="dot-paid"></i>'+(fin.length-free)+' paid</span></span>';
+  hid(M.count, false);
+  st(M.n, fin.length); st(M.l, fin.length === 1 ? 'result' : 'results');
+  hid(M.split, !fin.length);
+  st(M.free, free+' free'); st(M.paid, (fin.length-free)+' paid');
+  let h = '';
   if (res && res.layout) h += '<span class="suggest">Keyboard was on Arabic — showing <button data-q="'+esc(res.layout)+'">'+esc(res.layout)+'</button></span>';
   else if (res && res.corrected) h += '<span class="suggest">Showing results for <button data-q="'+esc(res.corrected)+'">'+esc(res.corrected)+'</button></span>';
   if (res && res.mode === 'or') h += '<span class="suggest">No item matches every word — closest first</span>';
-  $('results-meta').innerHTML = h;
+  setExtra(h);
 }
 function renderEmpty(res){
   const filt = hasFilters();
-  $('results').innerHTML = '<div class="empty"><div class="bloom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6M8.5 11h5"/></svg></div>'+
+  const h = '<div class="empty"><div class="bloom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6M8.5 11h5"/></svg></div>'+
     '<h2>Nothing found</h2><p>'+(filt ? 'Your filters may be hiding results.' : 'Try fewer letters, a brand name, or the generic name.')+'</p>'+
     '<div class="actions">'+(filt?'<button class="btn primary" data-act="reset-filters">Clear filters</button>':'')+(S.q?'<button class="btn" data-act="clear-q">New search</button>':'')+'</div></div>';
-  $('more-loader').hidden = true;
+  if (h !== emptyKey){ emptyKey = h; $('empty').innerHTML = h; }
+  setPane('empty');
+}
+function paint(){
+  const box = $('results');
+  const infos = S.res ? S.res.infos : null;
+  const end = Math.min(S.list.length, PAGE);
+  let cur = box.firstElementChild;
+  for (let n = 0; n < end; n++){
+    const it = ITEMS[S.list[n].i];
+    const r = cardRec(it);
+    fillCard(r, it, n, infos);
+    if (r.el === cur){ cur = cur.nextElementSibling; continue; }
+    const fresh = r.el.parentNode !== box;
+    box.insertBefore(r.el, cur);
+    if (fresh) r.el.classList.add('enter');
+  }
+  while (cur){
+    const nx = cur.nextElementSibling;
+    cur.classList.remove('enter');
+    cur.remove();
+    cur = nx;
+  }
+  S.shown = end;
 }
 function renderMore(){
   const infos = S.res ? S.res.infos : null;
   const end = Math.min(S.list.length, S.shown + PAGE);
-  let h = '';
-  for (let n = S.shown; n < end; n++) h += cardHTML(ITEMS[S.list[n].i], n, infos);
-  $('results').insertAdjacentHTML('beforeend', h);
+  const frag = document.createDocumentFragment();
+  for (let n = S.shown; n < end; n++){
+    const it = ITEMS[S.list[n].i];
+    const r = cardRec(it);
+    fillCard(r, it, n, infos);
+    r.el.classList.add('enter');
+    frag.appendChild(r.el);
+  }
+  $('results').appendChild(frag);
   S.shown = end;
-  $('more-loader').hidden = S.shown >= S.list.length;
+  hid($('more-loader'), S.shown >= S.list.length);
 }
 function setActive(n){
-  const cards = $('results').querySelectorAll('.card');
-  if (!cards.length) return;
+  if (!S.list.length) return;
   n = Math.max(0, Math.min(S.list.length-1, n));
   while (n >= S.shown && S.shown < S.list.length) renderMore();
-  const all = $('results').querySelectorAll('.card');
-  all.forEach(c => c.classList.remove('active'));
-  const el = all[n]; if (!el) return;
-  el.classList.add('active'); S.active = n;
+  const el = $('results').children[n]; if (!el) return;
+  clearActive();
+  el.classList.add('active'); S.activeEl = el; S.active = n;
   el.scrollIntoView({ block:'nearest', behavior:'smooth' });
   if (isDesk()) select(S.list[n].i, false);
 }
 function select(i, commit){
+  const prev = S.selected;
   S.selected = i;
-  $('results').querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-  const c = $('results').querySelector('.card[data-open="'+i+'"]'); if (c) c.classList.add('selected');
+  if (prev != null && prev !== i){ const pr = CARDS.get(prev); if (pr){ pr.sel = false; pr.el.classList.remove('selected'); } }
+  const r = CARDS.get(i); if (r){ r.sel = true; r.el.classList.add('selected'); }
   if (commit) commitRecent();
-  if (isDesk()){ $('detail-pane').innerHTML = detailHTML(ITEMS[i]); $('detail-pane').scrollTop = 0; }
+  if (isDesk() && S.paneItem !== i){ S.paneItem = i; $('detail-pane').innerHTML = detailHTML(ITEMS[i]); $('detail-pane').scrollTop = 0; }
 }
 function openItem(i){
   commitRecent();
@@ -558,13 +634,13 @@ function syncChips(){
   const idx = ['all','free','paid'].indexOf(S.price);
   seg.dataset.i = idx;
   seg.querySelectorAll('button').forEach((b,k) => { b.classList.toggle('on', k===idx); b.setAttribute('aria-checked', k===idx); });
-  const cc = $('chip-class'); cc.classList.toggle('on', !!S.cls); cc.querySelector('.chip-label').textContent = S.cls ? prettyGroup(S.cls) : 'Class';
-  const fc = $('chip-form'); fc.classList.toggle('on', !!S.form); fc.querySelector('.chip-label').textContent = S.form ? FORM[S.form] : 'Form';
+  const cc = $('chip-class'); cc.classList.toggle('on', !!S.cls); st(cc.querySelector('.chip-label'), S.cls ? prettyGroup(S.cls) : 'Class');
+  const fc = $('chip-form'); fc.classList.toggle('on', !!S.form); st(fc.querySelector('.chip-label'), S.form ? FORM[S.form] : 'Form');
   const sl = {best:'Best match',name:'A → Z',low:'Price ↑',high:'Price ↓'};
-  $('chip-sort').querySelector('.chip-label').textContent = sl[S.sort];
+  st($('chip-sort').querySelector('.chip-label'), sl[S.sort]);
   const pc = $('chip-pins'); pc.classList.toggle('on', S.pinsOnly); pc.setAttribute('aria-pressed', S.pinsOnly);
-  pc.querySelector('.chip-label').textContent = 'Saved' + (S.pins.size ? ' · '+S.pins.size : '');
-  $('clear-btn').hidden = !S.q; $('kbd-hint').hidden = !!S.q;
+  st(pc.querySelector('.chip-label'), 'Saved' + (S.pins.size ? ' · '+S.pins.size : ''));
+  hid($('clear-btn'), !S.q); hid($('kbd-hint'), !!S.q);
 }
 
 let urlTimer = null;
@@ -614,8 +690,8 @@ function togglePin(i){
   save('ag.pins', [...S.pins]);
   toast(S.pins.has(it.key) ? 'Saved' : 'Removed from saved');
   document.querySelectorAll('.detail[data-item="'+i+'"]').forEach(d => d.outerHTML = detailHTML(it));
-  const card = $('results').querySelector('.card[data-open="'+i+'"]');
-  if (card){ const side = card.querySelector('.card-side'); side.innerHTML = priceCard(it) + (S.pins.has(it.key) ? SVG_HEART : ''); }
+  const r = CARDS.get(i);
+  if (r){ r.pin = S.pins.has(it.key); r.side.innerHTML = priceCard(it) + (r.pin ? SVG_HEART : ''); }
   syncChips();
   if (S.pinsOnly) schedule();
 }
@@ -707,6 +783,8 @@ function bind(){
     }
   });
 
+  $('results').addEventListener('animationend', e => { if (e.target.classList.contains('card')) e.target.classList.remove('enter'); });
+
   const io = new IntersectionObserver(es => { if (es.some(x => x.isIntersecting) && S.shown < S.list.length) renderMore(); }, { rootMargin:'800px 0px' });
   io.observe($('more-loader'));
   const top = new IntersectionObserver(es => $('search-zone').classList.toggle('stuck', !es[0].isIntersecting), { threshold:0 });
@@ -724,7 +802,7 @@ function bind(){
     if (!ev.matches) return;
     if (S.sheet === 'detail') closeSheet();
     if (S.selected == null && S.q.trim() && S.list.length) select(S.list[0].i, false);
-    else $('detail-pane').innerHTML = S.selected != null ? detailHTML(ITEMS[S.selected]) : paneEmpty();
+    else { S.paneItem = S.selected; $('detail-pane').innerHTML = S.selected != null ? detailHTML(ITEMS[S.selected]) : paneEmpty(); }
   });
 }
 
@@ -766,6 +844,9 @@ async function init(){
   }
   ITEMS = buildItems(free, window.AG_PAID || []);
   buildIndex();
+  N_FREE = ITEMS.filter(x => x.type === 'free').length;
+  initMeta();
+  $('results').replaceChildren();
   $('detail-pane').innerHTML = paneEmpty();
   update();
   if (isDesk() && !S.q) $('q').focus({ preventScroll:true });

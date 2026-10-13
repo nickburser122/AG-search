@@ -1,4 +1,4 @@
-const CACHE = 'ag-v6';
+const CACHE = 'ag-v7';
 const CORE = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/paid.js', 'data/formulary.txt', 'images/logo.svg', 'images/favicon.svg', 'images/icon-maskable.svg', 'manifest.webmanifest'];
 self.addEventListener('install', e => {
   self.skipWaiting();
